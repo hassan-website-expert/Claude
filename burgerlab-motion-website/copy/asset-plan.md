@@ -3,6 +3,7 @@
 Every media asset the project needs, its exact path, purpose, and generation model. No asset may be generated before this plan and the matching prompt are approved.
 
 **Models:** GPT Image 2 (stills) and Seedance 2.0 (video), both via Higgsfield MCP.
+**Model change (2026-07-17, user-approved):** GPT Image 2 is plan-gated on the free account; stills use **Nano Banana 2** at 2k instead. See `generation-log.md`.
 **Global rules:** 16:9, high quality, dark premium cinematic style, no text, no real logos, no people, no hands.
 
 ## Asset groups
@@ -12,8 +13,8 @@ Every media asset the project needs, its exact path, purpose, and generation mod
 | | |
 |---|---|
 | File | `assets/images/hero-burger.png` |
-| Model | GPT Image 2 |
-| Status | ⏳ pending approval |
+| Model | Nano Banana 2 (2k) |
+| Status | ✅ generated — job `fce2602f…e580`; local save blocked by network policy |
 
 Defines the final flagship burger appearance. Used as hero poster, loading image, mobile fallback poster, and master visual reference for everything else. Direction: one premium burger centered, dark cinematic background, golden sesame bun, juicy patty, melted cheddar, lettuce/tomato/pickles/sauce, subtle steam, reflective black surface, warm rim light.
 
@@ -22,8 +23,8 @@ Defines the final flagship burger appearance. Used as hero poster, loading image
 | | |
 |---|---|
 | File | `assets/images/exploded-burger-reference.png` |
-| Model | GPT Image 2 |
-| Status | ⏳ pending approval |
+| Model | Nano Banana 2 (2k, hero job as reference) |
+| Status | ✅ generated — job `6cf8e744…0ea4`; local save blocked by network policy |
 
 Defines the vertical ingredient separation. **The most important reference for the Seedance 2.0 video.** Direction: same burger as hero, ingredients separated vertically in clean order (top bun → cheese → patty → lettuce → tomato → sauce → pickles → bottom bun), premium dark background, elegant — not a messy explosion.
 
