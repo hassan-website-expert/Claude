@@ -42,7 +42,21 @@ Video generation approved (hero-only reference, 16:9, 720p, 8–12s, silent; ful
 | `seedance_2_0` fast | 8s | 28 |
 | `seedance_2_0_mini` | 8s | 20 |
 
-Balance: 6. User chose to top up for full spec (`seedance_2_0` std). Generate as soon as balance confirms: 12s if ≥54 credits, else 8s if ≥36.
+Balance: 6. User initially chose to top up for full spec, then pivoted to an in-budget option (below).
+
+### Generated: background video (option A, user-approved)
+
+- Model: **Seedance 1.5 Pro** (`seedance1_5`) — in-budget substitute for Seedance 2.0 (whose 4s Mini floor is 10cr)
+- Job ID: `6e105e92-10ed-4d46-8744-4ed212bff823`
+- Status: completed · 1280×720 · 16:9 · 4s · silent · seed 114347
+- Start frame: hero job `fce2602f-823a-4e7d-845b-e51b94eee580`
+- End frame: exploded job `6cf8e744-1af2-4c77-958f-7724a6960ea4`
+- Cost: 2.4 credits actual (preflight estimated 4.8; balance went 6 → 3.6)
+- Result: https://d8j0ntlcm91z4.cloudfront.net/user_3GdMpDQKnvNT4cwozQAEb1LsUI2/hf_20260717_151958_6e105e92-10ed-4d46-8744-4ed212bff823.mp4
+- Target local path: `assets/videos/burgerlab-scroll-background-raw.mp4` — ❌ blocked by the same CDN egress denial; download manually or fix network policy, then re-encode with `scripts/swap-bg-video.sh`
+- Declined server preset suggestion "IN THE DARK" (single-image preset would break the start/end-frame design)
+
+Note: an Envato Elements MCP connector was evaluated — it is catalog search only (no generation, no download); usable later for licensed supporting b-roll.
 
 ## Download blocker
 
