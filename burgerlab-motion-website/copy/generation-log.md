@@ -31,6 +31,19 @@ Record of every Higgsfield MCP generation: job IDs, models, and result URLs. Job
 
 - Start: 10 (free plan) · Spent: 4 (2 × 2k image) · Remaining: see latest `balance` call
 
+## Session 2026-07-17 — Phase 3 (video) — waiting on top-up
+
+Video generation approved (hero-only reference, 16:9, 720p, 8–12s, silent; full prompt in `video-prompt.md` v2) but blocked by credits. Preflighted costs, none spent:
+
+| Option | Duration | Credits |
+|---|---|---|
+| `seedance_2_0` std | 12s | 54 |
+| `seedance_2_0` std | 8s | 36 |
+| `seedance_2_0` fast | 8s | 28 |
+| `seedance_2_0_mini` | 8s | 20 |
+
+Balance: 6. User chose to top up for full spec (`seedance_2_0` std). Generate as soon as balance confirms: 12s if ≥54 credits, else 8s if ≥36.
+
 ## Download blocker
 
 This session's egress network policy denies `d8j0ntlcm91z4.cloudfront.net` (Higgsfield's media CDN), so generated files cannot be saved into `assets/images/` from this environment. Options:
