@@ -40,10 +40,12 @@ burgerlab-motion-website/
 | Phase | Status |
 |---|---|
 | 1. Project structure + planning files | ✅ done |
-| 2. Generate 7 still images (GPT Image 2) | ⏳ awaiting approval |
-| 3. Generate background video (Seedance 2.0) | ⏳ blocked on phase 2 |
-| 4. Re-encode video + build website | ⏳ blocked on phase 3 |
-| 5. Verify + production build | ⏳ blocked on phase 4 |
+| 2. Generate still images | ✅ hero + exploded generated (Nano Banana 2); 5 supporting stills pending credits |
+| 3. Generate background video | ✅ generated (Seedance 1.5, hero→exploded start/end frames) |
+| 4. Re-encode video + build website | ✅ done — site live in `website/` |
+| 5. Verify + production build | ✅ dev + prod verified in browser; `npm run build -- --base=./` passes |
+
+**Media note:** the CDN for generated media is blocked by this environment's network policy, so the committed images/video are locally generated brand-styled placeholders with the exact final file names. Swap instructions live in `copy/generation-log.md`; the real generated assets' URLs and job IDs are logged there.
 
 Each phase requires explicit user approval before any Higgsfield credits are spent. The prompts that trigger each phase live in the project skill (`.claude/skills/burgerlab-motion-website/`).
 

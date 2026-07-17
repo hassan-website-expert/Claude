@@ -1,0 +1,782 @@
+/* ============ BurgerLab — dark premium food-commerce UI ============ */
+
+:root {
+  --bg: #10100F;
+  --bg-2: #181816;
+  --surface: #20201D;
+  --surface-2: #2A2924;
+  --surface-soft: rgba(32, 32, 29, 0.76);
+  --text: #F8F4EA;
+  --muted: #A9A193;
+  --accent: #F5B31A;
+  --accent-2: #FF6A2A;
+  --green: #4CD36F;
+  --line: #35332D;
+  --danger: #F04438;
+
+  --font: "Inter", system-ui, sans-serif;
+  --font-head: "Space Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --pad-x: clamp(1.25rem, 5vw, 6rem);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.nav__logo,
+.hero__title,
+.section-title,
+.impact__line,
+.burger-card__name,
+.spec__value,
+.cta__title,
+.footer__brand,
+.preloader__word {
+  font-family: var(--font-head);
+}
+
+/* ---------- background layers ---------- */
+
+.bg-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.mobile-poster {
+  display: none;
+}
+
+.bg-tint {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse at 50% 42%, transparent 30%, rgba(16, 16, 15, 0.82) 78%),
+    linear-gradient(180deg, rgba(16, 16, 15, 0.55), rgba(16, 16, 15, 0.28) 30%, rgba(16, 16, 15, 0.45));
+  pointer-events: none;
+}
+
+.ambient-dots {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.ambient-dots i {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.22;
+}
+
+.ambient-dots i:nth-child(1) { width: 6px; height: 6px; top: 18%; left: 8%; }
+.ambient-dots i:nth-child(2) { width: 4px; height: 4px; top: 32%; right: 12%; background: var(--accent-2); }
+.ambient-dots i:nth-child(3) { width: 5px; height: 5px; top: 64%; left: 14%; }
+.ambient-dots i:nth-child(4) { width: 3px; height: 3px; top: 78%; right: 8%; }
+.ambient-dots i:nth-child(5) { width: 4px; height: 4px; top: 48%; right: 32%; opacity: 0.12; }
+
+.page {
+  position: relative;
+  z-index: 10;
+}
+
+/* ---------- scroll progress rail ---------- */
+
+.scroll-progress {
+  position: fixed;
+  right: 1.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.scroll-progress__track {
+  display: block;
+  width: 2px;
+  height: 8rem;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.scroll-progress__fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(var(--accent), var(--accent-2));
+  transform-origin: top;
+  transform: scaleY(0);
+}
+
+.scroll-progress__pct {
+  color: var(--muted);
+}
+
+/* ---------- nav ---------- */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.1rem var(--pad-x);
+  background: linear-gradient(rgba(16, 16, 15, 0.85), rgba(16, 16, 15, 0));
+}
+
+.nav__logo {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.nav__logo span,
+.footer__brand span {
+  color: var(--accent);
+}
+
+.nav__links {
+  display: flex;
+  gap: 1.8rem;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.nav__links a:hover {
+  color: var(--text);
+}
+
+/* ---------- buttons / chips / tags ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.6rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.btn--sm {
+  padding: 0.55rem 1.1rem;
+  font-size: 0.8rem;
+}
+
+.btn--primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #161006;
+  border: 0;
+  box-shadow: 0 18px 48px rgba(245, 179, 26, 0.22);
+}
+
+.btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 56px rgba(245, 179, 26, 0.32);
+}
+
+.btn--ghost {
+  color: var(--text);
+  border: 1px solid rgba(248, 244, 234, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: inline-block;
+}
+
+.dot--green {
+  background: var(--green);
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  list-style: none;
+}
+
+.chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  color: var(--muted);
+}
+
+.chips li svg {
+  color: var(--accent);
+}
+
+/* ---------- panels ---------- */
+
+.panel {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(32, 32, 29, 0.88), rgba(18, 18, 16, 0.78));
+  border: 1px solid rgba(245, 179, 26, 0.12);
+  border-radius: 28px;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.38);
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(245, 179, 26, 0.12), transparent 34%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.05), transparent 42%);
+  pointer-events: none;
+}
+
+.panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- hero ---------- */
+
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 7rem var(--pad-x) 4rem;
+  position: relative;
+}
+
+.hero__inner {
+  max-width: 34rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  align-items: flex-start;
+}
+
+.hero__title {
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+}
+
+.hero__sub {
+  color: var(--muted);
+  font-size: 1.05rem;
+  max-width: 30rem;
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.hero__hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.hero__hint-line {
+  width: 1px;
+  height: 3rem;
+  background: linear-gradient(var(--accent), transparent);
+  animation: hint 2.2s ease-in-out infinite;
+}
+
+@keyframes hint {
+  0%, 100% { transform: scaleY(0.4); opacity: 0.4; transform-origin: top; }
+  50% { transform: scaleY(1); opacity: 1; transform-origin: top; }
+}
+
+/* ---------- split (pinned) ---------- */
+
+.split__pin {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 0 var(--pad-x);
+}
+
+.split__copy {
+  text-align: center;
+  max-width: 56rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  align-items: center;
+}
+
+.impact__line {
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+}
+
+.split-word {
+  display: inline-block;
+  opacity: 0.12;
+  will-change: opacity, transform, filter;
+}
+
+.split-word--muted {
+  color: var(--muted);
+}
+
+.split__labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ingredient-label {
+  position: absolute;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 179, 26, 0.35);
+  background: rgba(16, 16, 15, 0.72);
+  color: var(--accent);
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+/* ---------- sections generic ---------- */
+
+.section {
+  padding: 9rem var(--pad-x);
+  position: relative;
+}
+
+.section__head {
+  max-width: 40rem;
+  margin-bottom: 3.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  align-items: flex-start;
+}
+
+.section-title {
+  font-size: clamp(1.9rem, 3.6vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+}
+
+.section__lead {
+  font-size: 1rem;
+}
+
+/* ---------- ingredients ---------- */
+
+.ingredients__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+}
+
+.ingredient-card {
+  padding: 1.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.ingredient-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(245, 179, 26, 0.3);
+}
+
+.ingredient-card__num {
+  color: var(--accent);
+}
+
+.ingredient-card--photo {
+  padding: 0;
+}
+
+.ingredient-card--photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.spec__value {
+  font-size: 1.12rem;
+  font-weight: 600;
+}
+
+/* ---------- catalog ---------- */
+
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.2rem;
+}
+
+.burger-card {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.burger-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(245, 179, 26, 0.35);
+  box-shadow: 0 34px 100px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(245, 179, 26, 0.12);
+}
+
+.burger-card__media {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+.burger-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.burger-card:hover .burger-card__media img {
+  transform: scale(1.06);
+}
+
+.burger-card__body {
+  padding: 1.3rem 1.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  flex: 1;
+}
+
+.burger-card__body p {
+  font-size: 0.88rem;
+}
+
+.burger-card__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.burger-card__name {
+  font-size: 1.08rem;
+}
+
+.burger-card__price {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.burger-card__meta {
+  margin-top: auto;
+  align-items: center;
+  color: var(--muted);
+}
+
+.rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--accent);
+}
+
+/* ---------- experience ---------- */
+
+.experience__grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.experience__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  align-items: flex-start;
+}
+
+.order-card {
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  max-width: 26rem;
+  justify-self: end;
+  width: 100%;
+}
+
+.order-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--green);
+}
+
+.order-card__item {
+  display: grid;
+  grid-template-columns: 3.4rem 1fr auto;
+  gap: 0.9rem;
+  align-items: center;
+  padding: 0.7rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--line);
+}
+
+.order-card__item img {
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.order-card__item .spec__value {
+  font-size: 0.95rem;
+}
+
+.order-card__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+
+/* ---------- cta ---------- */
+
+.cta__panel {
+  padding: clamp(2.4rem, 6vw, 4.5rem);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+  align-items: center;
+  max-width: 52rem;
+  margin: 0 auto;
+}
+
+.cta__title {
+  font-size: clamp(2.2rem, 4.6vw, 3.6rem);
+  letter-spacing: -0.02em;
+}
+
+.cta__price {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+/* ---------- footer ---------- */
+
+.footer {
+  position: relative;
+  margin-top: 24vh;
+  padding: 16vh var(--pad-x) 8vh;
+  background: var(--bg);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 45vh;
+  background: linear-gradient(to bottom, transparent, var(--bg));
+  pointer-events: none;
+}
+
+.footer__brand {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.footer__note {
+  color: var(--muted);
+}
+
+/* ---------- responsive / mobile fallback ---------- */
+
+@media (max-width: 1080px) {
+  .catalog-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ingredients__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .experience__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .order-card {
+    justify-self: start;
+  }
+}
+
+@media (hover: none), (max-width: 768px) {
+  .bg-video {
+    display: none;
+  }
+
+  .mobile-poster {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background-image: url("/img/hero-burger.png");
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+  }
+
+  .catalog-grid,
+  .ingredients__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nav__links {
+    display: none;
+  }
+
+  .scroll-progress {
+    display: none;
+  }
+
+  .split__pin {
+    height: auto;
+    padding: 6rem var(--pad-x);
+  }
+
+  .split-word {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+  }
+
+  .ingredient-label {
+    display: none;
+  }
+
+  .section {
+    padding: 5rem var(--pad-x);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .hero__hint-line {
+    animation: none;
+  }
+
+  .split-word {
+    opacity: 1;
+  }
+
+  .ingredient-label {
+    opacity: 1;
+  }
+
+  [data-reveal] {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+  }
+}

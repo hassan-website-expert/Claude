@@ -58,6 +58,16 @@ Balance: 6. User initially chose to top up for full spec, then pivoted to an in-
 
 Note: an Envato Elements MCP connector was evaluated — it is catalog search only (no generation, no download); usable later for licensed supporting b-roll.
 
+## Session 2026-07-17 — Phase 4 (website build)
+
+Website built and verified (see `website/`). Because the CDN egress denial persisted, the committed media in `assets/images/`, `assets/videos/` and `website/public/` are **locally generated placeholder illustrations** (parametric SVG burgers rasterized with sharp; the placeholder scrub video is a 96-frame assembled→exploded render assembled with ffmpeg). They match the final file names and formats exactly.
+
+**To swap in the real AI media later:**
+1. Download the three URLs in this log (hero, exploded, video) plus any newly generated stills.
+2. Replace the files in `assets/images/` and re-copy into `website/public/img/`.
+3. Run `scripts/swap-bg-video.sh assets/videos/burgerlab-scroll-background-raw.mp4` (now emits both `bg.mp4` H.264 and `bg.webm` VP9, both all-keyframe).
+No code changes are needed.
+
 ## Download blocker
 
 This session's egress network policy denies `d8j0ntlcm91z4.cloudfront.net` (Higgsfield's media CDN), so generated files cannot be saved into `assets/images/` from this environment. Options:
