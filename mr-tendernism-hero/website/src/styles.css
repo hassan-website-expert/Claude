@@ -1,0 +1,345 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Mr. Tendernism — Cinematic Hero
+   A documentary opening sequence. Warm near-black, editorial serif, ember
+   restraint. Negative space and silence do most of the work.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Warm, filmic neutrals — never pure black, never pure white. */
+  --ink: #0a0705;          /* deep smoked black */
+  --ink-2: #0d0908;        /* charcoal */
+  --cream: #f3ede1;        /* warm cream (primary text) */
+  --ash: #9a8f81;          /* muted label grey */
+  --ash-dim: #6b6157;      /* faint chapter marks */
+  --ember: #c8743a;        /* ember — used with extreme restraint */
+  --line: rgba(243, 237, 225, 0.14);
+
+  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-ui: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Cinematic gutters. */
+  --gutter: clamp(1.5rem, 6vw, 7rem);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body { overflow-x: hidden; }
+
+/* Lenis smooth-scroll recommended base */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+a { color: inherit; text-decoration: none; }
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Navigation — preserved, minimal, non-invasive. Sits above the film.
+   ─────────────────────────────────────────────────────────────────────────── */
+.nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(1.1rem, 2.4vw, 1.8rem) var(--gutter);
+  pointer-events: none;
+}
+.nav > * { pointer-events: auto; }
+
+.nav__brand {
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 1.6vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--cream);
+  text-shadow: 0 1px 24px rgba(0, 0, 0, 0.55);
+}
+.nav__brand-accent { font-style: italic; }
+
+.nav__links {
+  display: flex;
+  gap: clamp(1.4rem, 2.6vw, 2.6rem);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.26em;
+  color: var(--cream);
+}
+.nav__links a {
+  opacity: 0.72;
+  transition: opacity 0.6s ease;
+  text-shadow: 0 1px 20px rgba(0, 0, 0, 0.6);
+}
+.nav__links a:hover { opacity: 1; }
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Hero — pinned stage
+   ─────────────────────────────────────────────────────────────────────────── */
+.hero { position: relative; z-index: 1; }
+
+.hero__stage {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--ink);
+}
+@supports (height: 100svh) {
+  .hero__stage { height: 100svh; }
+}
+
+/* ── Video layers ─────────────────────────────────────────────────────────── */
+.hero__videos { position: absolute; inset: 0; }
+.hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* GPU-friendly: only opacity + transform ever change. */
+  will-change: opacity, transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* ── Grade / vignette — pins contrast so cream type always reads ──────────── */
+.hero__grade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% 42%, transparent 38%, rgba(6, 4, 3, 0.55) 100%),
+    linear-gradient(to top, rgba(6, 4, 3, 0.72) 0%, transparent 34%, transparent 62%, rgba(6, 4, 3, 0.42) 100%);
+}
+
+/* ── Grain — barely-there filmic texture ──────────────────────────────────── */
+.hero__grain {
+  position: absolute;
+  inset: -50%;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Thin film frame ──────────────────────────────────────────────────────── */
+.hero__frame {
+  position: absolute;
+  inset: clamp(12px, 1.6vw, 26px);
+  border: 1px solid var(--line);
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* ── Scene copy layers ────────────────────────────────────────────────────── */
+.hero__scenes {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  pointer-events: none; /* overlay never blocks; interactive bits opt back in */
+}
+.hero__scene {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  padding: clamp(5rem, 12vh, 9rem) var(--gutter);
+}
+
+/* Copy alignment against the calmest region of each frame */
+.scene-copy { max-width: min(90vw, 62rem); display: flex; flex-direction: column; }
+.scene-copy--center { margin: auto; text-align: center; align-items: center; }
+.scene-copy--start  { margin-top: auto; margin-bottom: auto; margin-right: auto; text-align: left; align-items: flex-start; }
+.scene-copy--end    { margin-top: auto; margin-bottom: auto; margin-left: auto; text-align: right; align-items: flex-end; }
+
+/* Every animatable word starts hidden; GSAP reveals it. (Still crawlable.) */
+.hero:not(.hero--static) [data-hero-text] { opacity: 0; }
+
+.scene-copy__eyebrow {
+  display: block;
+  font-size: clamp(0.7rem, 1vw, 0.85rem);
+  text-transform: uppercase;
+  letter-spacing: 0.5em;
+  color: var(--ash);
+  margin-bottom: clamp(1rem, 2vh, 1.6rem);
+  padding-left: 0.5em; /* offset the tracking */
+}
+
+.scene-copy__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 7.2vw, 7.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.005em;
+  margin: 0;
+  color: var(--cream);
+  text-shadow: 0 2px 60px rgba(0, 0, 0, 0.5);
+}
+.scene-copy__line { display: block; }
+.scene-copy__gap { display: block; height: 0.5em; }
+
+.scene-copy__title--name {
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(3rem, 9vw, 9rem);
+}
+.scene-copy__title--finale {
+  font-weight: 500;
+  font-size: clamp(3.4rem, 12vw, 12rem);
+  letter-spacing: 0.01em;
+}
+
+.scene-copy__subtitle {
+  margin: clamp(1.4rem, 3vh, 2.4rem) 0 0;
+  font-size: clamp(0.9rem, 1.3vw, 1.1rem);
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+
+/* CTA — a single ember line that draws under the words */
+.scene-copy__cta-wrap { margin-top: clamp(2.2rem, 5vh, 3.4rem); }
+.scene-copy__cta {
+  pointer-events: auto;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.34em;
+  color: var(--cream);
+}
+.scene-copy__cta-line {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(to right, var(--ember), rgba(200, 116, 58, 0.15));
+  transform: scaleX(0.6);
+  transform-origin: left;
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.scene-copy--center .scene-copy__cta-line { transform-origin: center; }
+.scene-copy__cta:hover .scene-copy__cta-line { transform: scaleX(1); }
+
+.scene-copy__chapter {
+  display: block;
+  margin-top: clamp(1.4rem, 3vh, 2.2rem);
+  font-size: 0.66rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--ash-dim);
+}
+
+/* ── Scroll cue ───────────────────────────────────────────────────────────── */
+.hero__cue {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1.6rem, 4vh, 2.6rem);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  z-index: 20;
+  pointer-events: none;
+}
+.hero__cue-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+.hero__cue-line {
+  width: 1px;
+  height: 46px;
+  background: linear-gradient(to bottom, var(--ash), transparent);
+  animation: cueDrift 2.8s ease-in-out infinite;
+  transform-origin: top;
+}
+@keyframes cueDrift {
+  0%, 100% { transform: scaleY(0.4); opacity: 0.3; }
+  50%      { transform: scaleY(1);   opacity: 0.9; }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Reduced-motion static hero
+   ─────────────────────────────────────────────────────────────────────────── */
+.static-scene {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  padding: clamp(5rem, 12vh, 9rem) var(--gutter);
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.static-scene.is-visible { opacity: 1; }
+.static-scene__copy { margin: auto; width: 100%; display: flex; }
+.hero--static .scene-copy { margin: auto; }
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Existing homepage (placeholder) — the film dissolves into it
+   ─────────────────────────────────────────────────────────────────────────── */
+.home {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20vh var(--gutter);
+}
+/* Soft dissolve from the pinned film above into the homepage below */
+.home::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 40vh;
+  background: linear-gradient(to bottom, transparent, var(--ink));
+  pointer-events: none;
+}
+.home__intro { max-width: 46rem; text-align: center; }
+.home__kicker {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.44em;
+  text-transform: uppercase;
+  color: var(--ember);
+  margin-bottom: 1.6rem;
+}
+.home__lead {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--ash);
+  margin: 0;
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Reduced motion — honour the system preference everywhere
+   ─────────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .hero__cue-line { animation: none; }
+  * { scroll-behavior: auto !important; }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Small screens — keep it legible; scale the type back
+   ─────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .nav__links { display: none; }
+  .scene-copy--start, .scene-copy--end { text-align: left; align-items: flex-start; }
+}
