@@ -19,6 +19,21 @@ export default function SceneCopy({ scene, index }) {
 
   return (
     <div className={`scene-copy scene-copy--${scene.align}`}>
+      {/* Crown — the logo callback. Line-draws in gold only at the finale. */}
+      {isFinale && (
+        <svg
+          className="scene-copy__crown"
+          viewBox="0 0 120 74"
+          data-hero-crown
+          data-hero-text
+          aria-hidden="true"
+        >
+          {/* five-point crown echoing the Mr. Tendernism logo mark */}
+          <path d="M8 66 L20 22 L42 50 L60 12 L78 50 L100 22 L112 66 Z" />
+          <path d="M8 66 L112 66" />
+        </svg>
+      )}
+
       {scene.eyebrow && (
         <span className="scene-copy__eyebrow" data-hero-text>
           {scene.eyebrow}

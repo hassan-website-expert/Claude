@@ -33,8 +33,18 @@ const CINEMATIC_EASE = "power2.inOut";
  */
 function buildSceneTextTimeline(els, isFinale) {
   const tl = gsap.timeline();
-  const { textItems } = els;
+  const { textItems, crownPaths } = els;
   if (!textItems.length) return tl;
+
+  // Crown line-draw — the logo completing itself at the finale.
+  // Each stroke draws in from nothing as the wordmark settles.
+  if (crownPaths && crownPaths.length) {
+    crownPaths.forEach((path) => {
+      const len = path.getTotalLength ? path.getTotalLength() : 200;
+      gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
+      tl.to(path, { strokeDashoffset: 0, duration: 0.4, ease: "power1.inOut" }, 0.24);
+    });
+  }
 
   // Reveal: rise + fade in, gently staggered so lines arrive like breath.
   tl.fromTo(

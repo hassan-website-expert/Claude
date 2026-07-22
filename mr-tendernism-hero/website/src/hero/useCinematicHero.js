@@ -34,6 +34,9 @@ export function useCinematicHero({ sceneCount, enabled = true }) {
       textItems: Array.from(
         root.querySelectorAll(`[data-scene="${i}"] [data-hero-text]`)
       ),
+      crownPaths: Array.from(
+        root.querySelectorAll(`[data-scene="${i}"] [data-hero-crown] path`)
+      ),
     }));
 
     // ── Build the (paused) master motion timeline ────────────────────────────
