@@ -20,6 +20,13 @@ export const VIDEO = {
   craft: `${CDN}/hf_20260722_164510_dbaf0ea4-9bd0-4be4-b869-1b54651a0e40.mp4`,
 };
 
+// Mr. Tendernism's spoken philosophy (Seedance/Seed-Audio, warm low read).
+// Played once when the Philosophy scene is on screen — only after the visitor
+// clicks the sound toggle (browsers block autoplay with sound).
+export const VOICE = {
+  philosophy: `${CDN}/hf_20260724_102414_4638f174-aecc-4cd5-b015-0c0268d9c61e.wav`,
+};
+
 export const scenes = [
   {
     id: "smoke",
@@ -55,6 +62,8 @@ export const scenes = [
     // His voice. The ellipsis is a held breath; the last line is the turn.
     lines: ["People think", "it’s about the meat…", "", "but it never was."],
     variant: "quote",
+    // His spoken line (plays when sound is on).
+    audio: VOICE.philosophy,
     // Let his face settle before the words arrive.
     revealAt: 0.32,
   },

@@ -11,12 +11,60 @@
 // All motion lives in useCinematicHero / heroTimeline. This file is markup only.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { useCallback, useRef, useState } from "react";
 import { scenes } from "./scenes";
 import SceneCopy from "./SceneCopy";
 import useCinematicHero from "./useCinematicHero";
 
+// The scene that carries his spoken line.
+const VOICE_SCENE = scenes.findIndex((s) => s.audio);
+
 export default function CinematicHero() {
-  const { rootRef } = useCinematicHero({ sceneCount: scenes.length, enabled: true });
+  const voiceRef = useRef(null);
+  const [soundOn, setSoundOn] = useState(false);
+  const soundOnRef = useRef(false);
+  const activeIdxRef = useRef(0);
+
+  const playVoice = () => {
+    const a = voiceRef.current;
+    if (!a) return;
+    a.currentTime = 0;
+    a.muted = false;
+    const p = a.play();
+    if (p && p.catch) p.catch(() => {});
+  };
+
+  // Called by the scroll controller whenever the active scene changes.
+  const handleSceneChange = useCallback((idx) => {
+    activeIdxRef.current = idx;
+    const a = voiceRef.current;
+    if (!a) return;
+    if (idx === VOICE_SCENE) {
+      if (soundOnRef.current) playVoice();
+    } else if (!a.paused) {
+      // Leaving his beat — stop the line so it never bleeds into another shot.
+      a.pause();
+    }
+  }, []);
+
+  const { rootRef } = useCinematicHero({
+    sceneCount: scenes.length,
+    enabled: true,
+    onSceneChange: handleSceneChange,
+  });
+
+  const toggleSound = () => {
+    const next = !soundOnRef.current;
+    soundOnRef.current = next;
+    setSoundOn(next);
+    if (!next) {
+      if (voiceRef.current) voiceRef.current.pause();
+      return;
+    }
+    // Turning sound on IS the user gesture that unlocks audio. If his beat is
+    // already on screen, start the line now; otherwise it plays when reached.
+    if (activeIdxRef.current === VOICE_SCENE) playVoice();
+  };
 
   return (
     <section
@@ -73,6 +121,31 @@ export default function CinematicHero() {
           <span className="hero__cue-label">Scroll</span>
           <span className="hero__cue-line" />
         </div>
+
+        {/* ── Sound toggle — his voice on the philosophy beat ──────────────
+            Off by default (browsers block autoplay with sound); one click
+            unlocks and, on his beat, plays the spoken line. */}
+        <button
+          type="button"
+          className={"hero__sound" + (soundOn ? " is-on" : "")}
+          onClick={toggleSound}
+          aria-pressed={soundOn}
+          aria-label={soundOn ? "Turn sound off" : "Turn sound on"}
+        >
+          <span className="hero__sound-bars" aria-hidden="true">
+            <span /><span /><span /><span />
+          </span>
+          <span className="hero__sound-label">{soundOn ? "Sound On" : "Sound"}</span>
+        </button>
+
+        {/* Preloaded so his line is ready the instant sound is enabled. */}
+        <audio
+          ref={voiceRef}
+          data-hero-voice
+          src={scenes[VOICE_SCENE] && scenes[VOICE_SCENE].audio}
+          preload="auto"
+          playsInline
+        />
       </div>
     </section>
   );

@@ -455,6 +455,54 @@ a { color: inherit; text-decoration: none; }
   50%      { transform: scaleY(1);   opacity: 0.9; }
 }
 
+/* ── Sound toggle ─────────────────────────────────────────────────────────── */
+.hero__sound {
+  position: absolute;
+  right: clamp(1.2rem, 3vw, 2.4rem);
+  bottom: clamp(1.6rem, 4vh, 2.6rem);
+  z-index: 25;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.5rem 0.9rem;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cream);
+  background: rgba(20, 14, 9, 0.5);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+.hero__sound:hover { border-color: var(--gold); color: var(--gold); }
+.hero__sound.is-on { color: var(--gold); border-color: var(--gold); }
+
+/* Equaliser bars — flat when off, dancing when on. */
+.hero__sound-bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.hero__sound-bars span {
+  width: 2px;
+  height: 3px;
+  background: currentColor;
+  border-radius: 1px;
+}
+.hero__sound.is-on .hero__sound-bars span { animation: soundBar 1s ease-in-out infinite; }
+.hero__sound.is-on .hero__sound-bars span:nth-child(2) { animation-delay: 0.2s; }
+.hero__sound.is-on .hero__sound-bars span:nth-child(3) { animation-delay: 0.4s; }
+.hero__sound.is-on .hero__sound-bars span:nth-child(4) { animation-delay: 0.15s; }
+@keyframes soundBar {
+  0%, 100% { height: 3px; }
+  50%      { height: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__sound.is-on .hero__sound-bars span { animation: none; height: 8px; }
+}
+
 /* ───────────────────────────────────────────────────────────────────────────
    Reduced-motion static hero
    ─────────────────────────────────────────────────────────────────────────── */

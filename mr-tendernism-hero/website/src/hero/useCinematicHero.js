@@ -20,8 +20,12 @@ import { buildMasterTimeline, activeSceneIndex } from "./heroTimeline";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function useCinematicHero({ sceneCount, enabled = true }) {
+export function useCinematicHero({ sceneCount, enabled = true, onSceneChange }) {
   const rootRef = useRef(null);
+  // Keep the latest callback in a ref so the scroll effect never rebuilds when it
+  // changes identity between renders.
+  const onSceneChangeRef = useRef(onSceneChange);
+  onSceneChangeRef.current = onSceneChange;
 
   useEffect(() => {
     if (!enabled) return;
@@ -86,6 +90,7 @@ export function useCinematicHero({ sceneCount, enabled = true }) {
       if (idx !== lastActive) {
         lastActive = idx;
         setActive(idx);
+        if (onSceneChangeRef.current) onSceneChangeRef.current(idx);
       }
     };
 
