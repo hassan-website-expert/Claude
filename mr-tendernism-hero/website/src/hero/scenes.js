@@ -65,8 +65,8 @@ export const scenes = [
     align: "center",
     eyebrow: "Welcome to",
     lines: ["Mr. Tendernism"],
-    subtitle: "Good Energy · Real Moments · Good Food",
-    cta: "Explore the Menu",
+    subtitle: "Good Energy. Real Moments. Good Food.",
+    cta: "Book Mr. Tendernism",
     variant: "finale",
   },
 ];

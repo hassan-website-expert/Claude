@@ -1,31 +1,36 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    Mr. Tendernism — Cinematic Hero
-   A documentary opening sequence. Warm near-black, editorial serif, ember
-   restraint. Negative space and silence do most of the work.
+   Brand-matched to officialmrtendernism.com (homepage-v4): warm near-black,
+   mustard gold, off-white heavy grotesque headlines, gold script accents.
+   Built to drop directly above the v4 homepage and feel like one site.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Warm-noir base — deep smoked black with warmth, never pure black/white. */
-  --ink: #0a0705;          /* deep smoked black */
-  --ink-2: #0d0908;        /* charcoal */
-  --cream: #f4ecdd;        /* warm cream (primary text) */
-  --ash: #a2937f;          /* muted label grey */
-  --ash-dim: #6f6353;      /* faint chapter marks */
+  /* Warm near-black base (matches v4 dark sections). */
+  --ink: #0e0b09;          /* page black */
+  --ink-2: #17120e;        /* raised surface */
+  --cream-bg: #f6efdd;     /* v4 warm cream section background */
 
-  /* Brand gold — sampled from the Mr. Tendernism logo gradient. */
-  --gold: #e6b34e;         /* signature gold */
-  --gold-hi: #f7d98a;      /* highlight */
-  --gold-lo: #c1852c;      /* deep bronze */
-  --ember: #c8743a;        /* firelight accent */
-  --line: rgba(230, 179, 78, 0.16);
+  /* Text */
+  --headline: #ededea;     /* off-white headline (v4 hero) */
+  --cream: #f2efe9;        /* light text */
+  --ash: #c3bcae;          /* body grey */
+  --ash-dim: #7a7060;      /* faint labels */
 
-  --gold-grad: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold) 46%, var(--gold-lo) 100%);
+  /* Brand gold (exact v4 token). */
+  --gold: #d4a018;         /* signature gold — buttons, accents */
+  --gold-hi: #f0c95a;      /* script highlight */
+  --gold-lo: #a87c12;      /* deep gold */
+  --ink-on-gold: #141210;  /* black text on gold buttons */
+  --line: rgba(212, 160, 24, 0.24);
 
-  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
-  --font-script: "Great Vibes", "Cormorant Garamond", cursive;
-  --font-ui: "Inter", system-ui, -apple-system, sans-serif;
+  --gold-grad: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold) 48%, var(--gold-lo) 100%);
 
-  /* Cinematic gutters. */
+  /* Type — exact v4 stack: Bebas Neue display, Space Grotesk body/buttons, gold script. */
+  --font-display: "Bebas Neue", "Arial Narrow", sans-serif;
+  --font-script: "Great Vibes", cursive;
+  --font-ui: "Space Grotesk", system-ui, -apple-system, sans-serif;
+
   --gutter: clamp(1.5rem, 6vw, 7rem);
 }
 
@@ -60,50 +65,106 @@ html.lenis, html.lenis body { height: auto; }
 a { color: inherit; text-decoration: none; }
 
 /* ───────────────────────────────────────────────────────────────────────────
-   Navigation — preserved, minimal, non-invasive. Sits above the film.
+   Navigation — mirrors homepage-v4: floating dark rounded bar with a faint
+   gold edge, logo lockup, centre links, cart + ghost/gold buttons.
    ─────────────────────────────────────────────────────────────────────────── */
 .nav {
   position: fixed;
-  inset: 0 0 auto 0;
+  inset: clamp(0.6rem, 1.4vw, 1.1rem) 0 auto 0;
   z-index: 60;
+  padding: 0 clamp(0.75rem, 2.4vw, 1.6rem);
+  pointer-events: none;
+}
+.nav__bar {
+  pointer-events: auto;
+  max-width: 1320px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: clamp(1.1rem, 2.4vw, 1.8rem) var(--gutter);
-  pointer-events: none;
+  gap: 1.5rem;
+  padding: 0.55rem 0.6rem 0.55rem clamp(1rem, 2vw, 1.6rem);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(26, 20, 14, 0.72), rgba(14, 11, 9, 0.66));
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
 }
-.nav > * { pointer-events: auto; }
 
-.nav__brand {
+/* Logo lockup: crown + gold-script wordmark + micro tagline */
+.nav__brand { display: flex; flex-direction: column; align-items: flex-start; line-height: 1; }
+.nav__crown { width: 26px; height: auto; margin-bottom: 2px; }
+.nav__crown path { fill: none; stroke: var(--gold); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.nav__brand-name {
   font-family: var(--font-script);
-  font-size: clamp(1.5rem, 2.1vw, 2.1rem);
-  font-weight: 400;
-  line-height: 1;
-  letter-spacing: 0.01em;
-  /* gold-foil, echoing the logo wordmark */
+  font-size: clamp(1.35rem, 1.9vw, 1.8rem);
+  line-height: 0.9;
   background: var(--gold-grad);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-  filter: drop-shadow(0 1px 18px rgba(0, 0, 0, 0.55));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
 }
-.nav__brand-accent { font-style: normal; }
+.nav__brand-tag {
+  font-size: 0.42rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.85;
+  margin-top: 3px;
+}
 
 .nav__links {
   display: flex;
-  gap: clamp(1.4rem, 2.6vw, 2.6rem);
-  font-size: 0.72rem;
+  gap: clamp(1.2rem, 2.4vw, 2.4rem);
+  font-size: 0.74rem;
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.26em;
+  letter-spacing: 0.14em;
   color: var(--cream);
 }
-.nav__links a {
-  opacity: 0.72;
-  transition: opacity 0.6s ease;
-  text-shadow: 0 1px 20px rgba(0, 0, 0, 0.6);
+.nav__links a { opacity: 0.82; transition: color 0.4s ease, opacity 0.4s ease; }
+.nav__links a:hover { opacity: 1; color: var(--gold); }
+
+.nav__actions { display: flex; align-items: center; gap: 0.7rem; }
+.nav__cart {
+  display: grid; place-items: center;
+  width: 38px; height: 38px;
+  color: var(--cream);
+  background: none; border: 0; cursor: pointer;
+  opacity: 0.85; transition: color 0.4s ease;
 }
-.nav__links a:hover { opacity: 1; }
+.nav__cart:hover { color: var(--gold); }
+.nav__cart svg { width: 19px; height: 19px; }
+
+/* ── Shared buttons (used by nav + scene CTAs) ────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.72em 1.25em;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  border-radius: 10px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn--gold { background: var(--gold); color: var(--ink-on-gold); border: 1px solid var(--gold); }
+.btn--gold:hover { background: var(--gold-hi); border-color: var(--gold-hi); }
+.btn--ghost { background: rgba(255, 255, 255, 0.03); color: var(--cream); border: 1px solid rgba(242, 239, 233, 0.45); }
+.btn--ghost:hover { border-color: var(--cream); background: rgba(255, 255, 255, 0.08); }
+
+@media (max-width: 960px) {
+  .nav__links { display: none; }
+  .nav__brand-tag { display: none; }
+}
+@media (max-width: 620px) {
+  .nav__actions .btn--ghost { display: none; }
+}
 
 /* ───────────────────────────────────────────────────────────────────────────
    Hero — pinned stage
@@ -201,37 +262,34 @@ a { color: inherit; text-decoration: none; }
 }
 
 .scene-copy__title {
-  font-family: var(--font-display);
+  font-family: var(--font-display); /* Bebas Neue — tall condensed caps, like v4 */
   font-weight: 400;
-  font-size: clamp(2.6rem, 7.2vw, 7.4rem);
-  line-height: 1.02;
-  letter-spacing: -0.005em;
+  font-size: clamp(3rem, 8.6vw, 9rem);
+  line-height: 0.92;
+  letter-spacing: 0.012em;
+  text-transform: uppercase;
   margin: 0;
-  color: var(--cream);
+  color: var(--headline);
   text-shadow: 0 2px 60px rgba(0, 0, 0, 0.5);
 }
 .scene-copy__line { display: block; }
 .scene-copy__gap { display: block; height: 0.5em; }
 
-/* Wordmark treatment — Great Vibes gold script, echoing the Mr. Tendernism logo */
-.scene-copy__title--name,
-.scene-copy__title--finale {
+/* "The Man" name reveal — Great Vibes gold script, i.e. the logo enlarged.
+   (The finale keeps Bebas caps, matching the v4 hero headline.) */
+.scene-copy__title--name {
   font-family: var(--font-script);
   font-weight: 400;
   line-height: 1.05;
   letter-spacing: 0.005em;
+  text-transform: none;
   text-shadow: none;
   filter: drop-shadow(0 6px 40px rgba(0, 0, 0, 0.55));
-  padding: 0.08em 0.06em; /* room for script descenders/ascenders */
+  padding: 0.08em 0.06em; /* room for script ascenders/descenders */
+  font-size: clamp(3rem, 8vw, 7rem);
 }
-.scene-copy__title--name { font-size: clamp(3.2rem, 9vw, 8rem); }
-/* Finale stacks crown + eyebrow + wordmark + tagline + CTA, so keep it contained. */
-.scene-copy__title--finale { font-size: clamp(2.8rem, 6.4vw, 6rem); }
-
-/* The gradient must sit on the element that actually holds the glyphs (the
-   line spans), or -webkit-background-clip:text clips to nothing. */
-.scene-copy__title--name .scene-copy__line,
-.scene-copy__title--finale .scene-copy__line {
+/* Gradient must sit on the glyph-bearing element or the text clip yields nothing. */
+.scene-copy__title--name .scene-copy__line {
   background: var(--gold-grad);
   -webkit-background-clip: text;
   background-clip: text;
@@ -239,54 +297,53 @@ a { color: inherit; text-decoration: none; }
   color: transparent;
 }
 
+/* Finale wordmark — Bebas caps like the v4 hero. Contained (it stacks with the
+   crown, eyebrow, tagline and CTA). */
+.scene-copy__title--finale { font-size: clamp(2.6rem, 6.6vw, 6.6rem); }
+
+/* Small uppercase label subtitle (e.g. "Tender. Slow. Perfected.") */
 .scene-copy__subtitle {
-  margin: clamp(1.4rem, 3vh, 2.4rem) 0 0;
-  font-size: clamp(0.9rem, 1.3vw, 1.1rem);
-  font-weight: 300;
-  letter-spacing: 0.14em;
+  margin: clamp(1.2rem, 2.6vh, 2rem) 0 0;
+  font-size: clamp(0.82rem, 1.15vw, 1rem);
+  font-weight: 400;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ash);
 }
+/* The finale tagline renders as the gold script, exactly like the v4 hero. */
+.scene-copy--finale .scene-copy__subtitle {
+  font-family: var(--font-script);
+  font-size: clamp(1.5rem, 3vw, 2.4rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  background: var(--gold-grad);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
 
-/* CTA — a gold-outline pill that fills with the brand gold on hover */
-.scene-copy__cta-wrap { margin-top: clamp(2rem, 4.5vh, 3rem); }
+/* CTA — solid gold button with black text + arrow, exactly like v4's primary. */
+.scene-copy__cta-wrap { margin-top: clamp(1.8rem, 4vh, 2.6rem); }
 .scene-copy__cta {
   pointer-events: auto;
-  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.85em;
-  padding: 0.95em 1.9em;
-  font-size: 0.78rem;
+  gap: 0.7em;
+  padding: 1em 1.7em;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.28em;
-  color: var(--gold);
-  border: 1px solid rgba(230, 179, 78, 0.5);
-  border-radius: 999px;
-  overflow: hidden;
-  transition: color 0.6s ease, border-color 0.6s ease;
-  z-index: 0;
+  letter-spacing: 0.1em;
+  color: var(--ink-on-gold);
+  background: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
 }
-.scene-copy__cta::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--gold-grad);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.scene-copy__cta:hover { color: #1a1206; border-color: transparent; }
-.scene-copy__cta:hover::before { transform: scaleX(1); }
-/* the little arrow line */
-.scene-copy__cta-line {
-  width: 1.6em;
-  height: 1px;
-  background: currentColor;
-  transition: width 0.6s ease;
-}
-.scene-copy__cta:hover .scene-copy__cta-line { width: 2.2em; }
+.scene-copy__cta:hover { transform: translateY(-2px); background: var(--gold-hi); border-color: var(--gold-hi); }
+.scene-copy__cta-line { font-size: 1.05em; line-height: 1; transition: transform 0.3s ease; }
+.scene-copy__cta:hover .scene-copy__cta-line { transform: translate(2px, -2px); }
 
 .scene-copy__chapter {
   display: block;
@@ -395,10 +452,10 @@ a { color: inherit; text-decoration: none; }
   margin-bottom: 1.6rem;
 }
 .home__lead {
-  font-family: var(--font-display);
-  font-size: clamp(1.4rem, 2.6vw, 2.2rem);
-  font-weight: 400;
-  line-height: 1.5;
+  font-family: var(--font-ui);
+  font-size: clamp(1.05rem, 1.8vw, 1.5rem);
+  font-weight: 300;
+  line-height: 1.6;
   color: var(--ash);
   margin: 0;
 }

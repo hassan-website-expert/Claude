@@ -20,16 +20,36 @@ export default function App() {
 
   return (
     <>
-      {/* Existing navigation — intentionally untouched, kept minimal & fixed. */}
+      {/* Header mirrors officialmrtendernism.com/homepage-v4 so the hero reads as
+          one site: logo lockup, HOME/MOMENTS/ABOUT, cart, ghost + gold buttons. */}
       <header className="nav" aria-label="Primary">
-        <a className="nav__brand" href="#top">
-          Mr.&nbsp;<span className="nav__brand-accent">Tendernism</span>
-        </a>
-        <nav className="nav__links">
-          <a href="#story">Story</a>
-          <a href="#story">Menu</a>
-          <a href="#story">Visit</a>
-        </nav>
+        <div className="nav__bar">
+          <a className="nav__brand" href="#top" aria-label="Mr. Tendernism — home">
+            <svg className="nav__crown" viewBox="0 0 120 74" aria-hidden="true">
+              <path d="M8 66 L20 22 L42 50 L60 12 L78 50 L100 22 L112 66 Z" />
+            </svg>
+            <span className="nav__brand-name">Mr. Tendernism</span>
+            <span className="nav__brand-tag">Good Energy · Real Moments · Good Food</span>
+          </a>
+
+          <nav className="nav__links" aria-label="Primary menu">
+            <a href="#top">Home</a>
+            <a href="#story">Moments</a>
+            <a href="#story">About</a>
+          </nav>
+
+          <div className="nav__actions">
+            <button className="nav__cart" type="button" aria-label="Cart">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+                <path d="M3 6h18" />
+                <path d="M16 10a4 4 0 0 1-8 0" />
+              </svg>
+            </button>
+            <a className="btn btn--ghost" href="#story">Merch Shop</a>
+            <a className="btn btn--gold" href="#story">Book Mr. Tendernism</a>
+          </div>
+        </div>
       </header>
 
       <div id="top">

@@ -1,49 +1,57 @@
+/* Self-hosted fonts — matching officialmrtendernism.com homepage-v4:
+   Bebas Neue (headings) · Space Grotesk (body + buttons) · Great Vibes (gold script). */
+
+/* ── Bebas Neue — display headlines (tall condensed caps) ─────────────────── */
 @font-face {
-  font-family: 'Cormorant Garamond';
-  font-style: italic;
-  font-weight: 500;
-  font-display: swap;
-  src: url('/fonts/cormorant-italic-500.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Cormorant Garamond';
+  font-family: "Bebas Neue";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/cormorant-normal-400.woff2') format('woff2');
+  src: url("/fonts/bebasneue-400.woff2") format("woff2");
 }
+
+/* ── Space Grotesk — body copy, eyebrows, labels, buttons ─────────────────── */
 @font-face {
-  font-family: 'Cormorant Garamond';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('/fonts/cormorant-normal-500.woff2') format('woff2');
-}
-@font-face {
-  font-family: 'Inter';
+  font-family: "Space Grotesk";
   font-style: normal;
   font-weight: 300;
   font-display: swap;
-  src: url('/fonts/inter-normal-300.woff2') format('woff2');
+  src: url("/fonts/spacegrotesk-300.woff2") format("woff2");
 }
 @font-face {
-  font-family: 'Inter';
+  font-family: "Space Grotesk";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/inter-normal-400.woff2') format('woff2');
+  src: url("/fonts/spacegrotesk-400.woff2") format("woff2");
 }
 @font-face {
-  font-family: 'Inter';
+  font-family: "Space Grotesk";
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url('/fonts/inter-normal-500.woff2') format('woff2');
+  src: url("/fonts/spacegrotesk-500.woff2") format("woff2");
 }
 @font-face {
-  font-family: 'Great Vibes';
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/spacegrotesk-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Space Grotesk";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/spacegrotesk-700.woff2") format("woff2");
+}
+
+/* ── Great Vibes — gold-script wordmark + tagline (matches the logo) ───────── */
+@font-face {
+  font-family: "Great Vibes";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/greatvibes-normal-400.woff2') format('woff2');
+  src: url("/fonts/greatvibes-normal-400.woff2") format("woff2");
 }

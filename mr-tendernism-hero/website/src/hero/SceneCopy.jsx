@@ -18,7 +18,13 @@ export default function SceneCopy({ scene, index }) {
   const Heading = isFinale ? "h1" : "h2";
 
   return (
-    <div className={`scene-copy scene-copy--${scene.align}`}>
+    <div
+      className={
+        `scene-copy scene-copy--${scene.align}` +
+        (isName ? " scene-copy--name" : "") +
+        (isFinale ? " scene-copy--finale" : "")
+      }
+    >
       {/* Crown — the logo callback. Line-draws in gold only at the finale. */}
       {isFinale && (
         <svg
@@ -69,7 +75,7 @@ export default function SceneCopy({ scene, index }) {
         <div className="scene-copy__cta-wrap" data-hero-text>
           <a className="scene-copy__cta" href="#story">
             {scene.cta}
-            <span className="scene-copy__cta-line" aria-hidden="true" />
+            <span className="scene-copy__cta-line" aria-hidden="true">↗</span>
           </a>
         </div>
       )}
