@@ -35,7 +35,7 @@ export default function CinematicHero() {
               data-hero-video
               src={scene.video}
               muted
-              loop
+              // No loop: each clip plays once and freezes on its final frame.
               playsInline
               // First frame is preloaded in <head>; the rest are warmed on demand.
               preload={i === 0 ? "auto" : "none"}

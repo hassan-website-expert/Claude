@@ -30,6 +30,9 @@ export const scenes = [
     // A quiet orienting cue — enough context to anchor the mystery, not explain it.
     eyebrow: "A Pitmaster’s Story",
     lines: ["Some things", "can’t be rushed."],
+    // Hold on pure smoke first — the visitor lands in atmosphere, THEN the line
+    // rises. Nothing but smoke greets them on arrival.
+    revealAt: 0.46,
   },
   {
     id: "the-man",
@@ -43,8 +46,21 @@ export const scenes = [
     variant: "name", // gold-script wordmark treatment
   },
   {
-    id: "fire",
+    id: "philosophy",
     chapter: "III",
+    label: "The Philosophy",
+    // Stay with him — his words land over the same held portrait, as if spoken.
+    video: VIDEO.man,
+    align: "start",
+    // His voice. The ellipsis is a held breath; the last line is the turn.
+    lines: ["People think", "it’s about the meat…", "", "but it never was."],
+    variant: "quote",
+    // Let his face settle before the words arrive.
+    revealAt: 0.32,
+  },
+  {
+    id: "fire",
+    chapter: "IV",
     label: "The Fire",
     video: VIDEO.fire,
     align: "start",
@@ -53,7 +69,7 @@ export const scenes = [
   },
   {
     id: "craft",
-    chapter: "IV",
+    chapter: "V",
     label: "The Craft",
     video: VIDEO.craft,
     align: "end",
@@ -63,7 +79,7 @@ export const scenes = [
   },
   {
     id: "legend",
-    chapter: "V",
+    chapter: "VI",
     label: "The Legend",
     video: VIDEO.man, // reuse the hero portrait, reframed + graded to hold
     align: "center",

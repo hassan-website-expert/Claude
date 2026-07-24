@@ -60,14 +60,21 @@ export function useCinematicHero({ sceneCount, enabled = true }) {
     };
 
     const setActive = (idx) => {
-      const live = new Set([idx - 1, idx, idx + 1]);
+      // Warm the immediate neighbours so their first frame is decoded before the
+      // crossfade — but only the ACTIVE clip actually plays.
+      ensureLoaded(idx - 1);
+      ensureLoaded(idx);
+      ensureLoaded(idx + 1);
       videoEls.forEach((v, i) => {
-        if (live.has(i)) {
-          ensureLoaded(i);
-          // play() may reject if not yet ready; that's fine — it retries on scroll.
-          const p = v.play();
-          if (p && p.catch) p.catch(() => {});
+        if (i === idx) {
+          // Play the active clip — unless it has already run to its end, in which
+          // case we leave it frozen on the final frame (no loop).
+          if (!v.ended) {
+            const p = v.play();
+            if (p && p.catch) p.catch(() => {});
+          }
         } else if (!v.paused) {
+          // Everything else holds its current frame (the last frame if it ended).
           v.pause();
         }
       });

@@ -21,8 +21,7 @@ export default function SceneCopy({ scene, index }) {
     <div
       className={
         `scene-copy scene-copy--${scene.align}` +
-        (isName ? " scene-copy--name" : "") +
-        (isFinale ? " scene-copy--finale" : "")
+        (scene.variant ? ` scene-copy--${scene.variant}` : "")
       }
     >
       {/* Crown — the logo callback. Line-draws in gold only at the finale. */}
