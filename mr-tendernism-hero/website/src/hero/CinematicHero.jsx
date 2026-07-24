@@ -44,8 +44,13 @@ export default function CinematicHero() {
           ))}
         </div>
 
-        {/* ── Grade, vignette, grain ───────────────────────────────────── */}
-        <div className="hero__grade" aria-hidden="true" />
+        {/* ── Continuity film layer ────────────────────────────────────────
+            These sit ABOVE the videos and are CONSTANT across every chapter, so
+            the atmosphere (colour, haze, grain) never resets between shots — the
+            single biggest lever for "one continuous film" vs. five clips. */}
+        <div className="hero__tone" aria-hidden="true" />   {/* unified warm grade */}
+        <div className="hero__haze" aria-hidden="true" />   {/* smoke that never stops */}
+        <div className="hero__grade" aria-hidden="true" />  {/* readability vignette */}
         <div className="hero__grain" aria-hidden="true" />
 
         {/* ── Scene copy layers ────────────────────────────────────────── */}
