@@ -16,8 +16,12 @@
 import gsap from "gsap";
 
 // Overlap window (in time-units) over which two adjacent videos dissolve.
-// Wide enough to feel like a dissolve, never a cut.
-const CROSSFADE = 0.5;
+// Wide + slow so adjacent shots melt together and the edit stays invisible.
+const CROSSFADE = 0.64;
+
+// Default point in a scene (0..1) at which its copy begins to reveal. Late,
+// so the footage establishes first and the words never race the image.
+const REVEAL_AT = 0.26;
 
 // Signature ease for the whole piece — a slow, weighted settle.
 const CINEMATIC_EASE = "power2.inOut";
@@ -33,47 +37,50 @@ const CINEMATIC_EASE = "power2.inOut";
  */
 function buildSceneTextTimeline(els, isFinale) {
   const tl = gsap.timeline();
-  const { textItems, crownPaths } = els;
+  const { textItems, crownPaths, revealAt } = els;
   if (!textItems.length) return tl;
 
+  // Per-scene reveal point (e.g. the Craft headline lands AFTER the knife
+  // completes its slice — the image speaks first, the words confirm it).
+  const start = typeof revealAt === "number" ? revealAt : REVEAL_AT;
+
   // Crown line-draw — the logo completing itself at the finale.
-  // Each stroke draws in from nothing as the wordmark settles.
   if (crownPaths && crownPaths.length) {
     crownPaths.forEach((path) => {
       const len = path.getTotalLength ? path.getTotalLength() : 200;
       gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
-      tl.to(path, { strokeDashoffset: 0, duration: 0.4, ease: "power1.inOut" }, 0.24);
+      tl.to(path, { strokeDashoffset: 0, duration: 0.5, ease: "power1.inOut" }, start);
     });
   }
 
-  // Reveal: rise + fade in, gently staggered so lines arrive like breath.
+  // Reveal: a slow rise out of soft focus, line by line, like a held breath.
   tl.fromTo(
     textItems,
-    { autoAlpha: 0, y: 34, filter: "blur(6px)" },
+    { autoAlpha: 0, y: 40, filter: "blur(9px)" },
     {
       autoAlpha: 1,
       y: 0,
       filter: "blur(0px)",
-      duration: 0.26,
+      duration: 0.34,
       ease: "power2.out",
-      stagger: 0.05,
+      stagger: 0.07,
     },
-    0.16 // let the video settle in before words appear
+    start
   );
 
-  // Hold in silence, then release — unless this is the finale, which stays.
+  // Hold in silence, then release slowly — the finale stays on screen.
   if (!isFinale) {
     tl.to(
       textItems,
       {
         autoAlpha: 0,
-        y: -26,
-        filter: "blur(6px)",
-        duration: 0.22,
+        y: -30,
+        filter: "blur(9px)",
+        duration: 0.26,
         ease: "power2.in",
-        stagger: 0.03,
+        stagger: 0.04,
       },
-      0.7
+      0.76
     );
   }
 

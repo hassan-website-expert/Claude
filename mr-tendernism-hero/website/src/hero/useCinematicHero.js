@@ -30,14 +30,19 @@ export function useCinematicHero({ sceneCount, enabled = true }) {
 
     const stage = root.querySelector("[data-hero-stage]");
     const videoEls = Array.from(root.querySelectorAll("[data-hero-video]"));
-    const sceneEls = Array.from({ length: sceneCount }, (_, i) => ({
-      textItems: Array.from(
-        root.querySelectorAll(`[data-scene="${i}"] [data-hero-text]`)
-      ),
-      crownPaths: Array.from(
-        root.querySelectorAll(`[data-scene="${i}"] [data-hero-crown] path`)
-      ),
-    }));
+    const sceneEls = Array.from({ length: sceneCount }, (_, i) => {
+      const sceneEl = root.querySelector(`[data-scene="${i}"]`);
+      const rawReveal = sceneEl && sceneEl.getAttribute("data-reveal");
+      return {
+        textItems: Array.from(
+          root.querySelectorAll(`[data-scene="${i}"] [data-hero-text]`)
+        ),
+        crownPaths: Array.from(
+          root.querySelectorAll(`[data-scene="${i}"] [data-hero-crown] path`)
+        ),
+        revealAt: rawReveal != null && rawReveal !== "" ? parseFloat(rawReveal) : undefined,
+      };
+    });
 
     // ── Build the (paused) master motion timeline ────────────────────────────
     const master = buildMasterTimeline({ videoEls, sceneEls });

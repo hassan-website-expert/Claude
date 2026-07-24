@@ -51,7 +51,12 @@ export default function CinematicHero() {
         {/* ── Scene copy layers ────────────────────────────────────────── */}
         <div className="hero__scenes">
           {scenes.map((scene, i) => (
-            <div key={scene.id} className="hero__scene" data-scene={i}>
+            <div
+              key={scene.id}
+              className="hero__scene"
+              data-scene={i}
+              data-reveal={scene.revealAt}
+            >
               <SceneCopy scene={scene} index={i} />
             </div>
           ))}

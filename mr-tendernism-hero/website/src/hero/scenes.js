@@ -27,6 +27,8 @@ export const scenes = [
     label: "Smoke",
     video: VIDEO.smoke,
     align: "center",
+    // A quiet orienting cue — enough context to anchor the mystery, not explain it.
+    eyebrow: "A Pitmaster’s Story",
     lines: ["Some things", "can’t be rushed."],
   },
   {
@@ -46,7 +48,8 @@ export const scenes = [
     label: "The Fire",
     video: VIDEO.fire,
     align: "start",
-    lines: ["It starts with fire.", "And patience."],
+    // Trimmed to one breath — the fire carries the rest.
+    lines: ["It starts", "with fire."],
   },
   {
     id: "craft",
@@ -55,7 +58,8 @@ export const scenes = [
     video: VIDEO.craft,
     align: "end",
     lines: ["Every cut", "is earned."],
-    subtitle: "Tender. Slow. Perfected.",
+    // Land the words AFTER the knife finishes the slice.
+    revealAt: 0.5,
   },
   {
     id: "legend",
