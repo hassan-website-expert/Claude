@@ -45,6 +45,14 @@ export default function SceneCopy({ scene, index }) {
         </span>
       )}
 
+      {/* Philosophy pull-quote mark — a real animated node so it reveals and
+          hides WITH the scene (a CSS ::before would sit on every screen). */}
+      {scene.variant === "quote" && (
+        <span className="scene-copy__quote-mark" data-hero-text aria-hidden="true">
+          &#8220;
+        </span>
+      )}
+
       <Heading
         className={
           "scene-copy__title" +
