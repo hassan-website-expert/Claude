@@ -13,8 +13,8 @@
 const CDN = "https://d8j0ntlcm91z4.cloudfront.net/user_3GdMpDQKnvNT4cwozQAEb1LsUI2";
 export const VIDEO = {
   smoke: `${CDN}/hf_20260722_163934_7a956190-f7f8-47c0-911b-cd9c20eba252.mp4`,
-  man: `${CDN}/hf_20260722_163300_3b7f5b20-eb4e-4762-8600-e1b9ee8a6a28.mp4`,
-  fire: `${CDN}/hf_20260722_163937_0d7433b3-69ed-4234-8168-5529d887ee75.mp4`,
+  man: `${CDN}/hf_20260728_193032_6ac77b87-1f96-4c3d-8730-7d257b72ae91.mp4`,
+  fire: `${CDN}/hf_20260728_193101_35d7264b-1e2a-44d9-ae17-a1022685104e.mp4`,
   // The knife-through-brisket "craft" shot. Falls back to the pull-apart beef
   // until the knife render is wired in.
   craft: `${CDN}/hf_20260722_164510_dbaf0ea4-9bd0-4be4-b869-1b54651a0e40.mp4`,
