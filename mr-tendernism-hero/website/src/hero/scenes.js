@@ -15,9 +15,9 @@ export const VIDEO = {
   smoke: `${CDN}/hf_20260722_163934_7a956190-f7f8-47c0-911b-cd9c20eba252.mp4`,
   man: `${CDN}/hf_20260728_193032_6ac77b87-1f96-4c3d-8730-7d257b72ae91.mp4`,
   fire: `${CDN}/hf_20260728_193101_35d7264b-1e2a-44d9-ae17-a1022685104e.mp4`,
-  // The knife-through-brisket "craft" shot. Falls back to the pull-apart beef
-  // until the knife render is wired in.
-  craft: `${CDN}/hf_20260722_164510_dbaf0ea4-9bd0-4be4-b869-1b54651a0e40.mp4`,
+  // V2 brisket: mahogany bark, pink smoke ring, a slice falling open under its
+  // own weight.
+  craft: `${CDN}/hf_20260728_193714_e21cf188-ae2e-4bbf-a1df-fee67c6aa6cb.mp4`,
 };
 
 // Mr. Tendernism's spoken philosophy (Seedance/Seed-Audio, warm low read).
