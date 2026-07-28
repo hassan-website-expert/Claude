@@ -16,8 +16,8 @@
 import gsap from "gsap";
 
 // Overlap window (in time-units) over which two adjacent videos dissolve.
-// Wide + slow so adjacent shots melt together and the edit stays invisible.
-const CROSSFADE = 0.64;
+// Wide enough to keep edits invisible, tightened for momentum (V2 pacing).
+const CROSSFADE = 0.52;
 
 // Default point in a scene (0..1) at which its copy begins to reveal. Late,
 // so the footage establishes first and the words never race the image.

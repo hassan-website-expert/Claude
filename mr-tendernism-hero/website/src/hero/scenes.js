@@ -34,12 +34,10 @@ export const scenes = [
     label: "Smoke",
     video: VIDEO.smoke,
     align: "center",
-    // A quiet orienting cue — enough context to anchor the mystery, not explain it.
-    eyebrow: "A Pitmaster’s Story",
-    lines: ["Some things", "can’t be rushed."],
-    // Hold on pure smoke first — the visitor lands in atmosphere, THEN the line
-    // rises. Nothing but smoke greets them on arrival.
-    revealAt: 0.46,
+    // Warm, experiential hook — we're selling a NIGHT, not a legacy. Lands on
+    // pure smoke first, then the line rises.
+    lines: ["Some nights", "you never forget."],
+    revealAt: 0.44,
   },
   {
     id: "the-man",
@@ -50,7 +48,9 @@ export const scenes = [
     align: "start",
     eyebrow: "Meet",
     lines: ["Mr. Tendernism"],
-    variant: "name", // gold-script wordmark treatment
+    // Personality up front — pitmaster, but also host and good company.
+    subtitle: "Pitmaster · Host · Good company",
+    variant: "name",
   },
   {
     id: "philosophy",
@@ -62,10 +62,9 @@ export const scenes = [
     // His voice. The ellipsis is a held breath; the last line is the turn.
     lines: ["People think", "it’s about the meat…", "", "but it never was."],
     variant: "quote",
-    // His spoken line (plays when sound is on).
+    // Placeholder read — swap for his REAL recorded voice for production.
     audio: VOICE.philosophy,
-    // Let his face settle before the words arrive.
-    revealAt: 0.32,
+    revealAt: 0.3,
   },
   {
     id: "fire",
@@ -73,8 +72,8 @@ export const scenes = [
     label: "The Fire",
     video: VIDEO.fire,
     align: "start",
-    // Trimmed to one breath — the fire carries the rest.
-    lines: ["It starts", "with fire."],
+    // Energy, not solemnity — it all kicks off here.
+    lines: ["It all begins", "with fire."],
   },
   {
     id: "craft",
@@ -82,17 +81,19 @@ export const scenes = [
     label: "The Craft",
     video: VIDEO.craft,
     align: "end",
-    lines: ["Every cut", "is earned."],
+    // Concrete craft = respect + hunger, warmer than "every cut is earned".
+    lines: ["Sixteen hours.", "Worth every one."],
     // Land the words AFTER the knife finishes the slice.
     revealAt: 0.5,
   },
   {
-    id: "legend",
+    id: "invitation",
     chapter: "VI",
-    label: "The Legend",
+    label: "The Invitation",
     video: VIDEO.man, // reuse the hero portrait, reframed + graded to hold
     align: "center",
-    eyebrow: "Welcome to",
+    // Invitation, not eulogy. "Come hungry" flips the whole ending warm.
+    eyebrow: "Come hungry",
     lines: ["Mr. Tendernism"],
     subtitle: "Good Energy. Real Moments. Good Food.",
     cta: "Book Mr. Tendernism",

@@ -103,8 +103,9 @@ export function useCinematicHero({ sceneCount, enabled = true, onSceneChange }) 
       animation: master,
       trigger: root,
       start: "top top",
-      // ~460vh of travel — long and unhurried, one slow breath per scene.
-      end: () => "+=" + window.innerHeight * (sceneCount - 0.05),
+      // Tighter travel (~0.82 viewport/scene) for V2 momentum — every scroll
+      // rewards quickly instead of dwelling.
+      end: () => "+=" + window.innerHeight * (sceneCount * 0.82),
       pin: stage,
       pinSpacing: true,
       scrub: 1, // a touch of catch-up smoothing on top of Lenis
