@@ -16,8 +16,9 @@
 import gsap from "gsap";
 
 // Overlap window (in time-units) over which two adjacent videos dissolve.
-// Wide enough to keep edits invisible, tightened for momentum (V2 pacing).
-const CROSSFADE = 0.52;
+// Widened so every seam (all engineered on smoke/steam) dissolves as one
+// continuous roll — the joins should be nearly impossible to spot.
+const CROSSFADE = 0.66;
 
 // Default point in a scene (0..1) at which its copy begins to reveal. Late,
 // so the footage establishes first and the words never race the image.
@@ -68,7 +69,8 @@ function buildSceneTextTimeline(els, isFinale) {
     start
   );
 
-  // Hold in silence, then release slowly — the finale stays on screen.
+  // Hold briefly, then release — tightened so there is no dead scroll between
+  // moments; the words clear a touch earlier to keep the journey moving.
   if (!isFinale) {
     tl.to(
       textItems,
@@ -76,11 +78,11 @@ function buildSceneTextTimeline(els, isFinale) {
         autoAlpha: 0,
         y: -30,
         filter: "blur(9px)",
-        duration: 0.26,
+        duration: 0.24,
         ease: "power2.in",
         stagger: 0.04,
       },
-      0.76
+      0.7
     );
   }
 

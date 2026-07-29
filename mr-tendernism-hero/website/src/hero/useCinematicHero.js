@@ -103,9 +103,10 @@ export function useCinematicHero({ sceneCount, enabled = true, onSceneChange }) 
       animation: master,
       trigger: root,
       start: "top top",
-      // Tighter travel (~0.82 viewport/scene) for V2 momentum — every scroll
-      // rewards quickly instead of dwelling.
-      end: () => "+=" + window.innerHeight * (sceneCount * 0.82),
+      // Tighter travel (~0.62 viewport/scene) — the fire beat is gone and the
+      // pacing brief asked for ~20–25% less scroll, so the journey moves
+      // briskly without dwelling on any one moment.
+      end: () => "+=" + window.innerHeight * (sceneCount * 0.62),
       pin: stage,
       pinSpacing: true,
       scrub: 1, // a touch of catch-up smoothing on top of Lenis

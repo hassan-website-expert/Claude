@@ -28,16 +28,13 @@ export const VIDEO = {
   // Beat 2 — emerges FROM smoke, he lifts the lid, smoke billows at camera
   // (v3 documentary regen, 6 reference images locked for identity).
   man: `${CDN}/hf_20260728_201223_03bc1e3a-dae9-4895-b2ff-a0cd1043440a.mp4`,
-  // Beat 3 — real photographed firebox: smoke clears to glowing coals, a hand
-  // lays on oak, natural chaotic flicker, blue smoke rises (v2, regenerated for
-  // grounded realism — the first pass read as CGI).
-  fire: `${CDN}/hf_20260729_120516_8e9fcf7d-d50a-4fa1-ab1a-186094633f5f.mp4`,
-  // Beat 4 — the brisket: intensely juicy, glistening fat, the meat slipping
+  // Beat 3 — the brisket: intensely juicy, glistening fat, the meat slipping
   // apart under its own weight; steam seams in and out.
   craft: `${CDN}/hf_20260729_115557_0503c021-01ae-40e1-95cd-e99534efd86d.mp4`,
-  // Beat 5 — the gathering: pull back through steam to him working, guests only
-  // as warm out-of-focus bokeh (no sharp faces), a small genuine glance/smile.
+  // Beat 4 (finale) — the gathering: pull back through steam to him working,
+  // guests only as warm out-of-focus bokeh, a small genuine glance/smile.
   gathering: `${CDN}/hf_20260729_115951_1200ca53-00a0-4313-8165-ff1c87827c95.mp4`,
+  // (The standalone fire/log clip was cut — nice but it stalled the pacing.)
 };
 
 export const scenes = [
@@ -64,26 +61,18 @@ export const scenes = [
     revealAt: 0.42,
   },
   {
-    id: "fire",
-    chapter: "III",
-    label: "The Fire",
-    // No text beat — the fire and its sound carry patience on their own.
-    video: VIDEO.fire,
-    align: "start",
-  },
-  {
     id: "craft",
-    chapter: "IV",
+    chapter: "III",
     label: "The Craft",
     video: VIDEO.craft,
-    align: "end",
+    align: "center",
     // MOMENT 3 — lands after the brisket has shown its own tenderness.
     lines: ["Crafted", "with patience."],
-    revealAt: 0.52,
+    revealAt: 0.48,
   },
   {
     id: "invitation",
-    chapter: "V",
+    chapter: "IV",
     label: "The Invitation",
     // The Gathering IS the finale now — pull-back to him among bokeh-implied
     // guests, a genuine smile, then the brand line + CTA. This retires the

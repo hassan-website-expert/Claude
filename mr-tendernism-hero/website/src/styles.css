@@ -532,18 +532,52 @@ a { color: inherit; text-decoration: none; }
   justify-content: center;
   padding: 20vh var(--gutter);
 }
-/* Soft dissolve from the pinned film above into the homepage below */
+/* Soft dissolve from the pinned film above into the homepage below — taller and
+   warmer so the film's ember tone bleeds down into the site instead of cutting
+   to flat dark. The last frame of the finale seems to melt into the homepage. */
 .home::before {
   content: "";
   position: absolute;
   left: 0;
   right: 0;
   bottom: 100%;
-  height: 40vh;
-  background: linear-gradient(to bottom, transparent, var(--ink));
+  height: 60vh;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(24, 16, 10, 0.55) 45%,
+    rgba(18, 12, 8, 0.9) 78%,
+    var(--ink) 100%
+  );
   pointer-events: none;
 }
-.home__intro { max-width: 46rem; text-align: center; }
+/* A faint warm glow at the very top of the homepage — the last breath of the
+   hero's grade, carried a little way into the site so the atmosphere continues. */
+.home::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 32vh;
+  background: radial-gradient(120% 70% at 50% 0%, rgba(198, 140, 74, 0.10), transparent 70%);
+  pointer-events: none;
+}
+.home__intro {
+  position: relative;
+  max-width: 46rem;
+  text-align: center;
+  /* Emerge on entry so the homepage feels like a continuation, not a hard start. */
+  opacity: 0;
+  transform: translateY(28px);
+  filter: blur(6px);
+  transition: opacity 0.9s ease, transform 0.9s ease, filter 0.9s ease;
+}
+.home__intro.is-visible {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
 .home__kicker {
   display: block;
   font-size: 0.72rem;
@@ -568,6 +602,8 @@ a { color: inherit; text-decoration: none; }
   .hero__cue-line,
   .hero__videos,
   .hero__haze { animation: none; }
+  /* No entrance motion — show the homepage copy immediately. */
+  .home__intro { opacity: 1; transform: none; filter: none; transition: none; }
   * { scroll-behavior: auto !important; }
 }
 

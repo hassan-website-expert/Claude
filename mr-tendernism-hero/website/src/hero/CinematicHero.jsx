@@ -6,65 +6,71 @@
 //   2. Grade + vignette overlay (readability, film contrast)
 //   3. Fine grain (atmosphere)
 //   4. Scene copy layers (one per scene, absolutely stacked)
-//   5. Persistent thin frame + scroll cue
+//   5. Persistent thin frame + scroll cue + sound toggle
 //
-// All motion lives in useCinematicHero / heroTimeline. This file is markup only.
+// All motion lives in useCinematicHero / heroTimeline. This file is markup +
+// the ambient-audio controller only.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useCallback, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { scenes } from "./scenes";
 import SceneCopy from "./SceneCopy";
 import useCinematicHero from "./useCinematicHero";
 
-// The scene that carries his spoken line.
-const VOICE_SCENE = scenes.findIndex((s) => s.audio);
+// Continuous ambient bed (fire crackle + evening room tone) that plays UNDER the
+// whole hero and never cuts — the audio half of the "one continuous film"
+// illusion. Drop a licensed loop at public/audio/ambient.mp3 to enable it; the
+// toggle self-hides until a playable file exists, so there is never a dead
+// control on the page.
+const AMBIENT_SRC = "./audio/ambient.mp3";
+const AMBIENT_VOLUME = 0.5;
 
 export default function CinematicHero() {
-  const voiceRef = useRef(null);
+  const ambientRef = useRef(null);
+  const fadeRef = useRef(0);
   const [soundOn, setSoundOn] = useState(false);
-  const soundOnRef = useRef(false);
-  const activeIdxRef = useRef(0);
-
-  const playVoice = () => {
-    const a = voiceRef.current;
-    if (!a) return;
-    a.currentTime = 0;
-    a.muted = false;
-    const p = a.play();
-    if (p && p.catch) p.catch(() => {});
-  };
-
-  // Called by the scroll controller whenever the active scene changes.
-  const handleSceneChange = useCallback((idx) => {
-    activeIdxRef.current = idx;
-    const a = voiceRef.current;
-    if (!a) return;
-    if (idx === VOICE_SCENE) {
-      if (soundOnRef.current) playVoice();
-    } else if (!a.paused) {
-      // Leaving his beat — stop the line so it never bleeds into another shot.
-      a.pause();
-    }
-  }, []);
+  const [audioReady, setAudioReady] = useState(false);
 
   const { rootRef } = useCinematicHero({
     sceneCount: scenes.length,
     enabled: true,
-    onSceneChange: handleSceneChange,
   });
 
+  // Gentle fade so the bed swells in / eases out rather than snapping.
+  const fadeTo = (target, onDone) => {
+    const a = ambientRef.current;
+    if (!a) return;
+    cancelAnimationFrame(fadeRef.current);
+    const step = () => {
+      const delta = target - a.volume;
+      if (Math.abs(delta) < 0.02) {
+        a.volume = target;
+        if (onDone) onDone();
+        return;
+      }
+      a.volume = Math.max(0, Math.min(1, a.volume + delta * 0.08));
+      fadeRef.current = requestAnimationFrame(step);
+    };
+    step();
+  };
+
   const toggleSound = () => {
-    const next = !soundOnRef.current;
-    soundOnRef.current = next;
-    setSoundOn(next);
-    if (!next) {
-      if (voiceRef.current) voiceRef.current.pause();
+    const a = ambientRef.current;
+    if (!a) return;
+    if (soundOn) {
+      setSoundOn(false);
+      fadeTo(0, () => a.pause());
       return;
     }
-    // Turning sound on IS the user gesture that unlocks audio. If his beat is
-    // already on screen, start the line now; otherwise it plays when reached.
-    if (activeIdxRef.current === VOICE_SCENE) playVoice();
+    // The click IS the gesture that unlocks audio — start muted-low and swell.
+    setSoundOn(true);
+    a.volume = 0;
+    const p = a.play();
+    if (p && p.catch) p.catch(() => setSoundOn(false));
+    fadeTo(AMBIENT_VOLUME);
   };
+
+  useEffect(() => () => cancelAnimationFrame(fadeRef.current), []);
 
   return (
     <section
@@ -95,7 +101,7 @@ export default function CinematicHero() {
         {/* ── Continuity film layer ────────────────────────────────────────
             These sit ABOVE the videos and are CONSTANT across every chapter, so
             the atmosphere (colour, haze, grain) never resets between shots — the
-            single biggest lever for "one continuous film" vs. five clips. */}
+            single biggest lever for "one continuous film" vs. separate clips. */}
         <div className="hero__tone" aria-hidden="true" />   {/* unified warm grade */}
         <div className="hero__haze" aria-hidden="true" />   {/* smoke that never stops */}
         <div className="hero__grade" aria-hidden="true" />  {/* readability vignette */}
@@ -122,35 +128,35 @@ export default function CinematicHero() {
           <span className="hero__cue-line" />
         </div>
 
-        {/* ── Sound toggle ────────────────────────────────────────────────
-            Only rendered once an audio bed exists (V3 retires the synthetic
-            voice quote; a continuous fire+room-tone ambient bed replaces it).
-            Off by default — browsers block autoplay with sound — and one click
-            unlocks the bed. */}
-        {VOICE_SCENE >= 0 && (
-          <>
-            <button
-              type="button"
-              className={"hero__sound" + (soundOn ? " is-on" : "")}
-              onClick={toggleSound}
-              aria-pressed={soundOn}
-              aria-label={soundOn ? "Turn sound off" : "Turn sound on"}
-            >
-              <span className="hero__sound-bars" aria-hidden="true">
-                <span /><span /><span /><span />
-              </span>
-              <span className="hero__sound-label">{soundOn ? "Sound On" : "Sound"}</span>
-            </button>
-
-            <audio
-              ref={voiceRef}
-              data-hero-voice
-              src={scenes[VOICE_SCENE] && scenes[VOICE_SCENE].audio}
-              preload="auto"
-              playsInline
-            />
-          </>
+        {/* ── Ambient sound toggle ─────────────────────────────────────────
+            Off by default (browsers block autoplay with sound). One click
+            unlocks and swells the fire+room-tone bed. Only rendered once the
+            audio file is actually playable, so a missing file never leaves a
+            dead control on the page. */}
+        {audioReady && (
+          <button
+            type="button"
+            className={"hero__sound" + (soundOn ? " is-on" : "")}
+            onClick={toggleSound}
+            aria-pressed={soundOn}
+            aria-label={soundOn ? "Mute ambient sound" : "Play ambient sound"}
+          >
+            <span className="hero__sound-bars" aria-hidden="true">
+              <span /><span /><span /><span />
+            </span>
+            <span className="hero__sound-label">{soundOn ? "Sound On" : "Sound"}</span>
+          </button>
         )}
+
+        <audio
+          ref={ambientRef}
+          data-hero-ambient
+          src={AMBIENT_SRC}
+          loop
+          preload="auto"
+          onCanPlayThrough={() => setAudioReady(true)}
+          playsInline
+        />
       </div>
     </section>
   );
