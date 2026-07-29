@@ -19,10 +19,11 @@ import useCinematicHero from "./useCinematicHero";
 
 // Continuous ambient bed (fire crackle + evening room tone) that plays UNDER the
 // whole hero and never cuts — the audio half of the "one continuous film"
-// illusion. Drop a licensed loop at public/audio/ambient.mp3 to enable it; the
-// toggle self-hides until a playable file exists, so there is never a dead
-// control on the page.
-const AMBIENT_SRC = "./audio/ambient.mp3";
+// illusion. Points at the licensed loop in public/audio/; the toggle self-hides
+// until the file is actually playable, so there is never a dead control on the
+// page. (The filename has spaces, hence the %20 encoding.)
+const AMBIENT_SRC =
+  "./audio/28102%20Countryside%20evening%20campfire%20ambience%20loop-full.mp3";
 const AMBIENT_VOLUME = 0.5;
 
 export default function CinematicHero() {

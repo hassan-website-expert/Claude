@@ -7,18 +7,22 @@ cookout room tone) UNDER the whole scroll. It is muted by default; the little
 appears once a playable file exists here — so until you add the file, nothing
 looks broken.
 
-TO ENABLE IT
-------------
-1. Download a licensed, seamless loop under your Envato Elements account.
-   Recommended (fire crackle + evening countryside room tone, loops cleanly):
-     "Countryside Evening Campfire Ambience Loop"
-     https://elements.envato.com/countryside-evening-campfire-ambience-loop-YE5WRUF
-   (Any warm fire-crackle / outdoor-ambience loop works. 30–90s is plenty; it loops.)
+CURRENTLY WIRED FILE
+--------------------
+The hero is wired to this file (a licensed Envato Elements loop):
+    public/audio/28102 Countryside evening campfire ambience loop-full.mp3
+Reference lives in src/hero/CinematicHero.jsx (AMBIENT_SRC), URL-encoded because
+the filename contains spaces. To swap in a different loop, either overwrite this
+file or drop a new one and update AMBIENT_SRC to match.
 
-2. Export/convert it to MP3 and save it here as EXACTLY:
-     public/audio/ambient.mp3
+TO SWAP IN A DIFFERENT LOOP
+---------------------------
+1. Use a licensed, seamless loop (your Envato Elements license covers web use).
+   Any warm fire-crackle / outdoor-ambience loop works — 30–90s is plenty.
 
-3. Redeploy. The "Sound" toggle will appear automatically and play the bed.
+2. Save the MP3 in this folder and point AMBIENT_SRC at it (URL-encode spaces).
+
+3. Redeploy. The "Sound" toggle appears automatically once the file is playable.
 
 Notes
 -----
