@@ -82,23 +82,15 @@ export const scenes = [
     revealAt: 0.52,
   },
   {
-    id: "gathering",
+    id: "invitation",
     chapter: "V",
-    label: "The Gathering",
-    // Pull-back to bokeh-implied guests — warmth and community without a crowd.
+    label: "The Invitation",
+    // The Gathering IS the finale now — pull-back to him among bokeh-implied
+    // guests, a genuine smile, then the brand line + CTA. This retires the
+    // repeated man portrait (he now appears only once, in Beat II).
     video: VIDEO.gathering,
     align: "center",
-    // No text — warmth and community read through image + ambient laughter.
-  },
-  {
-    id: "invitation",
-    chapter: "VI",
-    label: "The Invitation",
-    // PLACEHOLDER clip — to become the settle that hands off to the homepage.
-    video: VIDEO.man,
-    align: "center",
-    // MOMENT 4 — restored to the preferred finale copy: the name as the headline,
-    // the brand line beneath it, and the booking CTA.
+    // MOMENT 4 — the name as the headline, the brand line beneath, booking CTA.
     eyebrow: "Come hungry",
     lines: ["Mr. Tendernism"],
     subtitle: "Good Energy. Real Moments. Good Food.",

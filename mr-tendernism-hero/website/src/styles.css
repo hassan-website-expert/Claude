@@ -576,6 +576,12 @@ a { color: inherit; text-decoration: none; }
    ─────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
   .nav__links { display: none; }
+  /* Interim mobile framing: the 16:9 clips cover-crop on a portrait phone,
+     and the subject (him, the food) sits in the upper-middle while the smoker
+     body fills the lower frame — so bias the crop upward to keep the subject
+     in view. Native 9:16 renders are the real fix; this keeps mobile usable
+     until those exist. */
+  .hero__video { object-position: 50% 32%; }
   /* Mobile-first per V3: keep the subject and copy CENTERED, never let a
      headline or CTA drift to a screen edge. Every scene aligns center with a
      thumb-safe gutter, and the type scales down so lines never wrap awkwardly
