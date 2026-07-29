@@ -122,30 +122,35 @@ export default function CinematicHero() {
           <span className="hero__cue-line" />
         </div>
 
-        {/* ── Sound toggle — his voice on the philosophy beat ──────────────
-            Off by default (browsers block autoplay with sound); one click
-            unlocks and, on his beat, plays the spoken line. */}
-        <button
-          type="button"
-          className={"hero__sound" + (soundOn ? " is-on" : "")}
-          onClick={toggleSound}
-          aria-pressed={soundOn}
-          aria-label={soundOn ? "Turn sound off" : "Turn sound on"}
-        >
-          <span className="hero__sound-bars" aria-hidden="true">
-            <span /><span /><span /><span />
-          </span>
-          <span className="hero__sound-label">{soundOn ? "Sound On" : "Sound"}</span>
-        </button>
+        {/* ── Sound toggle ────────────────────────────────────────────────
+            Only rendered once an audio bed exists (V3 retires the synthetic
+            voice quote; a continuous fire+room-tone ambient bed replaces it).
+            Off by default — browsers block autoplay with sound — and one click
+            unlocks the bed. */}
+        {VOICE_SCENE >= 0 && (
+          <>
+            <button
+              type="button"
+              className={"hero__sound" + (soundOn ? " is-on" : "")}
+              onClick={toggleSound}
+              aria-pressed={soundOn}
+              aria-label={soundOn ? "Turn sound off" : "Turn sound on"}
+            >
+              <span className="hero__sound-bars" aria-hidden="true">
+                <span /><span /><span /><span />
+              </span>
+              <span className="hero__sound-label">{soundOn ? "Sound On" : "Sound"}</span>
+            </button>
 
-        {/* Preloaded so his line is ready the instant sound is enabled. */}
-        <audio
-          ref={voiceRef}
-          data-hero-voice
-          src={scenes[VOICE_SCENE] && scenes[VOICE_SCENE].audio}
-          preload="auto"
-          playsInline
-        />
+            <audio
+              ref={voiceRef}
+              data-hero-voice
+              src={scenes[VOICE_SCENE] && scenes[VOICE_SCENE].audio}
+              preload="auto"
+              playsInline
+            />
+          </>
+        )}
       </div>
     </section>
   );
