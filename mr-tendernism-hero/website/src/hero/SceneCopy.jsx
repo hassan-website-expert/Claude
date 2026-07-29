@@ -53,24 +53,29 @@ export default function SceneCopy({ scene, index }) {
         </span>
       )}
 
-      <Heading
-        className={
-          "scene-copy__title" +
-          (isName ? " scene-copy__title--name" : "") +
-          (isFinale ? " scene-copy__title--finale" : "")
-        }
-      >
-        {scene.lines.map((line, i) =>
-          line === "" ? (
-            // An intentional beat of silence between phrases.
-            <span key={i} className="scene-copy__gap" aria-hidden="true" data-hero-text />
-          ) : (
-            <span key={i} className="scene-copy__line" data-hero-text>
-              {line}
-            </span>
-          )
-        )}
-      </Heading>
+      {/* Some V3 beats (the fire, the gathering) are intentionally text-free —
+          the image and ambient sound carry them. Only render a heading when the
+          scene actually has copy. */}
+      {Array.isArray(scene.lines) && scene.lines.length > 0 && (
+        <Heading
+          className={
+            "scene-copy__title" +
+            (isName ? " scene-copy__title--name" : "") +
+            (isFinale ? " scene-copy__title--finale" : "")
+          }
+        >
+          {scene.lines.map((line, i) =>
+            line === "" ? (
+              // An intentional beat of silence between phrases.
+              <span key={i} className="scene-copy__gap" aria-hidden="true" data-hero-text />
+            ) : (
+              <span key={i} className="scene-copy__line" data-hero-text>
+                {line}
+              </span>
+            )
+          )}
+        </Heading>
+      )}
 
       {scene.subtitle && (
         <p className="scene-copy__subtitle" data-hero-text>
