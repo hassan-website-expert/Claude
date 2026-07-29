@@ -92,8 +92,11 @@ export const scenes = [
     // PLACEHOLDER clip — to become the settle that hands off to the homepage.
     video: VIDEO.man,
     align: "center",
-    // MOMENT 4 — the only place the brand voice states itself, as we resolve.
-    lines: ["Good Energy.", "Real Moments.", "Good Food."],
+    // MOMENT 4 — restored to the preferred finale copy: the name as the headline,
+    // the brand line beneath it, and the booking CTA.
+    eyebrow: "Come hungry",
+    lines: ["Mr. Tendernism"],
+    subtitle: "Good Energy. Real Moments. Good Food.",
     cta: "Book Mr. Tendernism",
     variant: "finale",
     revealAt: 0.4,

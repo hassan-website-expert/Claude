@@ -576,5 +576,20 @@ a { color: inherit; text-decoration: none; }
    ─────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
   .nav__links { display: none; }
-  .scene-copy--start, .scene-copy--end { text-align: left; align-items: flex-start; }
+  /* Mobile-first per V3: keep the subject and copy CENTERED, never let a
+     headline or CTA drift to a screen edge. Every scene aligns center with a
+     thumb-safe gutter, and the type scales down so lines never wrap awkwardly
+     under one-thumb scrolling. */
+  .scene-copy,
+  .scene-copy--start,
+  .scene-copy--end,
+  .scene-copy--center {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    align-items: center;
+    max-width: min(92vw, 34rem);
+    padding-inline: clamp(1rem, 6vw, 2.5rem);
+  }
+  .scene-copy__cta { white-space: nowrap; }
 }
