@@ -28,11 +28,16 @@ export const VIDEO = {
   // Beat 2 — emerges FROM smoke, he lifts the lid, smoke billows at camera
   // (v3 documentary regen, 6 reference images locked for identity).
   man: `${CDN}/hf_20260728_201223_03bc1e3a-dae9-4895-b2ff-a0cd1043440a.mp4`,
-  // Beats 3–6 still point at V2 footage as PLACEHOLDERS until the seam test is
-  // approved and we produce fire / brisket / gathering / handoff with matched
-  // smoke+steam in/out frames.
-  fire: `${CDN}/hf_20260728_193101_35d7264b-1e2a-44d9-ae17-a1022685104e.mp4`,
-  craft: `${CDN}/hf_20260728_193714_e21cf188-ae2e-4bbf-a1df-fee67c6aa6cb.mp4`,
+  // Beat 3 — real photographed firebox: smoke clears to glowing coals, a hand
+  // lays on oak, natural chaotic flicker, blue smoke rises (v2, regenerated for
+  // grounded realism — the first pass read as CGI).
+  fire: `${CDN}/hf_20260729_120516_8e9fcf7d-d50a-4fa1-ab1a-186094633f5f.mp4`,
+  // Beat 4 — the brisket: intensely juicy, glistening fat, the meat slipping
+  // apart under its own weight; steam seams in and out.
+  craft: `${CDN}/hf_20260729_115557_0503c021-01ae-40e1-95cd-e99534efd86d.mp4`,
+  // Beat 5 — the gathering: pull back through steam to him working, guests only
+  // as warm out-of-focus bokeh (no sharp faces), a small genuine glance/smile.
+  gathering: `${CDN}/hf_20260729_115951_1200ca53-00a0-4313-8165-ff1c87827c95.mp4`,
 };
 
 export const scenes = [
@@ -80,8 +85,8 @@ export const scenes = [
     id: "gathering",
     chapter: "V",
     label: "The Gathering",
-    // PLACEHOLDER clip — to become the pull-back to bokeh-implied guests.
-    video: VIDEO.man,
+    // Pull-back to bokeh-implied guests — warmth and community without a crowd.
+    video: VIDEO.gathering,
     align: "center",
     // No text — warmth and community read through image + ambient laughter.
   },
