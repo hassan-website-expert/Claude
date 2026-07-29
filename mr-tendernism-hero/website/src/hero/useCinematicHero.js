@@ -71,12 +71,18 @@ export function useCinematicHero({ sceneCount, enabled = true, onSceneChange }) 
       ensureLoaded(idx + 1);
       videoEls.forEach((v, i) => {
         if (i === idx) {
-          // Play the active clip — unless it has already run to its end, in which
-          // case we leave it frozen on the final frame (no loop).
-          if (!v.ended) {
-            const p = v.play();
-            if (p && p.catch) p.catch(() => {});
+          // Restart the clip from its first frame every time this scene becomes
+          // active — including when scrolling back UP into a scene we already
+          // passed. Re-entering a moment then replays it (you feel the beat
+          // again) instead of showing a frozen final frame. Playback is real-time,
+          // not scrubbed, so the clip simply rolls once from the top on each entry.
+          try {
+            v.currentTime = 0;
+          } catch (e) {
+            /* seeking before metadata is ready is a no-op; it's already at 0 */
           }
+          const p = v.play();
+          if (p && p.catch) p.catch(() => {});
         } else if (!v.paused) {
           // Everything else holds its current frame (the last frame if it ended).
           v.pause();
