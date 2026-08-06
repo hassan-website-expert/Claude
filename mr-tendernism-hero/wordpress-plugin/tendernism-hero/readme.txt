@@ -1,0 +1,59 @@
+=== Tendernism Cinematic Hero ===
+Requires at least: 6.0
+Requires PHP: 7.4
+Requires Elementor: 3.5+
+Stable tag: 1.0.0
+
+A scroll-driven cinematic hero for Mr. Tendernism, delivered as a fully editable
+Elementor widget. It recreates the pinned, scrubbed film experience — video
+crossfades, per-scene copy reveals, a "living hold" so clips never freeze,
+ambient sound, and portrait clips on phones — natively inside WordPress.
+
+== Installation ==
+
+1. Zip the `tendernism-hero` folder (the folder that contains
+   `tendernism-hero.php`) and upload it via Plugins → Add New → Upload Plugin,
+   OR copy the folder into `wp-content/plugins/`.
+2. Activate "Tendernism Cinematic Hero". Elementor must already be active.
+3. Edit a page with Elementor. In the widget panel, open the "Tendernism"
+   category and drag in "Cinematic Hero". Best placed as the first section of
+   the page (a full-width / no-padding section, no container gaps).
+
+The widget ships pre-filled with the approved two-beat cut streaming from the
+current CDN, so it works the moment it is dropped in.
+
+== Editing (everything is in the Elementor panel) ==
+
+* Content → Scenes: a repeater of "beats". Per scene you set the desktop video
+  URL (16:9) and optional mobile URL (9:16), the copy (eyebrow, headline —
+  one line per row, subtitle), a button + link, the chapter mark/label, the
+  alignment, a style variant (Finale renders the page's only H1 and holds on
+  screen), and how far into the scene the words reveal.
+* Content → Motion & timing: playback speed, scroll length per scene, crossfade
+  width, and the idle tail-loop length (the seconds of a clip's end that gently
+  loop so it never freezes when the visitor pauses).
+* Content → Ambient sound: a looping ambience URL, its volume, and whether to
+  show the sound toggle. The toggle self-hides until the file is playable.
+* Content → Chrome & fonts: the scroll cue, the film frame, and whether to load
+  the brand fonts (Bebas Neue, Space Grotesk, Great Vibes) from Google Fonts —
+  turn this off if your theme already provides them.
+* Style → Colours: every brand colour (background, headline, gold, etc.) maps to
+  a CSS variable, so the whole hero can be re-themed visually.
+
+== Behaviour notes ==
+
+* Videos stream directly from their URLs (e.g. the Higgsfield CDN). Nothing is
+  re-hosted in WordPress.
+* On phones (≤640px) each scene uses its mobile (portrait) URL if provided,
+  chosen once at load — no mid-session src swap, so no layout shift.
+* In the Elementor editor the hero shows the opening frame statically so you can
+  edit content; the full scrubbed experience runs on the live front end.
+* Visitors with "reduce motion" enabled get a static hold on the finale (the
+  brand payoff and call to action) instead of the scrubbed film.
+* GSAP, ScrollTrigger and Lenis are bundled locally (no third-party CDN) and are
+  only enqueued on pages that actually use the widget.
+
+== Bundled libraries ==
+
+* GSAP 3.15.0 + ScrollTrigger (GreenSock standard license)
+* Lenis 1.3.25 (MIT)
