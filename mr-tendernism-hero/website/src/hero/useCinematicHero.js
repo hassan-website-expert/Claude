@@ -20,6 +20,10 @@ import { buildMasterTimeline, activeSceneIndex } from "./heroTimeline";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Play the clips a touch faster than real-time so the hero feels snappier and
+// the visitor reaches the homepage sooner (client asked to speed things up).
+const PLAYBACK_RATE = 1.3;
+
 export function useCinematicHero({ sceneCount, enabled = true, onSceneChange }) {
   const rootRef = useRef(null);
   // Keep the latest callback in a ref so the scroll effect never rebuilds when it
@@ -81,6 +85,7 @@ export function useCinematicHero({ sceneCount, enabled = true, onSceneChange }) 
           } catch (e) {
             /* seeking before metadata is ready is a no-op; it's already at 0 */
           }
+          v.playbackRate = PLAYBACK_RATE;
           const p = v.play();
           if (p && p.catch) p.catch(() => {});
         } else if (!v.paused) {
@@ -109,10 +114,10 @@ export function useCinematicHero({ sceneCount, enabled = true, onSceneChange }) 
       animation: master,
       trigger: root,
       start: "top top",
-      // Tighter travel (~0.62 viewport/scene) — the fire beat is gone and the
-      // pacing brief asked for ~20–25% less scroll, so the journey moves
-      // briskly without dwelling on any one moment.
-      end: () => "+=" + window.innerHeight * (sceneCount * 0.62),
+      // Short travel (~0.5 viewport/scene). The hero is now just two authentic
+      // beats and the client asked to cut the scrolling further, so the visitor
+      // reaches the homepage quickly.
+      end: () => "+=" + window.innerHeight * (sceneCount * 0.5),
       pin: stage,
       pinSpacing: true,
       scrub: 1, // a touch of catch-up smoothing on top of Lenis
