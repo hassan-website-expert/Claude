@@ -32,11 +32,12 @@ export const VIDEO = {
   pitmaster: `${CDN}/hf_20260806_160825_722e6fa6-12c8-4c3d-b745-632bdefdf6ed.mp4`,
 };
 
-// Dedicated mobile clips (native 9:16 portrait — composed for phones, NOT cropped
-// from the desktop versions). Same locked face + real-environment references.
+// Mobile clips (9:16 portrait) — the EXACT desktop scenes, content-aware
+// reframed to vertical (subject-tracked) so phones get the same shot and motion
+// as desktop, just optimized for a portrait viewport rather than a separate take.
 export const VIDEO_MOBILE = {
-  anticipation: `${CDN}/hf_20260806_185059_f054fd4b-850a-44da-9ced-396376adc4e6.mp4`,
-  pitmaster: `${CDN}/hf_20260806_185031_d821f0c1-af6d-4fbb-a1a6-65641bed1089.mp4`,
+  anticipation: `${CDN}/hf_20260806_190604_e2f24175-e5c0-4d68-8649-8b949ac84823.mp4`,
+  pitmaster: `${CDN}/hf_20260806_190620_7340e685-6aeb-4585-89a8-7a2574c13551.mp4`,
 };
 
 export const scenes = [
