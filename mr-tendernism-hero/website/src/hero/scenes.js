@@ -20,6 +20,7 @@
 
 // Higgsfield CDN sources (Path A — stream now, self-host later).
 const CDN = "https://d8j0ntlcm91z4.cloudfront.net/user_3GdMpDQKnvNT4cwozQAEb1LsUI2";
+// Desktop hero clips (16:9 landscape).
 export const VIDEO = {
   // Beat 1 — anticipation. Behind the offset smoker, smoke off the stack; he
   // walks in from the side, lifts the lid, smoke rolls up and fills frame while
@@ -31,12 +32,20 @@ export const VIDEO = {
   pitmaster: `${CDN}/hf_20260806_160825_722e6fa6-12c8-4c3d-b745-632bdefdf6ed.mp4`,
 };
 
+// Dedicated mobile clips (native 9:16 portrait — composed for phones, NOT cropped
+// from the desktop versions). Same locked face + real-environment references.
+export const VIDEO_MOBILE = {
+  anticipation: `${CDN}/hf_20260806_185059_f054fd4b-850a-44da-9ced-396376adc4e6.mp4`,
+  pitmaster: `${CDN}/hf_20260806_185031_d821f0c1-af6d-4fbb-a1a6-65641bed1089.mp4`,
+};
+
 export const scenes = [
   {
     id: "anticipation",
     chapter: "I",
     label: "The Smoker",
     video: VIDEO.anticipation,
+    videoMobile: VIDEO_MOBILE.anticipation,
     align: "center",
     // MOMENT 1 — mood over the building smoke, before he's fully revealed.
     lines: ["Some things", "can’t be rushed."],
@@ -49,6 +58,7 @@ export const scenes = [
     // He turns to camera at the open smoker — the finale lives here: the name,
     // the brand line, the booking CTA.
     video: VIDEO.pitmaster,
+    videoMobile: VIDEO_MOBILE.pitmaster,
     align: "center",
     eyebrow: "Come hungry",
     lines: ["Mr. Tendernism"],

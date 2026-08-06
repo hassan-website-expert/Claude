@@ -26,11 +26,22 @@ const AMBIENT_SRC =
   "./audio/28102%20Countryside%20evening%20campfire%20ambience%20loop-full.mp3";
 const AMBIENT_VOLUME = 0.5;
 
+// Pick the portrait clip on phones and the landscape clip on everything else.
+// Decided ONCE at mount (not reactive) so we never swap src mid-session, which
+// would reload the video and cause a flash / layout shift.
+function pickInitialMobile() {
+  if (typeof window === "undefined" || !window.matchMedia) return false;
+  return window.matchMedia("(max-width: 640px)").matches;
+}
+
 export default function CinematicHero() {
   const ambientRef = useRef(null);
   const fadeRef = useRef(0);
   const [soundOn, setSoundOn] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
+  // Frozen for the life of the component — the correct clip is chosen before the
+  // first paint, so the right aspect ratio loads with no swap later.
+  const [isMobile] = useState(pickInitialMobile);
 
   const { rootRef } = useCinematicHero({
     sceneCount: scenes.length,
@@ -88,7 +99,7 @@ export default function CinematicHero() {
               key={scene.id}
               className="hero__video"
               data-hero-video
-              src={scene.video}
+              src={isMobile && scene.videoMobile ? scene.videoMobile : scene.video}
               muted
               // No loop: each clip plays once and freezes on its final frame.
               playsInline

@@ -186,14 +186,17 @@ a { color: inherit; text-decoration: none; }
 .hero__videos {
   position: absolute;
   inset: 0;
-  /* Slow, continuous drift over the whole video layer. It runs independently of
-     the clips, so even a frozen final frame keeps a subtle, living motion. */
-  animation: videoDrift 26s ease-in-out infinite alternate;
+  /* Slow, continuous cinematic push-in over the whole video layer. It runs
+     independently of the clips, so the moment a clip plays out and holds on its
+     final frame the hero keeps a clear, living motion (a gentle Ken-Burns zoom)
+     instead of feeling frozen while the visitor reads before scrolling. */
+  animation: videoDrift 20s ease-in-out infinite alternate;
   will-change: transform;
+  transform: translateZ(0);
 }
 @keyframes videoDrift {
-  from { transform: scale(1) translate3d(0, 0, 0); }
-  to   { transform: scale(1.035) translate3d(-1.2%, -0.8%, 0); }
+  from { transform: scale(1.01) translate3d(0, 0, 0); }
+  to   { transform: scale(1.075) translate3d(-1.6%, -1.1%, 0); }
 }
 .hero__video {
   position: absolute;
@@ -612,12 +615,10 @@ a { color: inherit; text-decoration: none; }
    ─────────────────────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
   .nav__links { display: none; }
-  /* Interim mobile framing: the 16:9 clips cover-crop on a portrait phone,
-     and the subject (him, the food) sits in the upper-middle while the smoker
-     body fills the lower frame — so bias the crop upward to keep the subject
-     in view. Native 9:16 renders are the real fix; this keeps mobile usable
-     until those exist. */
-  .hero__video { object-position: 50% 32%; }
+  /* Mobile now streams DEDICATED native 9:16 portrait clips (see VIDEO_MOBILE),
+     so the video fills the portrait viewport with no cropping — keep it centred
+     rather than the old upward crop-bias hack the landscape clips needed. */
+  .hero__video { object-position: 50% 50%; }
   /* Mobile-first per V3: keep the subject and copy CENTERED, never let a
      headline or CTA drift to a screen edge. Every scene aligns center with a
      thumb-safe gutter, and the type scales down so lines never wrap awkwardly
