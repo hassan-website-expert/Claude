@@ -288,6 +288,43 @@ class Cinematic_Hero_Widget extends Widget_Base {
 			)
 		);
 
+		$this->add_control(
+			'autoscroll_enable',
+			array(
+				'label'        => esc_html__( 'Auto-scroll when the clip ends', 'tendernism-hero' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => 'yes',
+				'return_value' => 'yes',
+				'separator'    => 'before',
+				'description'  => esc_html__( 'A beat after the opening clip finishes, smoothly glide the page down a touch to hint that scrolling drives the story. Fires once, only if the visitor is still at the very top; any manual scroll cancels it.', 'tendernism-hero' ),
+			)
+		);
+
+		$this->add_control(
+			'autoscroll_delay',
+			array(
+				'label'       => esc_html__( 'Auto-scroll delay (seconds)', 'tendernism-hero' ),
+				'type'        => Controls_Manager::SLIDER,
+				'range'       => array( 'px' => array( 'min' => 0, 'max' => 5, 'step' => 0.1 ) ),
+				'default'     => array( 'size' => 0.9 ),
+				'condition'   => array( 'autoscroll_enable' => 'yes' ),
+				'description' => esc_html__( 'How long after the opening clip ends before the glide begins.', 'tendernism-hero' ),
+			)
+		);
+
+		$this->add_control(
+			'autoscroll_distance',
+			array(
+				'label'       => esc_html__( 'Auto-scroll distance', 'tendernism-hero' ),
+				'type'        => Controls_Manager::SLIDER,
+				'size_units'  => array( 'vh' ),
+				'range'       => array( 'vh' => array( 'min' => 10, 'max' => 100, 'step' => 5 ) ),
+				'default'     => array( 'unit' => 'vh', 'size' => 50 ),
+				'condition'   => array( 'autoscroll_enable' => 'yes' ),
+				'description' => esc_html__( 'How far to glide down, as a share of the screen height.', 'tendernism-hero' ),
+			)
+		);
+
 		$this->end_controls_section();
 	}
 
@@ -497,6 +534,11 @@ class Cinematic_Hero_Widget extends Widget_Base {
 		$crossfade  = $this->num( $settings, 'crossfade', 0.66 );
 		$tail_loop  = $this->num( $settings, 'tail_loop', 1.2 );
 
+		// Auto-scroll nudge after the opening clip ends.
+		$autoscroll_on   = ! isset( $settings['autoscroll_enable'] ) || 'yes' === $settings['autoscroll_enable'] ? 1 : 0;
+		$autoscroll_ms   = (int) round( $this->num( $settings, 'autoscroll_delay', 0.9 ) * 1000 );
+		$autoscroll_dist = $this->num( $settings, 'autoscroll_distance', 50 ) / 100; // vh% → fraction
+
 		$ambient_on  = isset( $settings['enable_sound'] ) && 'yes' === $settings['enable_sound'];
 		$ambient_url = $ambient_on && ! empty( $settings['ambient_url'] ) ? $settings['ambient_url'] : '';
 		$ambient_vol = $this->num( $settings, 'ambient_volume', 0.5 );
@@ -516,6 +558,9 @@ class Cinematic_Hero_Widget extends Widget_Base {
 			data-scroll-per-scene="<?php echo esc_attr( $per_scene ); ?>"
 			data-crossfade="<?php echo esc_attr( $crossfade ); ?>"
 			data-tail-loop="<?php echo esc_attr( $tail_loop ); ?>"
+			data-autoscroll="<?php echo esc_attr( $autoscroll_on ); ?>"
+			data-autoscroll-delay="<?php echo esc_attr( $autoscroll_ms ); ?>"
+			data-autoscroll-distance="<?php echo esc_attr( $autoscroll_dist ); ?>"
 		>
 			<div class="th-hero__stage" data-th-stage>
 

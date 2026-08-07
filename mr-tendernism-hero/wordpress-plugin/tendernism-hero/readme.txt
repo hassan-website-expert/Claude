@@ -2,7 +2,7 @@
 Requires at least: 6.0
 Requires PHP: 7.4
 Requires Elementor: 3.5+
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 
 A scroll-driven cinematic hero for Mr. Tendernism, delivered as a fully editable
 Elementor widget. It recreates the pinned, scrubbed film experience — video
@@ -30,8 +30,12 @@ current CDN, so it works the moment it is dropped in.
   alignment, a style variant (Finale renders the page's only H1 and holds on
   screen), and how far into the scene the words reveal.
 * Content → Motion & timing: playback speed, scroll length per scene, crossfade
-  width, and the idle tail-loop length (the seconds of a clip's end that gently
-  loop so it never freezes when the visitor pauses).
+  width, the idle tail-loop length (the seconds of a clip's end that gently loop
+  so it never freezes when the visitor pauses), and an "Auto-scroll when the clip
+  ends" switch with its delay and distance — a beat after the opening clip
+  finishes the page smoothly glides down a touch to hint that scrolling drives
+  the story (fires once, only if still at the top, cancelled by any manual
+  scroll).
 * Content → Ambient sound: a looping ambience URL, its volume, and whether to
   show the sound toggle. The toggle self-hides until the file is playable.
 * Content → Chrome & fonts: the scroll cue, the film frame, and whether to load
@@ -46,6 +50,10 @@ current CDN, so it works the moment it is dropped in.
   re-hosted in WordPress.
 * On phones (≤640px) each scene uses its mobile (portrait) URL if provided,
   chosen once at load — no mid-session src swap, so no layout shift.
+* Scrolling is smoothed on touch devices too (not just the mouse wheel), and the
+  pinned timeline no longer re-jerks when the mobile browser's address bar shows
+  or hides — so the scrubbed film stays smooth on phones. If the theme omits the
+  mobile viewport meta tag, the widget adds a standard one when it is missing.
 * In the Elementor editor the hero shows the opening frame statically so you can
   edit content; the full scrubbed experience runs on the live front end.
 * Visitors with "reduce motion" enabled get a static hold on the finale (the

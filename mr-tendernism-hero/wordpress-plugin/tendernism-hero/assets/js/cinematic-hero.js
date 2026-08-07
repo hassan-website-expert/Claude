@@ -21,6 +21,21 @@
 	var CINEMATIC_EASE = 'power2.inOut';
 
 	var lenisStarted = false;
+	var lenis = null;
+
+	// ── Mobile viewport guard ────────────────────────────────────────────────
+	// Some themes / page-builder templates ship without the mobile viewport meta
+	// tag, which makes phones render the page at a ~980px desktop width so no
+	// responsive CSS ever triggers. Add it only when it is genuinely absent.
+	function ensureViewportMeta() {
+		if ( ! document.head || document.querySelector( 'meta[name="viewport"]' ) ) {
+			return;
+		}
+		var meta = document.createElement( 'meta' );
+		meta.name = 'viewport';
+		meta.content = 'width=device-width, initial-scale=1';
+		document.head.appendChild( meta );
+	}
 
 	// ── Lenis (one instance drives the whole page) ───────────────────────────
 	function startLenis() {
@@ -28,12 +43,27 @@
 			return;
 		}
 		lenisStarted = true;
-		var lenis = new window.Lenis( { lerp: 0.1, smoothWheel: true } );
+		// syncTouch routes touch scrolling through the same RAF loop as the wheel,
+		// so on phones the scrubbed + pinned timeline is driven by a smoothed value
+		// instead of raw native momentum — this is what removes the mobile stutter.
+		lenis = new window.Lenis( {
+			lerp: 0.1,
+			smoothWheel: true,
+			syncTouch: true,
+			syncTouchLerp: 0.09,
+			touchInertiaMultiplier: 18,
+		} );
 		lenis.on( 'scroll', window.ScrollTrigger.update );
 		window.gsap.ticker.add( function ( time ) {
 			lenis.raf( time * 1000 );
 		} );
 		window.gsap.ticker.lagSmoothing( 0 );
+
+		// Don't refresh ScrollTrigger (and re-jerk the pin) every time the mobile
+		// URL bar shows/hides — a major source of scroll jank on phones.
+		if ( window.ScrollTrigger && window.ScrollTrigger.config ) {
+			window.ScrollTrigger.config( { ignoreMobileResize: true } );
+		}
 	}
 
 	function isEditMode() {
@@ -228,6 +258,43 @@
 		var crossfade = num( root, 'data-crossfade', 0.66 );
 		var tailLoop = num( root, 'data-tail-loop', 1.2 );
 
+		// Post-clip auto-scroll: once the opening clip finishes, gently glide the
+		// page down a touch to hint that scrolling drives the piece. Fires once,
+		// only if the visitor is still at the very top, and any manual scroll
+		// cancels it.
+		var nudgeEnabled = root.getAttribute( 'data-autoscroll' ) === '1';
+		var nudgeDelay = num( root, 'data-autoscroll-delay', 900 );
+		var nudgeDist = num( root, 'data-autoscroll-distance', 0.5 );
+		var nudged = false;
+		var nudgeTimer = 0;
+		function doNudge() {
+			if ( nudged || window.scrollY > 8 ) {
+				return;
+			}
+			nudged = true;
+			var targetY = Math.round( window.innerHeight * nudgeDist );
+			if ( lenis && lenis.scrollTo ) {
+				lenis.scrollTo( targetY, { duration: 1.6 } );
+			} else {
+				window.scrollTo( { top: targetY, behavior: 'smooth' } );
+			}
+		}
+		function cancelNudge() {
+			nudged = true;
+			clearTimeout( nudgeTimer );
+		}
+		function scheduleNudge() {
+			if ( nudged ) {
+				return;
+			}
+			nudgeTimer = setTimeout( doNudge, nudgeDelay );
+		}
+		if ( nudgeEnabled ) {
+			window.addEventListener( 'wheel', cancelNudge, { passive: true } );
+			window.addEventListener( 'touchmove', cancelNudge, { passive: true } );
+			window.addEventListener( 'keydown', cancelNudge );
+		}
+
 		var master = buildMasterTimeline( gsap, videoEls, sceneEls, crossfade );
 
 		// Decode management: warm a 1-scene window, only the active clip plays.
@@ -286,6 +353,11 @@
 		ensureLoaded( 0 );
 		setActive( 0 );
 
+		// When the opening clip first finishes, trigger the auto-scroll nudge.
+		if ( nudgeEnabled ) {
+			videoEls[ 0 ].addEventListener( 'ended', scheduleNudge, { once: true } );
+		}
+
 		var st = ScrollTrigger.create( {
 			animation: master,
 			trigger: root,
@@ -294,6 +366,7 @@
 			pin: stage,
 			pinSpacing: true,
 			scrub: 1,
+			anticipatePin: 1,
 			invalidateOnRefresh: true,
 			onUpdate: function ( self ) {
 				var idx = activeSceneIndex( self.progress, sceneCount );
@@ -314,6 +387,11 @@
 		root._thHeroDestroy = function () {
 			st.kill();
 			master.kill();
+			clearTimeout( nudgeTimer );
+			window.removeEventListener( 'wheel', cancelNudge );
+			window.removeEventListener( 'touchmove', cancelNudge );
+			window.removeEventListener( 'keydown', cancelNudge );
+			videoEls[ 0 ].removeEventListener( 'ended', scheduleNudge );
 			endedHandlers.forEach( function ( h, i ) {
 				if ( videoEls[ i ] ) { videoEls[ i ].removeEventListener( 'ended', h ); }
 			} );
@@ -385,6 +463,8 @@
 
 	// Register now if Elementor already initialised, and also on its init event —
 	// whichever comes first (guarded so the hook is only added once).
+	ensureViewportMeta();
+
 	registerElementorHook();
 	window.addEventListener( 'elementor/frontend/init', registerElementorHook );
 
