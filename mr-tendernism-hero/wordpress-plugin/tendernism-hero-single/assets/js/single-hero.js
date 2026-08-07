@@ -70,6 +70,17 @@
 		return mobile && portrait ? portrait : desktop;
 	}
 
+	// Choose the poster the same way as the source: portrait on phones, else
+	// landscape, each falling back to the other if only one is provided.
+	function posterFor( video, mobile ) {
+		var desktop = video.getAttribute( 'data-poster-desktop' ) || '';
+		var portrait = video.getAttribute( 'data-poster-mobile' ) || '';
+		if ( mobile ) {
+			return portrait || desktop;
+		}
+		return desktop || portrait;
+	}
+
 	function num( el, attr, fallback ) {
 		var raw = parseFloat( el.getAttribute( attr ) );
 		return isNaN( raw ) ? fallback : raw;
@@ -118,6 +129,8 @@
 		videos.forEach( function ( v, i ) {
 			if ( i === 0 ) {
 				v.src = sourceFor( v, mobile );
+				var poster = posterFor( v, mobile );
+				if ( poster ) { v.poster = poster; }
 				v.loop = true;
 				v.muted = true;
 				v.setAttribute( 'playsinline', '' );
@@ -216,6 +229,16 @@
 		if ( ambientLoop ) {
 			layers[ 1 ].src = src;
 			layers[ 1 ].preload = 'auto';
+		}
+
+		// Swap in the device-appropriate poster (the PHP prints a desktop-first
+		// fallback in the poster attribute; correct it to the mobile still here).
+		var poster = posterFor( layers[ 0 ], mobile );
+		if ( poster ) {
+			layers[ 0 ].poster = poster;
+			if ( ambientLoop ) {
+				layers[ 1 ].poster = poster;
+			}
 		}
 
 		var intro = buildIntroTimeline( gsap, sceneEl );

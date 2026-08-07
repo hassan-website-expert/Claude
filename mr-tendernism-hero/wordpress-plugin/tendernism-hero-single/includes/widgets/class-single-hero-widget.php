@@ -127,10 +127,20 @@ class Single_Hero_Widget extends Widget_Base {
 		$this->add_control(
 			'poster_image',
 			array(
-				'label'       => esc_html__( 'Poster image', 'tendernism-hero-single' ),
+				'label'       => esc_html__( 'Poster image (desktop)', 'tendernism-hero-single' ),
 				'type'        => Controls_Manager::MEDIA,
 				'dynamic'     => array( 'active' => true ),
-				'description' => esc_html__( 'Optional still shown instantly while the clip decodes — improves perceived load speed and prevents a black flash. Use a frame from the clip.', 'tendernism-hero-single' ),
+				'description' => esc_html__( 'Optional still shown instantly while the desktop clip decodes — improves perceived load speed and prevents a black flash. Use a frame from the 16:9 clip.', 'tendernism-hero-single' ),
+			)
+		);
+
+		$this->add_control(
+			'poster_image_mobile',
+			array(
+				'label'       => esc_html__( 'Poster image (mobile)', 'tendernism-hero-single' ),
+				'type'        => Controls_Manager::MEDIA,
+				'dynamic'     => array( 'active' => true ),
+				'description' => esc_html__( 'Optional portrait still shown on phones (≤640px) while the mobile clip decodes. Use a frame from the 9:16 clip. Falls back to the desktop poster if empty.', 'tendernism-hero-single' ),
 			)
 		);
 
@@ -849,12 +859,13 @@ class Single_Hero_Widget extends Widget_Base {
 			? $settings['scroll_cue_label']
 			: esc_html__( 'Scroll', 'tendernism-hero-single' );
 
-		// Poster still — shown instantly while the clip decodes (faster first paint,
-		// no black flash). Optional.
-		$poster = '';
-		if ( ! empty( $settings['poster_image']['url'] ) ) {
-			$poster = $settings['poster_image']['url'];
-		}
+		// Poster stills — shown instantly while the clip decodes (faster first
+		// paint, no black flash). Separate desktop / mobile frames; the JS picks
+		// the right one at the ≤640px breakpoint, same as the video source.
+		$poster        = ! empty( $settings['poster_image']['url'] ) ? $settings['poster_image']['url'] : '';
+		$poster_mobile = ! empty( $settings['poster_image_mobile']['url'] ) ? $settings['poster_image_mobile']['url'] : '';
+		// No-JS fallback: prefer the desktop still, else the mobile one.
+		$poster_fallback = '' !== $poster ? $poster : $poster_mobile;
 
 		// Warm the TCP/TLS handshake to the video host before the <video> requests
 		// it — shaves latency off the opening frame with no cost if unused.
@@ -903,8 +914,12 @@ class Single_Hero_Widget extends Widget_Base {
 						data-ths-video
 						data-video-desktop="<?php echo esc_url( $src_desktop ); ?>"
 						data-video-mobile="<?php echo esc_url( $src_mobile ); ?>"
-						<?php if ( $is_first && '' !== $poster ) : ?>poster="<?php echo esc_url( $poster ); ?>"<?php endif; ?>
-						<?php if ( $is_first ) : ?>fetchpriority="high"<?php endif; ?>
+						<?php if ( $is_first ) : ?>
+							<?php if ( '' !== $poster_fallback ) : ?>poster="<?php echo esc_url( $poster_fallback ); ?>"<?php endif; ?>
+							<?php if ( '' !== $poster ) : ?>data-poster-desktop="<?php echo esc_url( $poster ); ?>"<?php endif; ?>
+							<?php if ( '' !== $poster_mobile ) : ?>data-poster-mobile="<?php echo esc_url( $poster_mobile ); ?>"<?php endif; ?>
+							fetchpriority="high"
+						<?php endif; ?>
 						muted
 						playsinline
 						preload="<?php echo esc_attr( $preload ); ?>"

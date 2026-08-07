@@ -2,7 +2,7 @@
 Requires at least: 6.0
 Requires PHP: 7.4
 Requires Elementor: 3.5+
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 
 The "one iconic moment" cinematic hero for Mr. Tendernism, delivered as a fully
 editable Elementor widget. ONE continuous documentary clip — the camera behind
@@ -33,7 +33,7 @@ current CDN, so it works the moment it is dropped in.
 == Editing (everything is in the Elementor panel) ==
 
 * Content → The Moment: the desktop video URL (16:9) and optional mobile URL
-  (9:16), an optional poster image (a still shown instantly while the clip
+  (9:16), optional desktop & mobile poster images (stills shown instantly while the clip
   decodes — faster first paint, no black flash), plus the copy — style variant
   (Finale renders the page's only H1 and styles the tagline in gold), a "Show
   crown icon" switch (the small line-drawn crown above the wordmark — OFF by
