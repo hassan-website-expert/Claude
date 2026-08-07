@@ -49,6 +49,7 @@ export default function CinematicHero() {
   const { rootRef } = useCinematicHero({
     loopTail: HERO.loopTail,
     crossfade: HERO.crossfade,
+    ambientLoop: HERO.ambientLoop,
     enabled: true,
   });
 

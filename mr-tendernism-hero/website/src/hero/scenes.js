@@ -45,6 +45,9 @@ export const scenes = [
     lines: ["Mr. Tendernism"],
     subtitle: "Good Energy. Real Moments. Good Food.",
     cta: "Book Mr. Tendernism",
+    // Do NOT loop/replay the clip — it plays through once and holds. The frame
+    // stays alive because the smoke haze layer keeps drifting upward over it.
+    ambientLoop: false,
     loopTail: LOOP_TAIL,
     crossfade: CROSSFADE,
   },

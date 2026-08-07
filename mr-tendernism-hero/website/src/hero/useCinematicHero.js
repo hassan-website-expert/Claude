@@ -30,7 +30,12 @@ const PLAYBACK_RATE = 1.0;
 // open and smoke is filling the frame, so the image speaks before the words.
 const COPY_DELAY = 1.4;
 
-export function useCinematicHero({ loopTail = 2.0, crossfade = 0.6, enabled = true }) {
+export function useCinematicHero({
+  loopTail = 2.0,
+  crossfade = 0.6,
+  ambientLoop = true,
+  enabled = true,
+}) {
   const rootRef = useRef(null);
 
   useEffect(() => {
@@ -100,7 +105,11 @@ export function useCinematicHero({ loopTail = 2.0, crossfade = 0.6, enabled = tr
       gsap.set(back, { autoAlpha: 0 });
       try { front.currentTime = 0; } catch (e) { /* no-op */ }
       play(front);
-      rafId = requestAnimationFrame(tick);
+      // When ambientLoop is off, the clip plays through ONCE and simply holds on
+      // its final frame — no video loop, no replay. The sense of continued life
+      // comes from the ever-present smoke haze rising over the frame (CSS), which
+      // is what "no loop, but smoke still going up" asks for.
+      if (ambientLoop) rafId = requestAnimationFrame(tick);
       introCall = gsap.delayedCall(COPY_DELAY, () => intro.play(0));
     };
 
@@ -137,7 +146,7 @@ export function useCinematicHero({ loopTail = 2.0, crossfade = 0.6, enabled = tr
       if (st) st.kill();
       layers.forEach((v) => v.pause());
     };
-  }, [enabled, loopTail, crossfade]);
+  }, [enabled, loopTail, crossfade, ambientLoop]);
 
   return { rootRef };
 }
