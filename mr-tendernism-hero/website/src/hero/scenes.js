@@ -1,72 +1,52 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // scenes.js — single source of truth for the cinematic hero.
 //
-// DIRECTION (client reset): the hero is now built entirely from footage that
-// recreates Mr. Tendernism's REAL cookout — his exact face (locked to reference
-// frames from his reel), his real dark steel offset smoker under the pergola,
-// and the real rolling smoke. No invented BBQ scenes, no meat close-ups. The
-// experience is deliberately SHORT: two authentic beats, then the homepage.
+// DIRECTION (client reset → ONE iconic moment): the hero is now a SINGLE
+// continuous documentary clip. No multi-scene scrubbing, no clip switching. The
+// camera sits behind the real offset smoker (~30°); Mr. Tendernism walks in — we
+// see only his back and side profile, never a full frontal face — reaches the
+// smoker and slowly lifts the lid; a thick cloud of natural white smoke rolls out
+// and fills the frame, settling into a calm hold. The homepage headline + CTA
+// animate over this same shot.
 //
-//   Beat I  — Anticipation. Opens behind the smoker (smoke already off the
-//             stack); he walks in and lifts the lid, smoke fills the frame, the
-//             camera slides to a 3/4 angle. The chamber is never revealed.
-//   Beat II — The Pitmaster (finale). He's at the open smoker and looks to
-//             camera with a warm, confident, welcoming smile — the brand line
-//             and booking CTA land here.
+// The clip plays its action ONCE, then the player seamlessly loops its
+// smoke-filled tail (two stacked layers crossfading at the seam) so the hero
+// never freezes if the visitor pauses before scrolling.
 //
-// Clips are 16:9 (desktop hero) and play a touch faster than real-time for a
-// snappier, less languid feel (see PLAYBACK_RATE in useCinematicHero).
+// `scenes` stays a one-element array so the reduced-motion StaticHero keeps
+// working unchanged; CinematicHero reads scenes[0].
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Higgsfield CDN sources (Path A — stream now, self-host later).
 const CDN = "https://d8j0ntlcm91z4.cloudfront.net/user_3GdMpDQKnvNT4cwozQAEb1LsUI2";
-// Desktop hero clips (16:9 landscape).
-export const VIDEO = {
-  // Beat 1 — anticipation. Behind the offset smoker, smoke off the stack; he
-  // walks in from the side, lifts the lid, smoke rolls up and fills frame while
-  // the camera slides to 3/4. Never reveals the chamber (6 reel refs: face +
-  // real smoker/environment/smoke).
-  anticipation: `${CDN}/hf_20260806_162553_768d6c90-a6fb-4ec3-afaa-60b0217f661a.mp4`,
-  // Beat 2 (finale) — reel-faithful: at the open smoker he lifts the lid and
-  // looks to camera with a relaxed, warm smile (same 6-reference lock).
-  pitmaster: `${CDN}/hf_20260806_160825_722e6fa6-12c8-4c3d-b745-632bdefdf6ed.mp4`,
-};
 
-// Mobile clips (9:16 portrait) — the EXACT desktop scenes, content-aware
-// reframed to vertical (subject-tracked) so phones get the same shot and motion
-// as desktop, just optimized for a portrait viewport rather than a separate take.
-export const VIDEO_MOBILE = {
-  anticipation: `${CDN}/hf_20260806_190604_e2f24175-e5c0-4d68-8649-8b949ac84823.mp4`,
-  pitmaster: `${CDN}/hf_20260806_190620_7340e685-6aeb-4585-89a8-7a2574c13551.mp4`,
-};
+// Approved "Variation A" — behind the offset smoker, back/side profile, lid lift,
+// white smoke roll, calm ambient hold. 16:9. Streams at 720p for now; swap this
+// to the Topaz 4K master once Higgsfield credits allow (just a URL change).
+export const HERO_VIDEO = `${CDN}/hf_20260807_113431_a7b7c8de-de25-4946-8874-fbca101e4c8c.mp4`;
+
+// Seamless ambient loop tuning (seconds).
+//   loopTail  — length of the clip's end segment that loops (the settled,
+//               smoke-filled hold after the lid is open).
+//   crossfade — dissolve at the loop seam; sits inside the smoke so it's unseen.
+export const LOOP_TAIL = 2.0;
+export const CROSSFADE = 0.6;
 
 export const scenes = [
   {
-    id: "anticipation",
-    chapter: "I",
-    label: "The Smoker",
-    video: VIDEO.anticipation,
-    videoMobile: VIDEO_MOBILE.anticipation,
+    id: "cookout",
+    video: HERO_VIDEO,
+    // TODO: point at a dedicated 9:16 reframe once generated; until then the 16:9
+    // clip is cover-cropped to portrait on phones (subject stays ~centered).
+    videoMobile: HERO_VIDEO,
     align: "center",
-    // MOMENT 1 — mood over the building smoke, before he's fully revealed.
-    lines: ["Some things", "can’t be rushed."],
-    revealAt: 0.52,
-  },
-  {
-    id: "pitmaster",
-    chapter: "II",
-    label: "The Pitmaster",
-    // He turns to camera at the open smoker — the finale lives here: the name,
-    // the brand line, the booking CTA.
-    video: VIDEO.pitmaster,
-    videoMobile: VIDEO_MOBILE.pitmaster,
-    align: "center",
+    variant: "finale",
     eyebrow: "Come hungry",
     lines: ["Mr. Tendernism"],
     subtitle: "Good Energy. Real Moments. Good Food.",
     cta: "Book Mr. Tendernism",
-    variant: "finale",
-    revealAt: 0.42,
+    loopTail: LOOP_TAIL,
+    crossfade: CROSSFADE,
   },
 ];
 

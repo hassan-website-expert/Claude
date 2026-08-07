@@ -92,9 +92,11 @@ export default function SceneCopy({ scene, index }) {
         </div>
       )}
 
-      <span className="scene-copy__chapter" aria-hidden="true" data-hero-text>
-        {scene.chapter} · {scene.label}
-      </span>
+      {(scene.chapter || scene.label) && (
+        <span className="scene-copy__chapter" aria-hidden="true" data-hero-text>
+          {scene.chapter} · {scene.label}
+        </span>
+      )}
     </div>
   );
 }

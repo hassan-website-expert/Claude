@@ -1,180 +1,143 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// useCinematicHero.js — the scroll controller for the pinned hero.
+// useCinematicHero.js — controller for the single-clip cinematic hero.
 //
 // Responsibilities:
-//   • Pin the full-viewport stage for the length of the piece (~460vh).
-//   • Scrub the pure master timeline (from heroTimeline.js) with scroll.
-//   • Decode responsibly: only the active video (and its crossfade neighbours)
-//     ever plays — everything else is paused.
-//   • Preload progressively: the first frame is already warm from <link preload>;
-//     each subsequent clip is fetched just before it is needed.
+//   • Play ONE continuous clip: the action (walk-in → lid lift → smoke) runs
+//     once, then the smoke-filled tail loops FOREVER via a crossfade between two
+//     stacked <video> layers — so the hero never freezes on a final frame and the
+//     loop seam is invisible (it lives inside drifting smoke).
+//   • Play the copy intro (crown, wordmark, tagline, CTA) once on load, a beat
+//     after the lid opens, so the footage reads first.
+//   • Hand off to the next section on scroll by gently fading the copy out — no
+//     pin, no scrubbed clip switching, no hard cut.
 //
-// The hook owns NO markup. It reads the DOM by data-attributes under `rootRef`,
-// which keeps the JSX declarative and this logic testable in isolation.
+// Reduced-motion visitors never reach this hook — App renders StaticHero instead.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { buildMasterTimeline, activeSceneIndex } from "./heroTimeline";
+import { buildIntroTimeline } from "./heroTimeline";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Play the clips a touch faster than real-time so the hero feels snappier and
-// the visitor reaches the homepage sooner (client asked to speed things up).
-const PLAYBACK_RATE = 1.3;
+// Real-time playback — the moment is meant to feel calm and documentary, and
+// real time keeps the crossfade loop math (which advances in wall-clock seconds)
+// perfectly in sync with the video clock.
+const PLAYBACK_RATE = 1.0;
 
-// Because playback is real-time but the jump to the next scene is gated on
-// scroll, a visitor who parks and lets a clip finish would otherwise be left
-// staring at a frozen final frame until they scroll. Instead, when a clip ends
-// while it is still the active scene, we loop ONLY its tail — the final stretch
-// of rolling smoke after the lid-lift — so the frame keeps breathing. The seam
-// lives inside homogeneous smoke, so the loop is essentially invisible, and the
-// subject's action (his walk-in, the lift) is never repeated while idling.
-const TAIL_LOOP = 1.2; // seconds of the clip's end to loop while parked
+// How long after playback starts the copy rises in (seconds) — after the lid is
+// open and smoke is filling the frame, so the image speaks before the words.
+const COPY_DELAY = 1.4;
 
-export function useCinematicHero({ sceneCount, enabled = true, onSceneChange }) {
+export function useCinematicHero({ loopTail = 2.0, crossfade = 0.6, enabled = true }) {
   const rootRef = useRef(null);
-  // Keep the latest callback in a ref so the scroll effect never rebuilds when it
-  // changes identity between renders.
-  const onSceneChangeRef = useRef(onSceneChange);
-  onSceneChangeRef.current = onSceneChange;
 
   useEffect(() => {
     if (!enabled) return;
     const root = rootRef.current;
     if (!root) return;
 
-    const stage = root.querySelector("[data-hero-stage]");
-    const videoEls = Array.from(root.querySelectorAll("[data-hero-video]"));
-    const sceneEls = Array.from({ length: sceneCount }, (_, i) => {
-      const sceneEl = root.querySelector(`[data-scene="${i}"]`);
-      const rawReveal = sceneEl && sceneEl.getAttribute("data-reveal");
-      return {
-        textItems: Array.from(
-          root.querySelectorAll(`[data-scene="${i}"] [data-hero-text]`)
-        ),
-        crownPaths: Array.from(
-          root.querySelectorAll(`[data-scene="${i}"] [data-hero-crown] path`)
-        ),
-        revealAt: rawReveal != null && rawReveal !== "" ? parseFloat(rawReveal) : undefined,
-      };
-    });
+    // Two stacked layers of the SAME clip (browser serves the 2nd from cache).
+    const layers = Array.from(root.querySelectorAll("[data-hero-video]"));
+    if (layers.length < 2) return;
 
-    // ── Build the (paused) master motion timeline ────────────────────────────
-    const master = buildMasterTimeline({ videoEls, sceneEls });
+    const sceneEl = root.querySelector("[data-scene]");
+    const copyEl = root.querySelector("[data-hero-copy]");
 
-    // ── Video decode management ──────────────────────────────────────────────
-    // Keep a 1-scene window live around the active scene so crossfades never
-    // reveal a frozen frame. Everything else is paused to protect 60fps.
-    const warmed = new Set([0]);
-    const ensureLoaded = (i) => {
-      const v = videoEls[i];
-      if (!v || warmed.has(i)) return;
-      warmed.add(i);
-      v.preload = "auto";
-      v.load();
+    // ── Copy intro (plays once, on load) ─────────────────────────────────────
+    const intro = buildIntroTimeline(sceneEl);
+    let introCall = null;
+
+    // ── Seamless crossfade loop engine ───────────────────────────────────────
+    // `front` is the visible layer; `back` is prepared just before the seam and
+    // dissolved in. Each cycle: the outgoing layer plays its final `crossfade`
+    // seconds while the incoming layer plays the same length from `loopStart`, so
+    // both show near-identical drifting smoke through the dissolve.
+    let front = layers[0];
+    let back = layers[1];
+    let swapping = false;
+    let rafId = 0;
+    let started = false;
+
+    const play = (v) => {
+      v.playbackRate = PLAYBACK_RATE;
+      const p = v.play();
+      if (p && p.catch) p.catch(() => {});
     };
 
-    const setActive = (idx) => {
-      // Warm the immediate neighbours so their first frame is decoded before the
-      // crossfade — but only the ACTIVE clip actually plays.
-      ensureLoaded(idx - 1);
-      ensureLoaded(idx);
-      ensureLoaded(idx + 1);
-      videoEls.forEach((v, i) => {
-        if (i === idx) {
-          // Restart the clip from its first frame every time this scene becomes
-          // active — including when scrolling back UP into a scene we already
-          // passed. Re-entering a moment then replays it (you feel the beat
-          // again) instead of showing a frozen final frame. Playback is real-time,
-          // not scrubbed, so the clip simply rolls once from the top on each entry.
-          try {
-            v.currentTime = 0;
-          } catch (e) {
-            /* seeking before metadata is ready is a no-op; it's already at 0 */
-          }
-          v.playbackRate = PLAYBACK_RATE;
-          const p = v.play();
-          if (p && p.catch) p.catch(() => {});
-        } else if (!v.paused) {
-          // Everything else holds its current frame (the last frame if it ended).
-          v.pause();
-        }
-      });
-    };
+    const tick = () => {
+      rafId = requestAnimationFrame(tick);
+      const v = front;
+      const d = v.duration;
+      if (swapping || !isFinite(d) || d <= 0) return;
 
-    let lastActive = -1;
-
-    // ── Living hold (no frozen final frame) ──────────────────────────────────
-    // When a clip finishes while its scene is still parked on screen, seek back
-    // by TAIL_LOOP and replay — a seamless loop of the smoke-filled tail. If a
-    // newer scene already owns the screen, let the clip rest (it's faded out).
-    const endedHandlers = videoEls.map((v, i) => {
-      const handler = () => {
-        if (i !== lastActive) return;
-        const d = v.duration;
-        if (!isFinite(d) || d <= 0) return;
-        try {
-          v.currentTime = Math.max(0, d - TAIL_LOOP);
-        } catch (e) {
-          /* metadata not ready yet — bail; the next scene entry restarts cleanly */
-        }
-        const p = v.play();
-        if (p && p.catch) p.catch(() => {});
-      };
-      v.addEventListener("ended", handler);
-      return handler;
-    });
-
-    const onUpdate = (self) => {
-      const idx = activeSceneIndex(self.progress, sceneCount);
-      if (idx !== lastActive) {
-        lastActive = idx;
-        setActive(idx);
-        if (onSceneChangeRef.current) onSceneChangeRef.current(idx);
+      if (v.currentTime >= d - crossfade) {
+        swapping = true;
+        const loopStart = Math.max(0, d - loopTail);
+        try { back.currentTime = loopStart; } catch (e) { /* metadata race */ }
+        play(back);
+        gsap.to(front, { autoAlpha: 0, duration: crossfade, ease: "none" });
+        gsap.to(back, {
+          autoAlpha: 1,
+          duration: crossfade,
+          ease: "none",
+          onComplete: () => {
+            const prev = front;
+            front = back;
+            back = prev;
+            back.pause(); // hold the just-outgoing layer until it's next needed
+            swapping = false;
+          },
+        });
       }
     };
 
-    // Prime the opening frame immediately.
-    ensureLoaded(0);
-    setActive(0);
+    const begin = () => {
+      if (started) return;
+      started = true;
+      gsap.set(front, { autoAlpha: 1 });
+      gsap.set(back, { autoAlpha: 0 });
+      try { front.currentTime = 0; } catch (e) { /* no-op */ }
+      play(front);
+      rafId = requestAnimationFrame(tick);
+      introCall = gsap.delayedCall(COPY_DELAY, () => intro.play(0));
+    };
 
-    // ── Pin + scrub ──────────────────────────────────────────────────────────
-    const st = ScrollTrigger.create({
-      animation: master,
-      trigger: root,
-      start: "top top",
-      // Short travel (~0.5 viewport/scene). The hero is now just two authentic
-      // beats and the client asked to cut the scrolling further, so the visitor
-      // reaches the homepage quickly.
-      end: () => "+=" + window.innerHeight * (sceneCount * 0.5),
-      pin: stage,
-      pinSpacing: true,
-      scrub: 1, // a touch of catch-up smoothing on top of Lenis
-      invalidateOnRefresh: true,
-      onUpdate,
-    });
-
-    if (import.meta.env.DEV) {
-      window.__heroTL = master;
-      window.__heroST = st;
+    // Start as soon as the first layer has enough data (first frame decoded).
+    const first = layers[0];
+    if (first.readyState >= 2) begin();
+    else {
+      first.addEventListener("loadeddata", begin, { once: true });
+      first.addEventListener("canplay", begin, { once: true });
     }
 
-    // Recompute once fonts settle to avoid pin math drifting.
+    // ── Scroll handoff — fade the copy as the hero leaves, no pin, no cut ─────
+    let st = null;
+    if (copyEl) {
+      st = ScrollTrigger.create({
+        trigger: root,
+        start: "top top",
+        end: "bottom top",
+        scrub: true,
+        onUpdate: (self) => {
+          gsap.set(copyEl, { autoAlpha: 1 - self.progress, y: -self.progress * 60 });
+        },
+      });
+    }
+
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(() => ScrollTrigger.refresh());
     }
 
     return () => {
-      st.kill();
-      master.kill();
-      endedHandlers.forEach((h, i) => {
-        if (videoEls[i]) videoEls[i].removeEventListener("ended", h);
-      });
-      videoEls.forEach((v) => v.pause());
+      cancelAnimationFrame(rafId);
+      if (introCall) introCall.kill();
+      intro.kill();
+      if (st) st.kill();
+      layers.forEach((v) => v.pause());
     };
-  }, [sceneCount, enabled]);
+  }, [enabled, loopTail, crossfade]);
 
   return { rootRef };
 }

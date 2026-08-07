@@ -1,12 +1,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// CinematicHero.jsx — the pinned, scroll-scrubbed documentary hero.
+// CinematicHero.jsx — the single-clip documentary hero.
 //
 // Layer stack (bottom → top):
-//   1. Stacked <video> layers (crossfaded by the timeline)
-//   2. Grade + vignette overlay (readability, film contrast)
-//   3. Fine grain (atmosphere)
-//   4. Scene copy layers (one per scene, absolutely stacked)
-//   5. Persistent thin frame + scroll cue + sound toggle
+//   1. TWO stacked <video> layers of the SAME clip — the seamless crossfade loop
+//      (see useCinematicHero): the action plays once, then the smoke-filled tail
+//      loops forever with an invisible dissolve so the hero never freezes.
+//   2. Unified tone / haze / grade / grain overlays (constant film atmosphere)
+//   3. One scene copy block (wordmark + tagline + CTA) animating in on load
+//   4. Persistent thin frame + scroll cue + sound toggle
 //
 // All motion lives in useCinematicHero / heroTimeline. This file is markup +
 // the ambient-audio controller only.
@@ -17,11 +18,13 @@ import { scenes } from "./scenes";
 import SceneCopy from "./SceneCopy";
 import useCinematicHero from "./useCinematicHero";
 
+// The single hero scene (one continuous cookout moment).
+const HERO = scenes[0];
+
 // Continuous ambient bed (fire crackle + evening room tone) that plays UNDER the
-// whole hero and never cuts — the audio half of the "one continuous film"
-// illusion. Points at the licensed loop in public/audio/; the toggle self-hides
-// until the file is actually playable, so there is never a dead control on the
-// page. (The filename has spaces, hence the %20 encoding.)
+// hero and never cuts. Points at the licensed loop in public/audio/; the toggle
+// self-hides until the file is actually playable, so there is never a dead
+// control on the page. (The filename has spaces, hence the %20 encoding.)
 const AMBIENT_SRC =
   "./audio/28102%20Countryside%20evening%20campfire%20ambience%20loop-full.mp3";
 const AMBIENT_VOLUME = 0.5;
@@ -44,9 +47,12 @@ export default function CinematicHero() {
   const [isMobile] = useState(pickInitialMobile);
 
   const { rootRef } = useCinematicHero({
-    sceneCount: scenes.length,
+    loopTail: HERO.loopTail,
+    crossfade: HERO.crossfade,
     enabled: true,
   });
+
+  const src = isMobile && HERO.videoMobile ? HERO.videoMobile : HERO.video;
 
   // Gentle fade so the bed swells in / eases out rather than snapping.
   const fadeTo = (target, onDone) => {
@@ -90,47 +96,36 @@ export default function CinematicHero() {
       className="hero"
       aria-label="Mr. Tendernism — cinematic introduction"
     >
-      {/* The single element that stays pinned in the viewport while we scroll. */}
       <div className="hero__stage" data-hero-stage>
-        {/* ── Video layers ─────────────────────────────────────────────── */}
+        {/* ── Video layers — two copies of ONE clip for the seamless loop ─── */}
         <div className="hero__videos">
-          {scenes.map((scene, i) => (
+          {[0, 1].map((i) => (
             <video
-              key={scene.id}
+              key={i}
               className="hero__video"
               data-hero-video
-              src={isMobile && scene.videoMobile ? scene.videoMobile : scene.video}
+              src={src}
               muted
-              // No loop: each clip plays once and freezes on its final frame.
               playsInline
-              // First frame is preloaded in <head>; the rest are warmed on demand.
-              preload={i === 0 ? "auto" : "none"}
+              // Both layers must be decode-ready for the crossfade loop; the
+              // first frame is also preloaded in <head> for a fast LCP.
+              preload="auto"
               aria-hidden="true"
             />
           ))}
         </div>
 
-        {/* ── Continuity film layer ────────────────────────────────────────
-            These sit ABOVE the videos and are CONSTANT across every chapter, so
-            the atmosphere (colour, haze, grain) never resets between shots — the
-            single biggest lever for "one continuous film" vs. separate clips. */}
+        {/* ── Continuity film layer (constant colour, haze, grain) ───────── */}
         <div className="hero__tone" aria-hidden="true" />   {/* unified warm grade */}
-        <div className="hero__haze" aria-hidden="true" />   {/* smoke that never stops */}
+        <div className="hero__haze" aria-hidden="true" />   {/* ever-present smoke drift */}
         <div className="hero__grade" aria-hidden="true" />  {/* readability vignette */}
         <div className="hero__grain" aria-hidden="true" />
 
-        {/* ── Scene copy layers ────────────────────────────────────────── */}
+        {/* ── Single scene copy — animates in on load, fades out on scroll ─ */}
         <div className="hero__scenes">
-          {scenes.map((scene, i) => (
-            <div
-              key={scene.id}
-              className="hero__scene"
-              data-scene={i}
-              data-reveal={scene.revealAt}
-            >
-              <SceneCopy scene={scene} index={i} />
-            </div>
-          ))}
+          <div className="hero__scene" data-scene data-hero-copy>
+            <SceneCopy scene={HERO} index={0} />
+          </div>
         </div>
 
         {/* ── Persistent film frame + scroll cue ───────────────────────── */}
