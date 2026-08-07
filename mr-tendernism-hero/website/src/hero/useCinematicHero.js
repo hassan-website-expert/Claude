@@ -30,6 +30,9 @@ const PLAYBACK_RATE = 1.0;
 // open and smoke is filling the frame, so the image speaks before the words.
 const COPY_DELAY = 1.4;
 
+// How long after the clip ends before the gentle auto-scroll nudge (ms).
+const NUDGE_DELAY = 2500;
+
 export function useCinematicHero({
   loopTail = 2.0,
   crossfade = 0.6,
@@ -71,6 +74,35 @@ export function useCinematicHero({
       if (p && p.catch) p.catch(() => {});
     };
 
+    // ── Post-clip auto-nudge ─────────────────────────────────────────────────
+    // ~2.5s after the clip settles, gently scroll the section down a touch to
+    // hint there's more below. Fires ONCE, only if the visitor is still at the
+    // top (hasn't scrolled), and any manual scroll cancels it — we never hijack
+    // someone who's already reading or interacting.
+    let nudged = false;
+    let nudgeTimer = 0;
+    const doNudge = () => {
+      if (nudged || window.scrollY > 8) return;
+      nudged = true;
+      const targetY = Math.round(window.innerHeight * 0.4);
+      if (window.__lenis && window.__lenis.scrollTo) {
+        window.__lenis.scrollTo(targetY, { duration: 1.4 });
+      } else {
+        window.scrollTo({ top: targetY, behavior: "smooth" });
+      }
+    };
+    const cancelNudge = () => {
+      nudged = true;
+      clearTimeout(nudgeTimer);
+    };
+    const scheduleNudge = () => {
+      if (nudged) return;
+      nudgeTimer = setTimeout(doNudge, NUDGE_DELAY);
+    };
+    window.addEventListener("wheel", cancelNudge, { passive: true });
+    window.addEventListener("touchmove", cancelNudge, { passive: true });
+    window.addEventListener("keydown", cancelNudge);
+
     const tick = () => {
       rafId = requestAnimationFrame(tick);
       const v = front;
@@ -109,7 +141,12 @@ export function useCinematicHero({
       // its final frame — no video loop, no replay. The sense of continued life
       // comes from the ever-present smoke haze rising over the frame (CSS), which
       // is what "no loop, but smoke still going up" asks for.
-      if (ambientLoop) rafId = requestAnimationFrame(tick);
+      if (ambientLoop) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        // Clip plays once and holds — schedule the nudge when it finishes.
+        front.addEventListener("ended", scheduleNudge, { once: true });
+      }
       introCall = gsap.delayedCall(COPY_DELAY, () => intro.play(0));
     };
 
@@ -141,6 +178,11 @@ export function useCinematicHero({
 
     return () => {
       cancelAnimationFrame(rafId);
+      clearTimeout(nudgeTimer);
+      window.removeEventListener("wheel", cancelNudge);
+      window.removeEventListener("touchmove", cancelNudge);
+      window.removeEventListener("keydown", cancelNudge);
+      layers.forEach((v) => v.removeEventListener("ended", scheduleNudge));
       if (introCall) introCall.kill();
       intro.kill();
       if (st) st.kill();

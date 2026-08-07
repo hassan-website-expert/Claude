@@ -31,11 +31,14 @@ export function useLenis(enabled = true) {
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
 
-    if (import.meta.env.DEV) window.__lenis = lenis;
+    // Exposed so the hero controller can drive Lenis's own smooth scrollTo for
+    // the post-clip auto-nudge (rather than a native scroll that would fight it).
+    window.__lenis = lenis;
 
     return () => {
       gsap.ticker.remove(tick);
       lenis.destroy();
+      if (window.__lenis === lenis) delete window.__lenis;
     };
   }, [enabled]);
 }
