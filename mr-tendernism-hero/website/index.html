@@ -13,12 +13,22 @@
 
     <!-- The single hero clip, preloaded for an immediate film-grade opening
          frame and a fast LCP. One continuous cookout moment (behind the offset
-         smoker → lid lift → smoke); the same clip serves desktop and mobile for
-         now, so one preload covers both. Streamed from the Higgsfield CDN. -->
+         smoker → lid lift → smoke). Each device preloads ONLY the clip it will
+         actually play: the 16:9 master on tablets/desktops, the dedicated 9:16
+         portrait reframe on phones (matching the ≤640px breakpoint the app uses
+         to choose the source). Streamed from the Higgsfield CDN. -->
     <link
       rel="preload"
       as="video"
+      media="(min-width: 641px)"
       href="https://d8j0ntlcm91z4.cloudfront.net/user_3GdMpDQKnvNT4cwozQAEb1LsUI2/hf_20260807_113431_a7b7c8de-de25-4946-8874-fbca101e4c8c.mp4"
+      type="video/mp4"
+    />
+    <link
+      rel="preload"
+      as="video"
+      media="(max-width: 640px)"
+      href="https://d8j0ntlcm91z4.cloudfront.net/user_3GdMpDQKnvNT4cwozQAEb1LsUI2/hf_20260807_134608_2971ff31-3541-48db-a503-30081b2cb218.mp4"
       type="video/mp4"
     />
 

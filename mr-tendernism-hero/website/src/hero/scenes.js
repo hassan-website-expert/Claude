@@ -25,6 +25,10 @@ const CDN = "https://d8j0ntlcm91z4.cloudfront.net/user_3GdMpDQKnvNT4cwozQAEb1LsU
 // to the Topaz 4K master once Higgsfield credits allow (just a URL change).
 export const HERO_VIDEO = `${CDN}/hf_20260807_113431_a7b7c8de-de25-4946-8874-fbca101e4c8c.mp4`;
 
+// Dedicated 9:16 portrait reframe of the SAME clip (same scene, same action —
+// Higgsfield reframe recomposed it for phones; no re-shoot, no scene change).
+export const HERO_VIDEO_MOBILE = `${CDN}/hf_20260807_134608_2971ff31-3541-48db-a503-30081b2cb218.mp4`;
+
 // Seamless ambient loop tuning (seconds).
 //   loopTail  — length of the clip's end segment that loops (the settled,
 //               smoke-filled hold after the lid is open).
@@ -36,9 +40,8 @@ export const scenes = [
   {
     id: "cookout",
     video: HERO_VIDEO,
-    // TODO: point at a dedicated 9:16 reframe once generated; until then the 16:9
-    // clip is cover-cropped to portrait on phones (subject stays ~centered).
-    videoMobile: HERO_VIDEO,
+    // Dedicated 9:16 portrait reframe (same clip, recomposed for phones).
+    videoMobile: HERO_VIDEO_MOBILE,
     align: "center",
     variant: "finale",
     eyebrow: "Come hungry",
