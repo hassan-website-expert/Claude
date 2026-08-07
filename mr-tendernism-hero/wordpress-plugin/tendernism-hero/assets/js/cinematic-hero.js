@@ -90,6 +90,18 @@
 		return mobile && portrait ? portrait : desktop;
 	}
 
+	// Pick the matching poster still (portrait on phones, else landscape). The PHP
+	// prints the desktop poster as the default `poster` attribute; this swaps in
+	// the mobile still on phones so the opening frame matches the portrait clip.
+	function applyPoster( video, mobile ) {
+		var desktop = video.getAttribute( 'data-poster-desktop' ) || '';
+		var portrait = video.getAttribute( 'data-poster-mobile' ) || '';
+		var poster = mobile && portrait ? portrait : ( desktop || portrait );
+		if ( poster ) {
+			video.poster = poster;
+		}
+	}
+
 	function num( el, attr, fallback ) {
 		var raw = parseFloat( el.getAttribute( attr ) );
 		return isNaN( raw ) ? fallback : raw;
@@ -167,6 +179,7 @@
 		var scenes = Array.prototype.slice.call( root.querySelectorAll( '[data-th-scene]' ) );
 
 		videos.forEach( function ( v, i ) {
+			applyPoster( v, mobile );
 			if ( i === posterIndex ) {
 				v.src = sourceFor( v, mobile );
 				v.loop = true;
@@ -253,6 +266,7 @@
 		}
 
 		var mobile = isMobile();
+		videoEls.forEach( function ( v ) { applyPoster( v, mobile ); } );
 		var playbackRate = num( root, 'data-playback', 1.3 );
 		var perScene = num( root, 'data-scroll-per-scene', 0.5 );
 		var crossfade = num( root, 'data-crossfade', 0.66 );

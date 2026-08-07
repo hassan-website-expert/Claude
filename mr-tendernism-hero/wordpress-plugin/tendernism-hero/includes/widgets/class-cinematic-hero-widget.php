@@ -15,6 +15,10 @@ namespace Tendernism_Hero\Widgets;
 use Elementor\Widget_Base;
 use Elementor\Controls_Manager;
 use Elementor\Repeater;
+use Elementor\Group_Control_Typography;
+use Elementor\Group_Control_Text_Shadow;
+use Elementor\Group_Control_Border;
+use Elementor\Group_Control_Box_Shadow;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -67,6 +71,11 @@ class Cinematic_Hero_Widget extends Widget_Base {
 		$this->register_audio_section();
 		$this->register_chrome_section();
 		$this->register_style_section();
+		$this->register_headline_style_section();
+		$this->register_eyebrow_style_section();
+		$this->register_subtitle_style_section();
+		$this->register_button_style_section();
+		$this->register_crown_style_section();
 	}
 
 	/**
@@ -108,6 +117,26 @@ class Cinematic_Hero_Widget extends Widget_Base {
 		);
 
 		$repeater->add_control(
+			'poster_image',
+			array(
+				'label'       => esc_html__( 'Poster image (desktop)', 'tendernism-hero' ),
+				'type'        => Controls_Manager::MEDIA,
+				'dynamic'     => array( 'active' => true ),
+				'description' => esc_html__( 'Optional still shown instantly while this clip decodes (faster first frame, no black flash). Use a frame from the 16:9 clip.', 'tendernism-hero' ),
+			)
+		);
+
+		$repeater->add_control(
+			'poster_image_mobile',
+			array(
+				'label'       => esc_html__( 'Poster image (mobile)', 'tendernism-hero' ),
+				'type'        => Controls_Manager::MEDIA,
+				'dynamic'     => array( 'active' => true ),
+				'description' => esc_html__( 'Optional portrait still shown on phones (≤640px). Use a frame from the 9:16 clip. Falls back to the desktop poster if empty.', 'tendernism-hero' ),
+			)
+		);
+
+		$repeater->add_control(
 			'align',
 			array(
 				'label'   => esc_html__( 'Copy alignment', 'tendernism-hero' ),
@@ -134,6 +163,18 @@ class Cinematic_Hero_Widget extends Widget_Base {
 					'quote'  => esc_html__( 'Quote', 'tendernism-hero' ),
 				),
 				'description' => esc_html__( 'The finale renders the only H1 on the page and holds on screen (no fade-out).', 'tendernism-hero' ),
+			)
+		);
+
+		$repeater->add_control(
+			'show_crown',
+			array(
+				'label'        => esc_html__( 'Show crown icon', 'tendernism-hero' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => 'yes',
+				'return_value' => 'yes',
+				'condition'    => array( 'variant' => 'finale' ),
+				'description'  => esc_html__( 'The small line-drawn crown above the finale wordmark. Turn off for a plainer payoff.', 'tendernism-hero' ),
 			)
 		);
 
@@ -475,6 +516,304 @@ class Cinematic_Hero_Widget extends Widget_Base {
 	}
 
 	/**
+	 * Headline typography + colour (fonts, size, weight, spacing, stroke).
+	 */
+	private function register_headline_style_section() {
+		$this->start_controls_section(
+			'section_style_headline',
+			array(
+				'label' => esc_html__( 'Headline', 'tendernism-hero' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'headline_typography',
+				'selector' => '{{WRAPPER}} .th-scene-copy__title',
+			)
+		);
+
+		$this->add_control(
+			'headline_color',
+			array(
+				'label'       => esc_html__( 'Colour', 'tendernism-hero' ),
+				'type'        => Controls_Manager::COLOR,
+				'selectors'   => array(
+					'{{WRAPPER}} .th-scene-copy__title' => 'color: {{VALUE}}; -webkit-text-stroke-color: {{VALUE}};',
+				),
+				'description' => esc_html__( 'Overrides the Headline colour from the Colours section.', 'tendernism-hero' ),
+			)
+		);
+
+		$this->add_control(
+			'headline_stroke',
+			array(
+				'label'       => esc_html__( 'Outline thickness', 'tendernism-hero' ),
+				'type'        => Controls_Manager::SLIDER,
+				'size_units'  => array( 'px', 'em' ),
+				'range'       => array(
+					'px' => array( 'min' => 0, 'max' => 4, 'step' => 0.1 ),
+					'em' => array( 'min' => 0, 'max' => 0.1, 'step' => 0.002 ),
+				),
+				'selectors'   => array(
+					'{{WRAPPER}} .th-scene-copy__title' => '-webkit-text-stroke-width: {{SIZE}}{{UNIT}};',
+				),
+				'description' => esc_html__( 'Set to 0 to remove the letter outline for a flatter look.', 'tendernism-hero' ),
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Text_Shadow::get_type(),
+			array(
+				'name'     => 'headline_shadow',
+				'selector' => '{{WRAPPER}} .th-scene-copy__title',
+			)
+		);
+
+		$this->end_controls_section();
+	}
+
+	/**
+	 * Eyebrow (the small kicker above the headline) typography + colour.
+	 */
+	private function register_eyebrow_style_section() {
+		$this->start_controls_section(
+			'section_style_eyebrow',
+			array(
+				'label' => esc_html__( 'Eyebrow', 'tendernism-hero' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'eyebrow_typography',
+				'selector' => '{{WRAPPER}} .th-scene-copy__eyebrow',
+			)
+		);
+
+		$this->add_control(
+			'eyebrow_color',
+			array(
+				'label'     => esc_html__( 'Colour', 'tendernism-hero' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .th-scene-copy__eyebrow' => 'color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->end_controls_section();
+	}
+
+	/**
+	 * Subtitle / tagline typography + colour. The colour override also clears the
+	 * finale gold-gradient text fill so a chosen colour actually shows.
+	 */
+	private function register_subtitle_style_section() {
+		$this->start_controls_section(
+			'section_style_subtitle',
+			array(
+				'label' => esc_html__( 'Subtitle', 'tendernism-hero' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'subtitle_typography',
+				'selector' => '{{WRAPPER}} .th-scene-copy__subtitle',
+			)
+		);
+
+		$this->add_control(
+			'subtitle_color',
+			array(
+				'label'       => esc_html__( 'Colour', 'tendernism-hero' ),
+				'type'        => Controls_Manager::COLOR,
+				'selectors'   => array(
+					'{{WRAPPER}} .th-scene-copy__subtitle' => 'color: {{VALUE}}; -webkit-text-fill-color: {{VALUE}}; background: none;',
+				),
+				'description' => esc_html__( 'On the Finale variant this replaces the gold-gradient tagline with a solid colour.', 'tendernism-hero' ),
+			)
+		);
+
+		$this->end_controls_section();
+	}
+
+	/**
+	 * Full button styling — typography, normal/hover colours, border, radius,
+	 * padding, shadow. Mirrors Elementor's own Button widget controls.
+	 */
+	private function register_button_style_section() {
+		$this->start_controls_section(
+			'section_style_button',
+			array(
+				'label' => esc_html__( 'Button', 'tendernism-hero' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'button_typography',
+				'selector' => '{{WRAPPER}} .th-scene-copy__cta',
+			)
+		);
+
+		$this->start_controls_tabs( 'button_tabs' );
+
+		$this->start_controls_tab(
+			'button_tab_normal',
+			array( 'label' => esc_html__( 'Normal', 'tendernism-hero' ) )
+		);
+
+		$this->add_control(
+			'button_color',
+			array(
+				'label'     => esc_html__( 'Text colour', 'tendernism-hero' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .th-scene-copy__cta' => 'color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'button_bg',
+			array(
+				'label'     => esc_html__( 'Background', 'tendernism-hero' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .th-scene-copy__cta' => 'background: {{VALUE}}; border-color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'button_tab_hover',
+			array( 'label' => esc_html__( 'Hover', 'tendernism-hero' ) )
+		);
+
+		$this->add_control(
+			'button_color_hover',
+			array(
+				'label'     => esc_html__( 'Text colour', 'tendernism-hero' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .th-scene-copy__cta:hover, {{WRAPPER}} .th-scene-copy__cta:focus' => 'color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'button_bg_hover',
+			array(
+				'label'     => esc_html__( 'Background', 'tendernism-hero' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .th-scene-copy__cta:hover, {{WRAPPER}} .th-scene-copy__cta:focus' => 'background: {{VALUE}}; border-color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->end_controls_tab();
+		$this->end_controls_tabs();
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'      => 'button_border',
+				'selector'  => '{{WRAPPER}} .th-scene-copy__cta',
+				'separator' => 'before',
+			)
+		);
+
+		$this->add_control(
+			'button_radius',
+			array(
+				'label'      => esc_html__( 'Border radius', 'tendernism-hero' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', '%', 'em' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .th-scene-copy__cta' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'button_padding',
+			array(
+				'label'      => esc_html__( 'Padding', 'tendernism-hero' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .th-scene-copy__cta' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Box_Shadow::get_type(),
+			array(
+				'name'     => 'button_shadow',
+				'selector' => '{{WRAPPER}} .th-scene-copy__cta',
+			)
+		);
+
+		$this->end_controls_section();
+	}
+
+	/**
+	 * Crown icon styling (colour + size). Only meaningful on finale scenes that
+	 * have the crown switched on.
+	 */
+	private function register_crown_style_section() {
+		$this->start_controls_section(
+			'section_style_crown',
+			array(
+				'label' => esc_html__( 'Crown icon', 'tendernism-hero' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_control(
+			'crown_color',
+			array(
+				'label'     => esc_html__( 'Colour', 'tendernism-hero' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .th-scene-copy__crown path' => 'stroke: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'crown_size',
+			array(
+				'label'      => esc_html__( 'Size', 'tendernism-hero' ),
+				'type'       => Controls_Manager::SLIDER,
+				'size_units' => array( 'px', '%' ),
+				'range'      => array(
+					'px' => array( 'min' => 24, 'max' => 220, 'step' => 2 ),
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .th-scene-copy__crown' => 'width: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->end_controls_section();
+	}
+
+	/**
 	 * Seed content matching the approved two-beat cut, so a freshly dropped
 	 * widget already shows the real hero (editors then tweak in place).
 	 *
@@ -565,12 +904,20 @@ class Cinematic_Hero_Widget extends Widget_Base {
 			<div class="th-hero__stage" data-th-stage>
 
 				<div class="th-hero__videos">
-					<?php foreach ( $scenes as $i => $scene ) : ?>
+					<?php
+					foreach ( $scenes as $i => $scene ) :
+						$poster_d = ! empty( $scene['poster_image']['url'] ) ? $scene['poster_image']['url'] : '';
+						$poster_m = ! empty( $scene['poster_image_mobile']['url'] ) ? $scene['poster_image_mobile']['url'] : '';
+						$poster_fallback = '' !== $poster_d ? $poster_d : $poster_m;
+						?>
 						<video
 							class="th-hero__video"
 							data-th-video
 							data-video-desktop="<?php echo esc_url( $this->scene_video( $scene, 'video_desktop' ) ); ?>"
 							data-video-mobile="<?php echo esc_url( $this->scene_video( $scene, 'video_mobile' ) ); ?>"
+							<?php if ( '' !== $poster_fallback ) : ?>poster="<?php echo esc_url( $poster_fallback ); ?>"<?php endif; ?>
+							<?php if ( '' !== $poster_d ) : ?>data-poster-desktop="<?php echo esc_url( $poster_d ); ?>"<?php endif; ?>
+							<?php if ( '' !== $poster_m ) : ?>data-poster-mobile="<?php echo esc_url( $poster_m ); ?>"<?php endif; ?>
 							muted
 							playsinline
 							preload="<?php echo 0 === $i ? 'auto' : 'none'; ?>"
@@ -655,8 +1002,9 @@ class Cinematic_Hero_Widget extends Widget_Base {
 
 		echo '<div class="' . esc_attr( $classes ) . '">';
 
-		// Finale crown (line-drawn logo callback).
-		if ( $is_finale ) {
+		// Finale crown (line-drawn logo callback) — optional per scene.
+		$show_crown = ! isset( $scene['show_crown'] ) || 'yes' === $scene['show_crown'];
+		if ( $is_finale && $show_crown ) {
 			echo '<svg class="th-scene-copy__crown" viewBox="0 0 120 74" data-th-crown data-th-text aria-hidden="true">'
 				. '<path d="M8 66 L20 22 L42 50 L60 12 L78 50 L100 22 L112 66 Z"></path>'
 				. '<path d="M8 66 L112 66"></path>'
