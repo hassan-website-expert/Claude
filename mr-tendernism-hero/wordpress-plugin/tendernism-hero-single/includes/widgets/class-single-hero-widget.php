@@ -119,7 +119,7 @@ class Single_Hero_Widget extends Widget_Base {
 				'dynamic'     => array( 'active' => true ),
 				'placeholder' => 'https://…/clip-portrait.mp4',
 				'label_block' => true,
-				'default'     => $cdn . '/hf_20260807_134608_2971ff31-3541-48db-a503-30081b2cb218.mp4',
+				'default'     => $cdn . '/hf_20260807_140743_87816a3f-70e9-4f0d-b4f9-61e986dff8c5.mp4',
 				'description' => esc_html__( 'Optional. Portrait (9:16) reframe shown on phones (≤640px). Falls back to the desktop clip if empty.', 'tendernism-hero-single' ),
 			)
 		);

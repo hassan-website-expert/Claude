@@ -2,7 +2,7 @@
 Requires at least: 6.0
 Requires PHP: 7.4
 Requires Elementor: 3.5+
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 
 The "one iconic moment" cinematic hero for Mr. Tendernism, delivered as a fully
 editable Elementor widget. ONE continuous documentary clip — the camera behind

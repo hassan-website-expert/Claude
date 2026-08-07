@@ -27,7 +27,7 @@ export const HERO_VIDEO = `${CDN}/hf_20260807_113431_a7b7c8de-de25-4946-8874-fbc
 
 // Dedicated 9:16 portrait reframe of the SAME clip (same scene, same action —
 // Higgsfield reframe recomposed it for phones; no re-shoot, no scene change).
-export const HERO_VIDEO_MOBILE = `${CDN}/hf_20260807_134608_2971ff31-3541-48db-a503-30081b2cb218.mp4`;
+export const HERO_VIDEO_MOBILE = `${CDN}/hf_20260807_140743_87816a3f-70e9-4f0d-b4f9-61e986dff8c5.mp4`;
 
 // Seamless ambient loop tuning (seconds).
 //   loopTail  — length of the clip's end segment that loops (the settled,
