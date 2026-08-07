@@ -1,0 +1,374 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Tendernism Single Hero — Elementor widget styles.
+   Everything is scoped under .ths-hero and driven by --ths-* custom properties
+   so the Elementor colour controls can retheme it without touching this file,
+   and nothing here can leak into the surrounding theme (or into the multi-scene
+   "Cinematic Hero" plugin, which uses the .th-* prefix).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.ths-hero {
+	/* Brand tokens (overridable via the widget's Colours controls). */
+	--ths-ink: #0e0b09;
+	--ths-headline: #ededea;
+	--ths-cream: #f2efe9;
+	--ths-ash: #c3bcae;
+	--ths-ash-dim: #7a7060;
+	--ths-gold: #d4a018;
+	--ths-gold-hi: #f0c95a;
+	--ths-gold-lo: #a87c12;
+	--ths-ink-on-gold: #141210;
+	--ths-line: rgba( 212, 160, 24, 0.24 );
+	--ths-gold-grad: linear-gradient( 180deg, var( --ths-gold-hi ) 0%, var( --ths-gold ) 48%, var( --ths-gold-lo ) 100% );
+
+	--ths-font-display: "Bebas Neue", "Arial Narrow", sans-serif;
+	--ths-font-script: "Great Vibes", cursive;
+	--ths-font-ui: "Space Grotesk", system-ui, -apple-system, sans-serif;
+	--ths-gutter: clamp( 1.5rem, 6vw, 7rem );
+
+	position: relative;
+	z-index: 1;
+	background: var( --ths-ink );
+	color: var( --ths-cream );
+	font-family: var( --ths-font-ui );
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+.ths-hero * { box-sizing: border-box; }
+
+/* ── Stage (full viewport, not pinned) ────────────────────────────────────── */
+.ths-hero__stage {
+	position: relative;
+	width: 100%;
+	height: 100vh;
+	overflow: hidden;
+	background: var( --ths-ink );
+}
+@supports ( height: 100svh ) {
+	.ths-hero__stage { height: 100svh; }
+}
+
+/* ── Video layers ─────────────────────────────────────────────────────────── */
+.ths-hero__videos {
+	position: absolute;
+	inset: 0;
+	animation: thsVideoDrift 20s ease-in-out infinite alternate;
+	will-change: transform;
+	transform: translateZ( 0 );
+}
+@keyframes thsVideoDrift {
+	from { transform: scale( 1.01 ) translate3d( 0, 0, 0 ); }
+	to   { transform: scale( 1.075 ) translate3d( -1.6%, -1.1%, 0 ); }
+}
+.ths-hero__video {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	will-change: opacity, transform;
+	transform: translateZ( 0 );
+	backface-visibility: hidden;
+}
+
+/* ── Grade / vignette ─────────────────────────────────────────────────────── */
+.ths-hero__grade {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	z-index: 4;
+	background:
+		radial-gradient( 90% 60% at 50% 108%, rgba( 200, 116, 58, 0.18 ), transparent 60% ),
+		radial-gradient( 120% 80% at 50% 42%, transparent 36%, rgba( 8, 5, 3, 0.58 ) 100% ),
+		linear-gradient( to top, rgba( 8, 5, 3, 0.74 ) 0%, transparent 34%, transparent 60%, rgba( 8, 5, 3, 0.46 ) 100% );
+}
+
+/* ── Grain ────────────────────────────────────────────────────────────────── */
+.ths-hero__grain {
+	position: absolute;
+	inset: -50%;
+	pointer-events: none;
+	z-index: 5;
+	opacity: 0.05;
+	mix-blend-mode: overlay;
+	background-image: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E" );
+}
+
+/* ── Unified warm tone ────────────────────────────────────────────────────── */
+.ths-hero__tone {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	z-index: 2;
+	mix-blend-mode: soft-light;
+	background: linear-gradient( 180deg, rgba( 212, 160, 24, 0.10 ), rgba( 120, 60, 16, 0.14 ) 60%, rgba( 20, 10, 4, 0.20 ) );
+}
+
+/* ── Haze — ever-present smoke that keeps RISING over the held frame ───────── */
+/* In "hold" mode the clip plays once and settles, so this upward drift is what
+   keeps the hero alive without looping the video. */
+.ths-hero__haze {
+	position: absolute;
+	inset: -20%;
+	pointer-events: none;
+	z-index: 3;
+	opacity: 0.6;
+	mix-blend-mode: screen;
+	background:
+		radial-gradient( 38% 30% at 22% 30%, rgba( 224, 190, 130, 0.12 ), transparent 70% ),
+		radial-gradient( 46% 34% at 78% 62%, rgba( 200, 120, 50, 0.10 ), transparent 72% ),
+		radial-gradient( 40% 28% at 55% 85%, rgba( 120, 90, 60, 0.12 ), transparent 70% );
+	animation: thsHazeDrift 24s ease-in-out infinite alternate;
+	will-change: transform, opacity;
+}
+@keyframes thsHazeDrift {
+	from { transform: translate3d( -1%, 7%, 0 ) scale( 1.05 ); opacity: 0.4; }
+	to   { transform: translate3d( 1%, -11%, 0 ) scale( 1.22 ); opacity: 0.66; }
+}
+
+/* ── Film frame ───────────────────────────────────────────────────────────── */
+.ths-hero__frame {
+	position: absolute;
+	inset: clamp( 12px, 1.6vw, 26px );
+	border: 1px solid var( --ths-line );
+	pointer-events: none;
+	z-index: 20;
+}
+
+/* ── Scene copy layer ─────────────────────────────────────────────────────── */
+.ths-hero__scenes {
+	position: absolute;
+	inset: 0;
+	z-index: 15;
+	pointer-events: none;
+}
+.ths-hero__scene {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	padding: clamp( 5rem, 12vh, 9rem ) var( --ths-gutter );
+}
+
+.ths-scene-copy { max-width: min( 90vw, 62rem ); display: flex; flex-direction: column; }
+.ths-scene-copy--center { margin: auto; text-align: center; align-items: center; }
+.ths-scene-copy--start  { margin-top: auto; margin-bottom: auto; margin-right: auto; text-align: left; align-items: flex-start; }
+.ths-scene-copy--end    { margin-top: auto; margin-bottom: auto; margin-left: auto; text-align: right; align-items: flex-end; }
+
+/* Animatable words start hidden; GSAP reveals them. In static mode they show. */
+.ths-hero:not( .ths-hero--static ) [data-ths-text] { opacity: 0; }
+
+.ths-scene-copy__eyebrow {
+	display: block;
+	font-size: clamp( 0.7rem, 1vw, 0.85rem );
+	text-transform: uppercase;
+	letter-spacing: 0.5em;
+	color: var( --ths-gold );
+	margin-bottom: clamp( 1rem, 2vh, 1.6rem );
+	padding-left: 0.5em;
+}
+
+.ths-scene-copy__title {
+	font-family: var( --ths-font-display );
+	font-weight: 400;
+	font-size: clamp( 3.2rem, 9vw, 9.5rem );
+	line-height: 0.9;
+	letter-spacing: 0.006em;
+	text-transform: uppercase;
+	margin: 0;
+	color: var( --ths-headline );
+	-webkit-text-stroke: 0.022em var( --ths-headline );
+	text-shadow: 0 2px 60px rgba( 0, 0, 0, 0.55 );
+}
+.ths-scene-copy__line { display: block; }
+.ths-scene-copy__gap { display: block; height: 0.5em; }
+.ths-scene-copy__title--name { font-size: clamp( 3rem, 8vw, 8rem ); }
+.ths-scene-copy__title--finale { font-size: clamp( 2.8rem, 6.8vw, 6.8rem ); }
+
+/* Quote variant — a quiet pull-quote rather than a title card. */
+.ths-scene-copy--quote { max-width: min( 92vw, 42rem ); }
+.ths-scene-copy--quote .ths-scene-copy__title {
+	font-family: var( --ths-font-ui );
+	font-weight: 300;
+	font-style: italic;
+	text-transform: none;
+	-webkit-text-stroke: 0;
+	font-size: clamp( 1.7rem, 4.4vw, 3.4rem );
+	line-height: 1.18;
+	letter-spacing: 0;
+	color: var( --ths-cream );
+	text-shadow: 0 2px 40px rgba( 0, 0, 0, 0.6 );
+}
+.ths-scene-copy--quote .ths-scene-copy__quote-mark {
+	display: block;
+	font-family: var( --ths-font-script );
+	font-size: clamp( 3rem, 7vw, 6rem );
+	line-height: 0.1;
+	margin-bottom: 0.5rem;
+	color: var( --ths-gold );
+	opacity: 0.9;
+}
+.ths-scene-copy--quote .ths-scene-copy__gap { height: 0.28em; }
+
+.ths-scene-copy__subtitle {
+	margin: clamp( 1.2rem, 2.6vh, 2rem ) 0 0;
+	font-size: clamp( 0.82rem, 1.15vw, 1rem );
+	font-weight: 400;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: var( --ths-ash );
+}
+.ths-scene-copy--finale .ths-scene-copy__subtitle {
+	font-family: var( --ths-font-script );
+	font-size: clamp( 1.5rem, 3vw, 2.4rem );
+	font-weight: 400;
+	letter-spacing: 0.01em;
+	text-transform: none;
+	background: var( --ths-gold-grad );
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	color: transparent;
+}
+
+/* CTA — solid gold button. */
+.ths-scene-copy__cta-wrap { margin-top: clamp( 1.8rem, 4vh, 2.6rem ); }
+.ths-scene-copy__cta {
+	pointer-events: auto;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.7em;
+	padding: 1em 1.7em;
+	font-family: var( --ths-font-ui );
+	font-size: 0.82rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var( --ths-ink-on-gold );
+	background: var( --ths-gold );
+	border: 1px solid var( --ths-gold );
+	border-radius: 10px;
+	transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+}
+.ths-scene-copy__cta:hover { transform: translateY( -2px ); background: var( --ths-gold-hi ); border-color: var( --ths-gold-hi ); }
+.ths-scene-copy__cta-line { font-size: 1.05em; line-height: 1; transition: transform 0.3s ease; }
+.ths-scene-copy__cta:hover .ths-scene-copy__cta-line { transform: translate( 2px, -2px ); }
+
+/* Finale crown. */
+.ths-scene-copy__crown {
+	display: block;
+	width: clamp( 56px, 7vw, 104px );
+	height: auto;
+	margin: 0 auto clamp( 0.4rem, 1.4vh, 1rem );
+	overflow: visible;
+}
+.ths-scene-copy__crown path {
+	fill: none;
+	stroke: var( --ths-gold );
+	stroke-width: 2.4;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	filter: drop-shadow( 0 2px 14px rgba( 230, 179, 78, 0.35 ) );
+}
+
+/* ── Scroll cue ───────────────────────────────────────────────────────────── */
+.ths-hero__cue {
+	position: absolute;
+	left: 50%;
+	bottom: clamp( 1.6rem, 4vh, 2.6rem );
+	transform: translateX( -50% );
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.7rem;
+	z-index: 20;
+	pointer-events: none;
+}
+.ths-hero__cue-label {
+	font-size: 0.6rem;
+	letter-spacing: 0.42em;
+	text-transform: uppercase;
+	color: var( --ths-ash );
+}
+.ths-hero__cue-line {
+	width: 1px;
+	height: 46px;
+	background: linear-gradient( to bottom, var( --ths-ash ), transparent );
+	animation: thsCueDrift 2.8s ease-in-out infinite;
+	transform-origin: top;
+}
+@keyframes thsCueDrift {
+	0%, 100% { transform: scaleY( 0.4 ); opacity: 0.3; }
+	50%      { transform: scaleY( 1 );   opacity: 0.9; }
+}
+
+/* ── Sound toggle ─────────────────────────────────────────────────────────── */
+.ths-hero__sound {
+	position: absolute;
+	right: clamp( 1.2rem, 3vw, 2.4rem );
+	bottom: clamp( 1.6rem, 4vh, 2.6rem );
+	z-index: 25;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.55em;
+	padding: 0.5rem 0.9rem;
+	font-family: var( --ths-font-ui );
+	font-size: 0.62rem;
+	font-weight: 600;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+	color: var( --ths-cream );
+	background: rgba( 20, 14, 9, 0.5 );
+	border: 1px solid var( --ths-line );
+	border-radius: 999px;
+	cursor: pointer;
+	-webkit-backdrop-filter: blur( 10px );
+	backdrop-filter: blur( 10px );
+	transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+.ths-hero__sound:hover { border-color: var( --ths-gold ); color: var( --ths-gold ); }
+.ths-hero__sound.is-on { color: var( --ths-gold ); border-color: var( --ths-gold ); }
+
+.ths-hero__sound-bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.ths-hero__sound-bars span {
+	width: 2px;
+	height: 3px;
+	background: currentColor;
+	border-radius: 1px;
+}
+.ths-hero__sound.is-on .ths-hero__sound-bars span { animation: thsSoundBar 1s ease-in-out infinite; }
+.ths-hero__sound.is-on .ths-hero__sound-bars span:nth-child( 2 ) { animation-delay: 0.2s; }
+.ths-hero__sound.is-on .ths-hero__sound-bars span:nth-child( 3 ) { animation-delay: 0.4s; }
+.ths-hero__sound.is-on .ths-hero__sound-bars span:nth-child( 4 ) { animation-delay: 0.15s; }
+@keyframes thsSoundBar {
+	0%, 100% { height: 3px; }
+	50%      { height: 12px; }
+}
+
+/* ── Static fallback (editor preview / reduced motion) ────────────────────── */
+.ths-hero--static .ths-hero__videos { animation: none; }
+.ths-hero--static .ths-hero__cue { display: none; }
+
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
+@media ( prefers-reduced-motion: reduce ) {
+	.ths-hero__cue-line,
+	.ths-hero__videos,
+	.ths-hero__haze { animation: none; }
+	.ths-hero__sound.is-on .ths-hero__sound-bars span { animation: none; height: 8px; }
+}
+
+/* ── Small screens ────────────────────────────────────────────────────────── */
+@media ( max-width: 640px ) {
+	.ths-hero__video { object-position: 50% 50%; }
+	.ths-scene-copy,
+	.ths-scene-copy--start,
+	.ths-scene-copy--end,
+	.ths-scene-copy--center {
+		margin-left: auto;
+		margin-right: auto;
+		text-align: center;
+		align-items: center;
+		max-width: min( 92vw, 34rem );
+		padding-inline: clamp( 1rem, 6vw, 2.5rem );
+	}
+	.ths-scene-copy__cta { white-space: nowrap; }
+}
