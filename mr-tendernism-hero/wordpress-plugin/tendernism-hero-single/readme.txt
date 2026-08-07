@@ -2,7 +2,7 @@
 Requires at least: 6.0
 Requires PHP: 7.4
 Requires Elementor: 3.5+
-Stable tag: 1.1.4
+Stable tag: 1.1.5
 
 The "one iconic moment" cinematic hero for Mr. Tendernism, delivered as a fully
 editable Elementor widget. ONE continuous documentary clip — the camera behind
@@ -80,6 +80,11 @@ current CDN, so it works the moment it is dropped in.
   seamless loop; the browser serves the second copy from cache.
 * On phones (≤640px) the mobile (portrait) URL is used if provided, chosen once
   at load — no mid-session src swap, so no layout shift.
+* If the active theme forgets the mobile viewport meta tag (which makes phones
+  render the whole page at a ~980px desktop width, so no responsive CSS ever
+  triggers), the widget adds a standard one when it is genuinely missing — a
+  no-op on sites that already have it. This is why the live phone view can differ
+  from Elementor's mobile preview even after regenerating CSS.
 * The copy rises in on load (not on scroll); scrolling away gently fades it out.
   There is no pinning — the hero is a single full-viewport section.
 * In the Elementor editor the hero holds on the clip with the copy shown, so you

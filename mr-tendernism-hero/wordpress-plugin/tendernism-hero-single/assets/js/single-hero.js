@@ -26,6 +26,24 @@
 	var lenis = null;
 	var lenisStarted = false;
 
+	// ── Mobile viewport guard ────────────────────────────────────────────────
+	// Some themes / page-builder templates ship without the mobile viewport
+	// meta tag. Without it, phones render the whole page at a ~980px desktop
+	// width, so NO responsive CSS (ours or Elementor's own) ever triggers — the
+	// hero looks like the desktop layout squeezed onto the phone even though the
+	// Elementor mobile PREVIEW looks correct (the editor forces a device width on
+	// its iframe). Add the tag only when it is genuinely absent — a no-op on the
+	// vast majority of sites that already have one, so it can never double up.
+	function ensureViewportMeta() {
+		if ( ! document.head || document.querySelector( 'meta[name="viewport"]' ) ) {
+			return;
+		}
+		var meta = document.createElement( 'meta' );
+		meta.name = 'viewport';
+		meta.content = 'width=device-width, initial-scale=1';
+		document.head.appendChild( meta );
+	}
+
 	// ── Lenis (one instance drives the whole page) ───────────────────────────
 	function startLenis() {
 		if ( lenisStarted || typeof window.Lenis === 'undefined' ) {
@@ -430,6 +448,10 @@
 			}
 		);
 	}
+
+	// Make sure phones actually use their real width before anything else runs,
+	// so the responsive layout can take effect on the live front end.
+	ensureViewportMeta();
 
 	registerElementorHook();
 	window.addEventListener( 'elementor/frontend/init', registerElementorHook );
