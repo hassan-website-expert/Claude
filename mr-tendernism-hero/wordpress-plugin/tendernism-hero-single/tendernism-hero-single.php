@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Tendernism Single Hero
  * Description: The "one iconic moment" cinematic hero for Mr. Tendernism, delivered as a fully editable Elementor widget. Streams a SINGLE continuous clip from their CDN — the action plays once, then either seamlessly loops its smoke-filled tail or holds while the smoke haze keeps rising. Copy animates in on load; a gentle auto-scroll nudge hints at what's below. Runs alongside the multi-scene "Cinematic Hero" plugin without conflict.
- * Version:     1.0.0
+ * Version:     1.1.0
  * Author:      Mr. Tendernism
  * Text Domain: tendernism-hero-single
  * Requires PHP: 7.4
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'TENDERNISM_HERO_SINGLE_VERSION', '1.0.0' );
+define( 'TENDERNISM_HERO_SINGLE_VERSION', '1.1.0' );
 define( 'TENDERNISM_HERO_SINGLE_FILE', __FILE__ );
 define( 'TENDERNISM_HERO_SINGLE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TENDERNISM_HERO_SINGLE_URL', plugin_dir_url( __FILE__ ) );

@@ -207,9 +207,16 @@
 		var nudgeDelay = num( root, 'data-nudge-delay', 2500 );
 		var nudgeDist = num( root, 'data-nudge-distance', 0.4 );
 
-		// Give both layers the same source (browser serves the 2nd from cache).
+		// The first layer always loads. The SECOND layer is only needed for the
+		// crossfade loop — in hold mode we never assign its source, saving a full
+		// second video download (the biggest single speed win, since hold is the
+		// default). In loop mode the browser serves the 2nd copy from cache.
 		var src = sourceFor( layers[ 0 ], mobile );
-		layers.forEach( function ( v ) { v.src = src; } );
+		layers[ 0 ].src = src;
+		if ( ambientLoop ) {
+			layers[ 1 ].src = src;
+			layers[ 1 ].preload = 'auto';
+		}
 
 		var intro = buildIntroTimeline( gsap, sceneEl );
 		var introCall = null;

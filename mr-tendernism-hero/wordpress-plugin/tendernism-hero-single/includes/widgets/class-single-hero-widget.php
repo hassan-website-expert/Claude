@@ -20,6 +20,9 @@ namespace Tendernism_Hero_Single\Widgets;
 
 use Elementor\Widget_Base;
 use Elementor\Controls_Manager;
+use Elementor\Group_Control_Typography;
+use Elementor\Group_Control_Border;
+use Elementor\Group_Control_Box_Shadow;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -72,7 +75,13 @@ class Single_Hero_Widget extends Widget_Base {
 		$this->register_nudge_section();
 		$this->register_audio_section();
 		$this->register_chrome_section();
+		// Style tab.
 		$this->register_style_section();
+		$this->register_headline_style_section();
+		$this->register_eyebrow_style_section();
+		$this->register_subtitle_style_section();
+		$this->register_button_style_section();
+		$this->register_crown_style_section();
 	}
 
 	/**
@@ -115,6 +124,16 @@ class Single_Hero_Widget extends Widget_Base {
 		);
 
 		$this->add_control(
+			'poster_image',
+			array(
+				'label'       => esc_html__( 'Poster image', 'tendernism-hero-single' ),
+				'type'        => Controls_Manager::MEDIA,
+				'dynamic'     => array( 'active' => true ),
+				'description' => esc_html__( 'Optional still shown instantly while the clip decodes — improves perceived load speed and prevents a black flash. Use a frame from the clip.', 'tendernism-hero-single' ),
+			)
+		);
+
+		$this->add_control(
 			'variant',
 			array(
 				'label'       => esc_html__( 'Style variant', 'tendernism-hero-single' ),
@@ -126,7 +145,21 @@ class Single_Hero_Widget extends Widget_Base {
 					'name'   => esc_html__( 'Name', 'tendernism-hero-single' ),
 					'quote'  => esc_html__( 'Quote', 'tendernism-hero-single' ),
 				),
-				'description' => esc_html__( 'The finale renders the page H1, draws the crown, and styles the tagline in gold.', 'tendernism-hero-single' ),
+				'description' => esc_html__( 'The finale renders the page H1 and styles the tagline in gold. The crown icon is optional — see the switch below.', 'tendernism-hero-single' ),
+			)
+		);
+
+		$this->add_control(
+			'show_crown',
+			array(
+				'label'        => esc_html__( 'Show crown icon', 'tendernism-hero-single' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => '',
+				'return_value' => 'yes',
+				'label_on'     => esc_html__( 'On', 'tendernism-hero-single' ),
+				'label_off'    => esc_html__( 'Off', 'tendernism-hero-single' ),
+				'condition'    => array( 'variant' => 'finale' ),
+				'description'  => esc_html__( 'The small line-drawn crown above the wordmark. Off by default.', 'tendernism-hero-single' ),
 			)
 		);
 
@@ -470,6 +503,307 @@ class Single_Hero_Widget extends Widget_Base {
 		$this->end_controls_section();
 	}
 
+	/**
+	 * Headline typography + colour (fonts, size, weight, spacing, stroke).
+	 */
+	private function register_headline_style_section() {
+		$this->start_controls_section(
+			'section_style_headline',
+			array(
+				'label' => esc_html__( 'Headline', 'tendernism-hero-single' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'headline_typography',
+				'selector' => '{{WRAPPER}} .ths-scene-copy__title',
+			)
+		);
+
+		$this->add_control(
+			'headline_color',
+			array(
+				'label'     => esc_html__( 'Colour', 'tendernism-hero-single' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .ths-scene-copy__title' => 'color: {{VALUE}}; -webkit-text-stroke-color: {{VALUE}};',
+				),
+				'description' => esc_html__( 'Overrides the Headline colour from the Colours section.', 'tendernism-hero-single' ),
+			)
+		);
+
+		$this->add_control(
+			'headline_stroke',
+			array(
+				'label'      => esc_html__( 'Outline thickness', 'tendernism-hero-single' ),
+				'type'       => Controls_Manager::SLIDER,
+				'size_units' => array( 'px', 'em' ),
+				'range'      => array(
+					'px' => array( 'min' => 0, 'max' => 4, 'step' => 0.1 ),
+					'em' => array( 'min' => 0, 'max' => 0.1, 'step' => 0.002 ),
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .ths-scene-copy__title' => '-webkit-text-stroke-width: {{SIZE}}{{UNIT}};',
+				),
+				'description' => esc_html__( 'Set to 0 to remove the letter outline for a flatter look.', 'tendernism-hero-single' ),
+			)
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Text_Shadow::get_type(),
+			array(
+				'name'     => 'headline_shadow',
+				'selector' => '{{WRAPPER}} .ths-scene-copy__title',
+			)
+		);
+
+		$this->end_controls_section();
+	}
+
+	/**
+	 * Eyebrow (the small kicker above the headline) typography + colour.
+	 */
+	private function register_eyebrow_style_section() {
+		$this->start_controls_section(
+			'section_style_eyebrow',
+			array(
+				'label' => esc_html__( 'Eyebrow', 'tendernism-hero-single' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'eyebrow_typography',
+				'selector' => '{{WRAPPER}} .ths-scene-copy__eyebrow',
+			)
+		);
+
+		$this->add_control(
+			'eyebrow_color',
+			array(
+				'label'     => esc_html__( 'Colour', 'tendernism-hero-single' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .ths-scene-copy__eyebrow' => 'color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->end_controls_section();
+	}
+
+	/**
+	 * Subtitle / tagline typography + colour. The colour override also clears the
+	 * finale gold-gradient text fill so a chosen colour actually shows.
+	 */
+	private function register_subtitle_style_section() {
+		$this->start_controls_section(
+			'section_style_subtitle',
+			array(
+				'label' => esc_html__( 'Subtitle', 'tendernism-hero-single' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'subtitle_typography',
+				'selector' => '{{WRAPPER}} .ths-scene-copy__subtitle',
+			)
+		);
+
+		$this->add_control(
+			'subtitle_color',
+			array(
+				'label'     => esc_html__( 'Colour', 'tendernism-hero-single' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .ths-scene-copy__subtitle' => 'color: {{VALUE}}; -webkit-text-fill-color: {{VALUE}}; background: none;',
+				),
+				'description' => esc_html__( 'On the Finale variant this replaces the gold-gradient tagline with a solid colour.', 'tendernism-hero-single' ),
+			)
+		);
+
+		$this->end_controls_section();
+	}
+
+	/**
+	 * Full button styling — typography, normal/hover colours, border, radius,
+	 * padding, shadow. Mirrors Elementor's own Button widget controls.
+	 */
+	private function register_button_style_section() {
+		$this->start_controls_section(
+			'section_style_button',
+			array(
+				'label' => esc_html__( 'Button', 'tendernism-hero-single' ),
+				'tab'   => Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'button_typography',
+				'selector' => '{{WRAPPER}} .ths-scene-copy__cta',
+			)
+		);
+
+		$this->start_controls_tabs( 'button_tabs' );
+
+		$this->start_controls_tab(
+			'button_tab_normal',
+			array( 'label' => esc_html__( 'Normal', 'tendernism-hero-single' ) )
+		);
+
+		$this->add_control(
+			'button_color',
+			array(
+				'label'     => esc_html__( 'Text colour', 'tendernism-hero-single' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .ths-scene-copy__cta' => 'color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'button_bg',
+			array(
+				'label'     => esc_html__( 'Background', 'tendernism-hero-single' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .ths-scene-copy__cta' => 'background: {{VALUE}}; border-color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->end_controls_tab();
+
+		$this->start_controls_tab(
+			'button_tab_hover',
+			array( 'label' => esc_html__( 'Hover', 'tendernism-hero-single' ) )
+		);
+
+		$this->add_control(
+			'button_color_hover',
+			array(
+				'label'     => esc_html__( 'Text colour', 'tendernism-hero-single' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .ths-scene-copy__cta:hover, {{WRAPPER}} .ths-scene-copy__cta:focus' => 'color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'button_bg_hover',
+			array(
+				'label'     => esc_html__( 'Background', 'tendernism-hero-single' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .ths-scene-copy__cta:hover, {{WRAPPER}} .ths-scene-copy__cta:focus' => 'background: {{VALUE}}; border-color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->end_controls_tab();
+		$this->end_controls_tabs();
+
+		$this->add_group_control(
+			Group_Control_Border::get_type(),
+			array(
+				'name'      => 'button_border',
+				'selector'  => '{{WRAPPER}} .ths-scene-copy__cta',
+				'separator' => 'before',
+			)
+		);
+
+		$this->add_control(
+			'button_radius',
+			array(
+				'label'      => esc_html__( 'Border radius', 'tendernism-hero-single' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', '%', 'em' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .ths-scene-copy__cta' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'button_padding',
+			array(
+				'label'      => esc_html__( 'Padding', 'tendernism-hero-single' ),
+				'type'       => Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .ths-scene-copy__cta' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_group_control(
+			Group_Control_Box_Shadow::get_type(),
+			array(
+				'name'     => 'button_shadow',
+				'selector' => '{{WRAPPER}} .ths-scene-copy__cta',
+			)
+		);
+
+		$this->end_controls_section();
+	}
+
+	/**
+	 * Crown icon styling (colour + size). Only meaningful when the crown is shown.
+	 */
+	private function register_crown_style_section() {
+		$this->start_controls_section(
+			'section_style_crown',
+			array(
+				'label'     => esc_html__( 'Crown icon', 'tendernism-hero-single' ),
+				'tab'       => Controls_Manager::TAB_STYLE,
+				'condition' => array(
+					'variant'    => 'finale',
+					'show_crown' => 'yes',
+				),
+			)
+		);
+
+		$this->add_control(
+			'crown_color',
+			array(
+				'label'     => esc_html__( 'Colour', 'tendernism-hero-single' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .ths-scene-copy__crown path' => 'stroke: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'crown_size',
+			array(
+				'label'      => esc_html__( 'Size', 'tendernism-hero-single' ),
+				'type'       => Controls_Manager::SLIDER,
+				'size_units' => array( 'px', '%' ),
+				'range'      => array(
+					'px' => array( 'min' => 24, 'max' => 220, 'step' => 2 ),
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .ths-scene-copy__crown' => 'width: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->end_controls_section();
+	}
+
 	// ─────────────────────────────────────────────────────────────────────────
 	// Render
 	// ─────────────────────────────────────────────────────────────────────────
@@ -513,6 +847,27 @@ class Single_Hero_Widget extends Widget_Base {
 		$cue_label  = isset( $settings['scroll_cue_label'] ) && '' !== $settings['scroll_cue_label']
 			? $settings['scroll_cue_label']
 			: esc_html__( 'Scroll', 'tendernism-hero-single' );
+
+		// Poster still — shown instantly while the clip decodes (faster first paint,
+		// no black flash). Optional.
+		$poster = '';
+		if ( ! empty( $settings['poster_image']['url'] ) ) {
+			$poster = $settings['poster_image']['url'];
+		}
+
+		// Warm the TCP/TLS handshake to the video host before the <video> requests
+		// it — shaves latency off the opening frame with no cost if unused.
+		$origin = '';
+		$parts  = wp_parse_url( $src_desktop );
+		if ( ! empty( $parts['scheme'] ) && ! empty( $parts['host'] ) ) {
+			$origin = $parts['scheme'] . '://' . $parts['host'];
+		}
+		if ( '' !== $origin ) {
+			printf(
+				'<link rel="preconnect" href="%1$s" crossorigin><link rel="dns-prefetch" href="%1$s">',
+				esc_url( $origin )
+			);
+		}
 		?>
 		<section
 			id="<?php echo esc_attr( $uid ); ?>"
@@ -532,17 +887,29 @@ class Single_Hero_Widget extends Widget_Base {
 
 				<?php // Two stacked copies of the SAME clip drive the seamless loop. ?>
 				<div class="ths-hero__videos">
-					<?php for ( $i = 0; $i < 2; $i++ ) : ?>
-						<video
-							class="ths-hero__video"
-							data-ths-video
-							data-video-desktop="<?php echo esc_url( $src_desktop ); ?>"
-							data-video-mobile="<?php echo esc_url( $src_mobile ); ?>"
-							muted
-							playsinline
-							preload="auto"
-							aria-hidden="true"
-						></video>
+					<?php
+					// The SECOND layer is only needed in loop mode. In hold mode we
+					// skip loading it entirely — half the video bytes — for a faster
+					// page. The first layer gets a high fetch priority + poster for a
+					// fast opening frame; the second only preloads when the loop
+					// actually needs it.
+					for ( $i = 0; $i < 2; $i++ ) :
+					$is_first = ( 0 === $i );
+					$preload  = ( $is_first || $ambient_loop ) ? 'auto' : 'none';
+					?>
+					<video
+						class="ths-hero__video"
+						data-ths-video
+						data-video-desktop="<?php echo esc_url( $src_desktop ); ?>"
+						data-video-mobile="<?php echo esc_url( $src_mobile ); ?>"
+						<?php if ( $is_first && '' !== $poster ) : ?>poster="<?php echo esc_url( $poster ); ?>"<?php endif; ?>
+						<?php if ( $is_first ) : ?>fetchpriority="high"<?php endif; ?>
+						muted
+						playsinline
+						preload="<?php echo esc_attr( $preload ); ?>"
+						decoding="async"
+						aria-hidden="true"
+					></video>
 					<?php endfor; ?>
 				</div>
 
@@ -614,8 +981,10 @@ class Single_Hero_Widget extends Widget_Base {
 
 		echo '<div class="' . esc_attr( $classes ) . '">';
 
-		// Finale crown (line-drawn logo callback).
-		if ( $is_finale ) {
+		// Finale crown (line-drawn logo callback) — opt-in via the "Show crown
+		// icon" switch, so the "king hat" can be removed entirely.
+		$show_crown = ! empty( $settings['show_crown'] ) && 'yes' === $settings['show_crown'];
+		if ( $is_finale && $show_crown ) {
 			echo '<svg class="ths-scene-copy__crown" viewBox="0 0 120 74" data-ths-crown data-ths-text aria-hidden="true">'
 				. '<path d="M8 66 L20 22 L42 50 L60 12 L78 50 L100 22 L112 66 Z"></path>'
 				. '<path d="M8 66 L112 66"></path>'

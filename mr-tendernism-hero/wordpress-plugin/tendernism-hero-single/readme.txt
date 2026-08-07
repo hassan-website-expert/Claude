@@ -2,7 +2,7 @@
 Requires at least: 6.0
 Requires PHP: 7.4
 Requires Elementor: 3.5+
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 
 The "one iconic moment" cinematic hero for Mr. Tendernism, delivered as a fully
 editable Elementor widget. ONE continuous documentary clip — the camera behind
@@ -33,10 +33,12 @@ current CDN, so it works the moment it is dropped in.
 == Editing (everything is in the Elementor panel) ==
 
 * Content → The Moment: the desktop video URL (16:9) and optional mobile URL
-  (9:16), plus the copy — style variant (Finale renders the page's only H1,
-  draws the crown, and styles the tagline in gold), alignment, eyebrow, headline
-  (one line per row; a blank row is a deliberate beat), subtitle, and a button +
-  link.
+  (9:16), an optional poster image (a still shown instantly while the clip
+  decodes — faster first paint, no black flash), plus the copy — style variant
+  (Finale renders the page's only H1 and styles the tagline in gold), a "Show
+  crown icon" switch (the small line-drawn crown above the wordmark — OFF by
+  default), alignment, eyebrow, headline (one line per row; a blank row is a
+  deliberate beat), subtitle, and a button + link.
 * Content → Motion & timing: the "Seamless tail loop" switch (Loop = the clip's
   smoke-filled tail loops forever behind an invisible crossfade; Hold = the clip
   plays once and holds while the rising smoke haze keeps it alive), the loop tail
@@ -53,6 +55,23 @@ current CDN, so it works the moment it is dropped in.
   turn this off if your theme already provides them.
 * Style → Colours: every brand colour (background, headline, gold, etc.) maps to
   a CSS variable, so the whole hero can be re-themed visually.
+* Style → Headline / Eyebrow / Subtitle: full typography (font family, size,
+  weight, letter/line spacing, transform), a colour override, plus a headline
+  outline-thickness and text-shadow — style them exactly as you would any
+  Elementor heading.
+* Style → Button: full Elementor-style button controls — typography, Normal and
+  Hover text/background colours, border, border radius, padding and box shadow.
+* Style → Crown icon: colour and size (shown only when the crown is enabled).
+
+== Speed ==
+
+* In Hold mode (the default) only ONE video is downloaded — the second loop layer
+  is never requested — roughly halving the hero's video bytes on the common path.
+* The opening frame gets a high fetch priority and an optional poster image, so
+  the hero paints fast with no black flash, and a preconnect warms the video host
+  before the clip is requested.
+* GSAP, ScrollTrigger and Lenis are bundled locally and only load on pages that
+  actually use the widget.
 
 == Behaviour notes ==
 
