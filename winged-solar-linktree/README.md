@@ -39,6 +39,14 @@ const BUTTONS = [
 
 To remove a button, delete its line. To reorder, move the lines.
 
+## Logo
+
+The header loads the official logo from `winged-solar-logo.png` in this folder.
+**Add that exact file here** (same folder as `index.html`) and it appears on a
+clean white plate. Until the file is present, the page falls back to a drawn
+eagle-and-sun emblem automatically, so it never looks broken. To use a
+different filename or a hosted URL, edit the `src` on the `.logo-img` tag.
+
 ## ⚠️ Confirm the URLs
 
 The homepage (`https://wingedsolar.com/`) is correct. The **product**,
