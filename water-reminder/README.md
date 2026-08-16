@@ -1,61 +1,107 @@
 # 💧 Sip — a water reminder that watches you drink
 
-An on-screen alarm that reminds you to drink water on a timer. The twist: you can't
-dismiss it by clicking a button. When it fires, your **camera turns on locally** and
-the app only clears the alarm once it actually **sees you bring a glass to your mouth
-and drink** for a few seconds.
+A desktop app that reminds you to drink water on a timer. The twist: **you can't dismiss
+the alarm by clicking a button.** When it fires, your camera turns on and the alarm only
+clears once it actually **sees you bring a glass to your mouth and drink** for a few seconds.
 
-Everything runs in your browser. No servers, no accounts, no video ever leaves your
-machine.
+Everything runs locally on your machine. No accounts, no servers, no video ever leaves
+your computer.
 
-## How it works
+![app icon](assets/icon_256.png)
 
-- A countdown timer fires the alarm every *N* minutes.
-- The screen is taken over by a full-screen overlay + a repeating chime.
-- The camera opens and two Google **MediaPipe** models run **on your device**:
-  - a **face landmarker** locates your mouth,
-  - a **hand landmarker** tracks your hands.
-- When your hand (holding a cup) comes up near your mouth and **stays there** for the
-  hold time you set, a progress ring fills. At 100% the alarm verifies the sip and
-  clears itself.
-- Snooze (5 min) and Skip are there too — Skip breaks your streak, so drinking is the
-  path of least resistance.
+---
 
-## Running it
+## Easiest setup (2 steps)
 
-The camera and the AI models require a **secure origin**, so opening the file directly
-(`file://…`) will *not* work in Chrome. Serve it from `localhost` instead — one command:
+**1. Install Node.js once** — go to <https://nodejs.org> and click the green **LTS**
+button, run the installer, done. (This is the only prerequisite.)
+
+**2. Launch Sip:**
+
+| Your computer | Do this |
+| --- | --- |
+| **macOS / Linux** | Double-click **`start-mac-linux.command`** |
+| **Windows** | Double-click **`start-windows.bat`** |
+
+The first launch installs everything automatically (takes ~a minute) and then opens the
+app. Every launch after that is instant.
+
+> On macOS the first time, if Finder blocks the `.command` file, right-click it → **Open** →
+> **Open**. You only do this once.
+
+That's it. Set your interval, click **Start reminders**, and Sip lives in your menu
+bar / system tray from then on.
+
+---
+
+## What it does
+
+- ⏰ **Timer reminders** — a full-screen alarm + chime every *N* minutes (you choose).
+- 📷 **Camera verification** — two Google **MediaPipe** AI models run **on your device**:
+  one finds your mouth, one tracks your hands. When your hand (holding a cup) is held at
+  your mouth for the hold time you set, a progress ring fills and the alarm clears itself.
+- 🔔 **Runs in the background** — closing the window tucks it into the menu bar / tray so
+  reminders keep coming. Native notifications pop when it's time.
+- 🚀 **Launches at login** — on by default; toggle it from the tray menu.
+- 🔒 **Private by design** — the camera feed is processed frame-by-frame in memory and is
+  never recorded or uploaded.
+- 📊 Daily **sips / skips / streak** counter.
+
+Tray menu: **Open · Start · Stop · Remind me now · Launch at login · Quit.**
+
+---
+
+## Build a real installer (optional)
+
+Want a proper `.dmg` / `.exe` / `.AppImage` you (or others) can install without a
+terminal? From the `water-reminder` folder:
+
+```bash
+npm install
+npm run dist          # builds for your current OS into dist/
+# or target one explicitly:
+npm run dist:mac      # .dmg  (macOS)
+npm run dist:win      # .exe installer (Windows)
+npm run dist:linux    # .AppImage (Linux)
+```
+
+The finished installer lands in `water-reminder/dist/`. Note: the build is **unsigned**,
+so the first open may show a Gatekeeper/SmartScreen warning — right-click → Open (macOS)
+or "More info → Run anyway" (Windows). Code signing needs a paid Apple/Microsoft
+certificate, which is out of scope here.
+
+---
+
+## Manual / developer run
 
 ```bash
 cd water-reminder
-python3 -m http.server 8000
+npm install
+npm start
 ```
 
-Then open **http://localhost:8000** in Chrome or Edge and:
+## Tuning the detection
 
-1. Set your interval (e.g. every 45 min) and hold time (e.g. 3 s).
-2. Click **Start reminders**, or **Test the alarm now** to try it immediately.
-3. Allow camera access when prompted.
-4. When the alarm fires, hold your glass up to your mouth and drink until the ring fills.
+Open `renderer/index.html` and look near the drinking-detection code:
 
-> No Python? Any static server works, e.g. `npx serve` or the VS Code "Live Server"
-> extension. It also works if you host it over HTTPS.
+- `threshold = faceW * 0.85` — how close your hand must get to your mouth to count.
+- Hold time is set live in the app UI (default 3 s).
 
-## Notes & tuning
+### Honest limitation
 
-- **Privacy:** the camera stream is processed frame-by-frame in memory and never
-  recorded or uploaded. The models download once from a CDN, then run locally.
-- **Detection is a gesture proxy.** It confirms *"hand/cup held at the mouth for N
-  seconds,"* which is what drinking looks like — it can't chemically verify it's water.
-  That's the honest ceiling for a browser app, and in practice it's enough to make
-  faking it more effort than just drinking.
-- **Tune sensitivity** in `index.html`: the `threshold = faceW * 0.85` line controls how
-  close your hand must get to your mouth; the hold time is set in the UI.
-- Daily stats (sips, skips, streak) are stored in `localStorage` and reset each day.
+Detection is a **gesture proxy** — it confirms *"a hand/cup is held at your mouth for N
+seconds,"* which is what drinking looks like. A camera can't chemically prove it's water;
+this is the practical ceiling, and in practice faking the motion is more effort than just
+taking a sip. A future version could add bottle/cup object-detection for stronger proof.
 
-## Ideas for later
+## Project layout
 
-- Detect an actual bottle/cup with an object-detection model for stronger proof.
-- Desktop notifications so it nags you even when the tab is in the background.
-- Package it as a small Electron/Tauri desktop app so it launches on login.
-- Sync a daily hydration goal (e.g. 8 sips) and log history over time.
+```
+water-reminder/
+├─ main.js               Electron main process (window, tray, notifications, login item)
+├─ preload.js            Safe bridge to the renderer
+├─ renderer/index.html   The whole app UI + detection (also runs as a plain web page)
+├─ assets/               App + tray icons
+├─ start-mac-linux.command / start-windows.bat   Double-click launchers
+└─ package.json          Scripts + electron-builder config
+```

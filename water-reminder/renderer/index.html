@@ -324,7 +324,9 @@ function loopTick(){
 function scheduleNext(){
   const mins = Math.max(1, Number(intervalEl.value)||45);
   nextAt = Date.now() + mins*60*1000;
-  clockSub.textContent = `Every ${mins} min · runs while this tab is open.`;
+  clockSub.textContent = window.sip?.isDesktop
+    ? `Every ${mins} min · keeps running in the menu bar / tray.`
+    : `Every ${mins} min · runs while this tab is open.`;
 }
 startBtn.onclick = () => {
   running = true; scheduleNext();
@@ -500,6 +502,7 @@ async function fireAlarm(){
   alarmActive = true;
   nextAt = null; // pause countdown while alarm is up
   overlay.classList.add("on");
+  window.sip?.alarmFired?.(); // desktop: raise window + native notification
   camError.classList.remove("on");
   verified.classList.remove("on");
   holdProgress = 0; lastFrameTs = 0; setRing(0);
@@ -534,6 +537,7 @@ function success(){
   verified.classList.add("on");
   setStatus("ok", "Verified ✓");
   stats.sips += 1; stats.streak += 1; saveStats();
+  window.sip?.sipVerified?.();
   setTimeout(closeAlarm, 1400);
 }
 
@@ -550,6 +554,19 @@ skipBtn.onclick = () => {
 
 // keep countdown alive after alarm-driven pauses
 setInterval(()=>{ if(running && nextAt) loopTick(); }, 250);
+
+// ----- desktop (tray menu) commands -----
+window.sip?.onCommand?.((cmd) => {
+  if(cmd === "start" && !running) startBtn.click();
+  else if(cmd === "stop") stopBtn.click();
+  else if(cmd === "test") fireAlarm();
+});
+
+// In the desktop app the reminders run in the tray, so soften the "tab open" wording.
+if(window.sip?.isDesktop){
+  const sub = document.getElementById("clockSub");
+  if(sub && sub.textContent.includes("Not running")) sub.textContent = "Not running yet — press Start.";
+}
 </script>
 </body>
 </html>
