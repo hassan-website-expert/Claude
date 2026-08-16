@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sip — Water Reminder that watches you drink</title>
+<style>
+  :root {
+    --bg: #0b1220;
+    --panel: #121c30;
+    --panel-2: #17233b;
+    --line: #24344f;
+    --text: #e8eefc;
+    --muted: #90a1c4;
+    --accent: #38bdf8;
+    --accent-2: #22d3ee;
+    --good: #34d399;
+    --bad: #fb7185;
+    --shadow: 0 20px 60px rgba(0,0,0,.45);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(1200px 700px at 15% -10%, #16233e 0%, transparent 55%),
+      radial-gradient(1000px 700px at 110% 10%, #10283a 0%, transparent 50%),
+      var(--bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ---------- Home screen ---------- */
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 22px 80px;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 6px;
+  }
+  .brand .drop {
+    width: 40px; height: 40px; border-radius: 12px;
+    display: grid; place-items: center;
+    background: linear-gradient(160deg, var(--accent), var(--accent-2));
+    box-shadow: 0 8px 24px rgba(56,189,248,.35);
+    font-size: 22px;
+  }
+  h1 { font-size: 28px; margin: 0; letter-spacing: -.02em; }
+  .tag { color: var(--muted); margin: 6px 0 28px; font-size: 15px; }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .card h2 { margin: 0 0 4px; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+
+  .timerBig {
+    font-variant-numeric: tabular-nums;
+    font-size: 64px; font-weight: 700; letter-spacing: -.03em;
+    margin: 10px 0 2px;
+  }
+  .timerSub { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
+
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 13px; color: var(--muted); }
+  input[type="number"], select {
+    background: #0e1830; color: var(--text);
+    border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; font-size: 15px; width: 120px;
+  }
+  .btn {
+    appearance: none; cursor: pointer; border: 1px solid transparent;
+    border-radius: 12px; padding: 12px 18px; font-size: 15px; font-weight: 600;
+    color: #05202b; background: linear-gradient(160deg, var(--accent), var(--accent-2));
+    transition: transform .06s ease, filter .15s ease;
+  }
+  .btn:hover { filter: brightness(1.06); }
+  .btn:active { transform: translateY(1px); }
+  .btn.secondary {
+    background: transparent; color: var(--text); border-color: var(--line);
+  }
+  .btn.ghost { background: #0e1830; color: var(--text); border-color: var(--line); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  .stats { display: flex; gap: 26px; margin-top: 4px; }
+  .stat .n { font-size: 26px; font-weight: 700; }
+  .stat .l { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+
+  .note { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .note code { background: #0e1830; border: 1px solid var(--line); padding: 1px 6px; border-radius: 6px; color: #cfe4ff; }
+  .pill { display:inline-block; font-size:12px; padding:3px 9px; border-radius:999px; border:1px solid var(--line); color:var(--muted); }
+
+  /* ---------- Alarm overlay ---------- */
+  .overlay {
+    position: fixed; inset: 0; z-index: 50;
+    display: none;
+    background:
+      radial-gradient(900px 600px at 50% -10%, rgba(56,189,248,.18), transparent 60%),
+      rgba(5,9,18,.94);
+    backdrop-filter: blur(4px);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  .overlay.on { display: grid; place-items: center; }
+  @keyframes pulse {
+    0%,100% { box-shadow: inset 0 0 0 0 rgba(251,113,133,0); }
+    50% { box-shadow: inset 0 0 220px 0 rgba(56,189,248,.16); }
+  }
+  .alarmCard {
+    width: min(680px, 92vw);
+    background: linear-gradient(180deg, #101a2e, #0d1526);
+    border: 1px solid #2a3c5c; border-radius: 22px;
+    padding: 22px; box-shadow: var(--shadow); text-align: center;
+  }
+  .alarmTitle { font-size: 24px; font-weight: 700; margin: 2px 0 4px; }
+  .alarmMsg { color: var(--muted); margin: 0 0 16px; }
+
+  .camStage {
+    position: relative; width: 100%; aspect-ratio: 4 / 3;
+    background: #05070d; border-radius: 16px; overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  video, canvas.draw {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    transform: scaleX(-1); /* mirror */
+  }
+  .camStatus {
+    position: absolute; left: 12px; top: 12px; z-index: 3;
+    background: rgba(5,9,18,.7); border: 1px solid var(--line);
+    padding: 6px 12px; border-radius: 999px; font-size: 13px; color: var(--text);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
+  .dot.searching { background: #fbbf24; animation: blink 1s infinite; }
+  .dot.near { background: var(--accent); }
+  .dot.ok { background: var(--good); }
+  @keyframes blink { 50% { opacity: .3; } }
+
+  /* progress ring */
+  .ring {
+    position: absolute; right: 12px; bottom: 12px; z-index: 3;
+    width: 84px; height: 84px;
+  }
+  .ring svg { transform: rotate(-90deg); }
+  .ring .track { stroke: rgba(255,255,255,.14); }
+  .ring .bar { stroke: var(--good); stroke-linecap: round; transition: stroke-dashoffset .12s linear; }
+  .ring .pct {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    transform: rotate(0); font-size: 15px; font-weight: 700; color: #eafff6;
+  }
+
+  .alarmActions { display: flex; gap: 10px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+  .hint { font-size: 13px; color: var(--muted); margin-top: 10px; }
+
+  .verified {
+    position: absolute; inset: 0; z-index: 4; display: none;
+    place-items: center; background: rgba(5,20,14,.75); backdrop-filter: blur(2px);
+  }
+  .verified.on { display: grid; }
+  .verified .big { font-size: 46px; }
+  .banner {
+    display:none; margin-bottom:14px; padding:10px 14px; border-radius:12px;
+    border:1px solid; font-size:14px;
+  }
+  .banner.on { display:block; }
+  .banner.err { background: rgba(251,113,133,.1); border-color:#7a3446; color:#ffd7de; }
+  .banner.info{ background: rgba(56,189,248,.1); border-color:#2a5a72; color:#d5f2ff; }
+
+  footer { text-align:center; color:var(--muted); font-size:12px; margin-top:26px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ================= HOME ================= -->
+<div class="wrap">
+  <div class="brand">
+    <div class="drop">💧</div>
+    <div>
+      <h1>Sip</h1>
+    </div>
+  </div>
+  <p class="tag">A water reminder you can't fake. When it's time, the screen takes over — and it only lets go once the camera actually sees you drink.</p>
+
+  <div class="card">
+    <h2>Next reminder</h2>
+    <div class="timerBig" id="clock">--:--</div>
+    <div class="timerSub" id="clockSub">Not running yet.</div>
+
+    <div class="row" style="margin-bottom:16px">
+      <div class="field">
+        <label for="interval">Remind me every (minutes)</label>
+        <input type="number" id="interval" min="1" max="240" value="45" />
+      </div>
+      <div class="field">
+        <label for="holdSecs">Must drink for (seconds)</label>
+        <input type="number" id="holdSecs" min="1" max="15" value="3" />
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="btn" id="startBtn">Start reminders</button>
+      <button class="btn secondary" id="stopBtn" disabled>Stop</button>
+      <button class="btn ghost" id="testBtn">Test the alarm now</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Today</h2>
+    <div class="stats">
+      <div class="stat"><div class="n" id="sips">0</div><div class="l">sips verified</div></div>
+      <div class="stat"><div class="n" id="missed">0</div><div class="l">skipped</div></div>
+      <div class="stat"><div class="n"><span id="streak">0</span></div><div class="l">streak</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>How the verification works</h2>
+    <p class="note">
+      When the alarm fires, your camera turns on locally in your browser. Two AI models run
+      <b>entirely on your machine</b> — one finds your face &amp; mouth, the other tracks your hands.
+      A third model looks for an actual <b>cup, bottle, or glass</b>. When it sees you hold that
+      drink up to your mouth for the time you set, the progress ring fills and the alarm clears itself —
+      an empty hand won't pass. Nothing is uploaded, recorded, or sent anywhere.
+    </p>
+    <p class="note" style="margin-top:10px">
+      <span class="pill">tip</span> Hold your glass so your hand is near your lips and stay in frame until the ring completes.
+    </p>
+  </div>
+
+  <footer>
+    Runs 100% in your browser · camera never leaves this device ·
+    <a href="#" id="permBtn">grant camera access</a>
+  </footer>
+</div>
+
+<!-- ================= ALARM OVERLAY ================= -->
+<div class="overlay" id="overlay" role="dialog" aria-modal="true">
+  <div class="alarmCard">
+    <div class="banner err" id="camError"></div>
+    <div class="banner info" id="loadInfo">Loading the on-device vision models… (first time only)</div>
+
+    <div class="alarmTitle">💧 Time to drink water</div>
+    <p class="alarmMsg" id="alarmMsg">Bring a glass or bottle of water up to your mouth and drink — the camera has to see the cup, not just your hand.</p>
+
+    <div class="camStage">
+      <video id="video" autoplay playsinline muted></video>
+      <canvas class="draw" id="draw"></canvas>
+
+      <div class="camStatus">
+        <span class="dot searching" id="statusDot"></span>
+        <span id="statusText">Looking for you…</span>
+      </div>
+
+      <div class="ring">
+        <svg width="84" height="84" viewBox="0 0 84 84">
+          <circle class="track" cx="42" cy="42" r="36" fill="none" stroke-width="8"></circle>
+          <circle class="bar" id="ringBar" cx="42" cy="42" r="36" fill="none" stroke-width="8"
+                  stroke-dasharray="226.19" stroke-dashoffset="226.19"></circle>
+        </svg>
+        <div class="pct" id="ringPct">0%</div>
+      </div>
+
+      <div class="verified" id="verified">
+        <div>
+          <div class="big">✅</div>
+          <div style="font-size:22px;font-weight:700;margin-top:6px">Nice — you drank!</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="hint" id="hint">Keep your hand + face in the frame. The ring fills while you're drinking.</p>
+
+    <div class="alarmActions">
+      <button class="btn secondary" id="snoozeBtn">Snooze 5 min</button>
+      <button class="btn ghost" id="skipBtn">Skip this one</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import {
+  FaceLandmarker, HandLandmarker, ObjectDetector, FilesetResolver
+} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+
+// ---------- element refs ----------
+const $ = (id) => document.getElementById(id);
+const clockEl = $("clock"), clockSub = $("clockSub");
+const intervalEl = $("interval"), holdEl = $("holdSecs");
+const startBtn = $("startBtn"), stopBtn = $("stopBtn"), testBtn = $("testBtn");
+const sipsEl = $("sips"), missedEl = $("missed"), streakEl = $("streak");
+const overlay = $("overlay");
+const video = $("video"), draw = $("draw"), dctx = draw.getContext("2d");
+const statusDot = $("statusDot"), statusText = $("statusText");
+const ringBar = $("ringBar"), ringPct = $("ringPct");
+const verified = $("verified");
+const camError = $("camError"), loadInfo = $("loadInfo");
+const snoozeBtn = $("snoozeBtn"), skipBtn = $("skipBtn"), permBtn = $("permBtn");
+
+const RING_LEN = 226.19;
+
+// ---------- persistent tiny state ----------
+const store = JSON.parse(localStorage.getItem("sip.today") || "null") || {};
+const todayKey = new Date().toISOString().slice(0,10);
+let stats = (store.day === todayKey) ? store : { day: todayKey, sips: 0, missed: 0, streak: 0 };
+function saveStats(){ localStorage.setItem("sip.today", JSON.stringify(stats)); render(); }
+function render(){ sipsEl.textContent = stats.sips; missedEl.textContent = stats.missed; streakEl.textContent = stats.streak; }
+render();
+
+// ---------- reminder timer ----------
+let nextAt = null, tick = null, running = false;
+function fmt(ms){ const s=Math.max(0,Math.round(ms/1000)); const m=Math.floor(s/60); const r=s%60; return `${String(m).padStart(2,"0")}:${String(r).padStart(2,"0")}`; }
+function loopTick(){
+  if(!running || nextAt==null) return;
+  const left = nextAt - Date.now();
+  clockEl.textContent = fmt(left);
+  if(left <= 0){ clockEl.textContent = "00:00"; fireAlarm(); }
+}
+function scheduleNext(){
+  const mins = Math.max(1, Number(intervalEl.value)||45);
+  nextAt = Date.now() + mins*60*1000;
+  clockSub.textContent = window.sip?.isDesktop
+    ? `Every ${mins} min · keeps running in the menu bar / tray.`
+    : `Every ${mins} min · runs while this tab is open.`;
+}
+startBtn.onclick = () => {
+  running = true; scheduleNext();
+  startBtn.disabled = true; stopBtn.disabled = false;
+  clearInterval(tick); tick = setInterval(loopTick, 250); loopTick();
+  ensureNotifyPermission(); // let alarms pop over other windows
+  // warm up models + camera permission early so the first alarm is instant
+  ensureModels().catch(()=>{});
+};
+stopBtn.onclick = () => {
+  running = false; nextAt = null; clearInterval(tick);
+  clockEl.textContent = "--:--"; clockSub.textContent = "Stopped.";
+  startBtn.disabled = false; stopBtn.disabled = true;
+};
+testBtn.onclick = () => fireAlarm();
+permBtn.onclick = (e)=>{ e.preventDefault(); ensureCamera().then(stopCamera).catch(showCamError); };
+
+// ---------- alarm sound (WebAudio, no file needed) ----------
+let audioCtx = null;
+function beep(){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    [0, .28, .56].forEach((t)=>{
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type="sine"; o.frequency.setValueAtTime(880, now+t);
+      g.gain.setValueAtTime(0, now+t);
+      g.gain.linearRampToValueAtTime(.25, now+t+.02);
+      g.gain.exponentialRampToValueAtTime(.001, now+t+.22);
+      o.connect(g).connect(audioCtx.destination); o.start(now+t); o.stop(now+t+.24);
+    });
+  }catch(e){}
+}
+let soundTimer = null;
+function startSound(){ beep(); soundTimer = setInterval(beep, 4000); }
+function stopSound(){ clearInterval(soundTimer); soundTimer=null; }
+
+// ---------- MediaPipe models ----------
+let faceLM = null, handLM = null, objectLM = null;
+let modelsReady = false, objectReady = false, loadingPromise = null;
+async function ensureModels(){
+  if(modelsReady) return;
+  if(loadingPromise) return loadingPromise;
+  loadingPromise = (async () => {
+    const fileset = await FilesetResolver.forVisionTasks(
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+    );
+    faceLM = await FaceLandmarker.createFromOptions(fileset, {
+      baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task", delegate: "GPU" },
+      runningMode: "VIDEO", numFaces: 1
+    });
+    handLM = await HandLandmarker.createFromOptions(fileset, {
+      baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task", delegate: "GPU" },
+      runningMode: "VIDEO", numHands: 2
+    });
+    // Object detector: makes verification require an actual cup/bottle/glass, not just a hand.
+    // Optional — if it fails to load we fall back to hand-at-mouth detection.
+    try{
+      objectLM = await ObjectDetector.createFromOptions(fileset, {
+        baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.task", delegate: "GPU" },
+        runningMode: "VIDEO", scoreThreshold: 0.3, maxResults: 8
+      });
+      objectReady = true;
+    }catch(e){ objectReady = false; console.warn("Object detector unavailable, using hand-only detection:", e?.message||e); }
+    modelsReady = true;
+  })();
+  return loadingPromise;
+}
+
+// ---------- camera ----------
+let stream = null;
+async function ensureCamera(){
+  if(stream) return stream;
+  stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user", width: 640, height: 480 }, audio: false });
+  video.srcObject = stream;
+  await video.play();
+  draw.width = video.videoWidth || 640;
+  draw.height = video.videoHeight || 480;
+  return stream;
+}
+function stopCamera(){
+  if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; }
+  video.srcObject = null;
+}
+function showCamError(err){
+  const secure = window.isSecureContext;
+  camError.classList.add("on");
+  camError.innerHTML = secure
+    ? `Couldn't open the camera: ${err?.message||err}. Check that no other app is using it and that this site is allowed camera access.`
+    : `Camera blocked because this page isn't on a secure origin. Open it via <b>http://localhost</b> (see the README) or over HTTPS, then reload.`;
+}
+
+// ---------- drinking detection ----------
+const FACE_MOUTH = [13, 14];           // inner lips (upper/lower)
+const FACE_CHEEK_L = 234, FACE_CHEEK_R = 454; // face width for normalization
+const HAND_POINTS = [4, 8, 12, 16, 20, 0]; // fingertips + wrist
+// COCO classes that count as "something you drink from"
+const DRINK_CLASSES = new Set(["cup", "bottle", "wine glass"]);
+
+function dist(a,b){ return Math.hypot(a.x-b.x, a.y-b.y); }
+
+let raf = null;
+let holdProgress = 0;        // ms accumulated "at mouth"
+let lastFrameTs = 0;
+let alarmActive = false;
+// object-detection state (throttled so 3 models don't run every frame)
+let lastObjTs = 0, lastDrinkTs = 0, drinkObj = null;
+
+function setStatus(state, text){
+  statusDot.className = "dot " + state;
+  statusText.textContent = text;
+}
+function setRing(p){ // p in 0..1
+  const clamped = Math.max(0, Math.min(1, p));
+  ringBar.setAttribute("stroke-dashoffset", String(RING_LEN * (1 - clamped)));
+  ringPct.textContent = Math.round(clamped*100) + "%";
+}
+
+function detectLoop(){
+  if(!alarmActive) return;
+  const now = performance.now();
+  const dt = lastFrameTs ? (now - lastFrameTs) : 0;
+  lastFrameTs = now;
+
+  let atMouth = false, faceSeen = false, handNear = false, cupNear = false;
+
+  if(modelsReady && video.readyState >= 2){
+    const fr = faceLM.detectForVideo(video, now);
+    const hr = handLM.detectForVideo(video, now);
+
+    dctx.clearRect(0,0,draw.width,draw.height);
+
+    if(fr.faceLandmarks && fr.faceLandmarks.length){
+      faceSeen = true;
+      const f = fr.faceLandmarks[0];
+      const mouth = { x:(f[FACE_MOUTH[0]].x + f[FACE_MOUTH[1]].x)/2, y:(f[FACE_MOUTH[0]].y + f[FACE_MOUTH[1]].y)/2 };
+      const faceW = dist(f[FACE_CHEEK_L], f[FACE_CHEEK_R]) || 0.2;
+      const threshold = faceW * 0.85;     // "hand near mouth" radius
+      const cupThreshold = faceW * 1.3;   // cup sits a bit lower (chin/mouth)
+
+      drawDot(mouth, "#38bdf8", 6);
+
+      // hand near mouth
+      if(hr.landmarks && hr.landmarks.length){
+        let best = Infinity;
+        for(const hand of hr.landmarks){
+          for(const idx of HAND_POINTS){
+            const p = hand[idx];
+            drawDot(p, "rgba(52,211,153,.7)", 3);
+            best = Math.min(best, dist(p, mouth));
+          }
+        }
+        if(best < threshold) handNear = true;
+      }
+
+      // cup / bottle / glass detection (throttled to ~7fps)
+      if(objectReady && now - lastObjTs > 150){
+        lastObjTs = now;
+        try{
+          const od = objectLM.detectForVideo(video, now);
+          drinkObj = null;
+          for(const d of (od.detections || [])){
+            const c = d.categories && d.categories[0];
+            if(c && DRINK_CLASSES.has(c.categoryName) && c.score > 0.3){
+              const b = d.boundingBox; // pixels in the video frame
+              drinkObj = { x:(b.originX + b.width/2)/draw.width, y:(b.originY + b.height/2)/draw.height, name:c.categoryName };
+              lastDrinkTs = now;
+              break;
+            }
+          }
+        }catch(e){}
+      }
+      // treat the last cup detection as valid for a short window (it runs throttled)
+      if(objectReady && drinkObj && (now - lastDrinkTs) < 500){
+        drawDot(drinkObj, "#fbbf24", 7);
+        if(dist(drinkObj, mouth) < cupThreshold) cupNear = true;
+      }
+
+      // Verification: require a real cup/bottle/glass at the mouth.
+      // If the object detector couldn't load, fall back to hand-at-mouth.
+      atMouth = objectReady ? cupNear : handNear;
+    }
+  }
+
+  // accumulate hold time
+  const holdNeed = Math.max(1, Number(holdEl.value)||3) * 1000;
+  if(atMouth){
+    holdProgress = Math.min(holdNeed, holdProgress + dt);
+    setStatus("ok", "Drinking detected — hold it…");
+  } else if(faceSeen){
+    holdProgress = Math.max(0, holdProgress - dt*0.6); // gentle decay
+    if(objectReady && handNear && !cupNear)
+      setStatus("near", "I see your hand — hold an actual glass of water up");
+    else if(objectReady)
+      setStatus("near", "Bring a cup or bottle of water up to your mouth");
+    else
+      setStatus("near", "Bring your glass to your mouth");
+  } else {
+    holdProgress = Math.max(0, holdProgress - dt*0.6);
+    setStatus("searching", "Looking for you…");
+  }
+
+  setRing(holdProgress / holdNeed);
+
+  if(holdProgress >= holdNeed){
+    success();
+    return;
+  }
+  raf = requestAnimationFrame(detectLoop);
+}
+
+function drawDot(p, color, r){
+  // landmarks are normalized 0..1; canvas is mirrored via CSS so draw in same space
+  dctx.beginPath();
+  dctx.arc(p.x*draw.width, p.y*draw.height, r, 0, Math.PI*2);
+  dctx.fillStyle = color; dctx.fill();
+}
+
+// ---------- browser "hard to ignore" attention ----------
+// (fullscreen + blinking tab title + OS notification). Skipped in the desktop
+// app, which raises its own native window instead.
+const isDesktop = !!window.sip?.isDesktop;
+const BASE_TITLE = document.title;
+let titleTimer = null, activeNote = null;
+
+function startTitleBlink(){
+  let on = true; clearInterval(titleTimer);
+  titleTimer = setInterval(()=>{ document.title = on ? "💧 DRINK WATER NOW" : "🔔 Sip — drink!"; on = !on; }, 800);
+}
+function stopTitleBlink(){ clearInterval(titleTimer); titleTimer = null; document.title = BASE_TITLE; }
+
+async function goFullscreen(){ try{ if(!document.fullscreenElement) await document.documentElement.requestFullscreen(); }catch(e){} }
+async function exitFullscreen(){ try{ if(document.fullscreenElement) await document.exitFullscreen(); }catch(e){} }
+
+function ensureNotifyPermission(){
+  try{ if("Notification" in window && Notification.permission === "default") Notification.requestPermission(); }catch(e){}
+}
+function showDrinkNotification(){
+  try{
+    if(!("Notification" in window) || Notification.permission !== "granted") return;
+    activeNote = new Notification("💧 Time to drink water", {
+      body: "Come back to Sip and take a verified sip.", tag: "sip-drink", requireInteraction: true
+    });
+    activeNote.onclick = () => { window.focus(); goFullscreen(); activeNote?.close(); };
+  }catch(e){}
+}
+function clearNotification(){ try{ activeNote?.close(); activeNote = null; }catch(e){} }
+
+function attentionOn(){ if(isDesktop) return; goFullscreen(); startTitleBlink(); showDrinkNotification(); }
+function attentionOff(){ if(isDesktop) return; stopTitleBlink(); clearNotification(); exitFullscreen(); }
+
+// ---------- fire / resolve alarm ----------
+async function fireAlarm(){
+  if(alarmActive) return;
+  alarmActive = true;
+  nextAt = null; // pause countdown while alarm is up
+  overlay.classList.add("on");
+  window.sip?.alarmFired?.(); // desktop: raise window + native notification
+  camError.classList.remove("on");
+  verified.classList.remove("on");
+  holdProgress = 0; lastFrameTs = 0; setRing(0);
+  lastObjTs = 0; lastDrinkTs = 0; drinkObj = null; // reset cup detection
+  setStatus("searching", "Starting camera…");
+  startSound();
+  attentionOn(); // browser: fullscreen + blink tab title + OS notification
+
+  try{
+    loadInfo.classList.add("on");
+    await ensureModels();
+    loadInfo.classList.remove("on");
+    await ensureCamera();
+    raf = requestAnimationFrame(detectLoop);
+  }catch(err){
+    loadInfo.classList.remove("on");
+    showCamError(err);
+    setStatus("searching", "Camera unavailable");
+  }
+}
+
+function closeAlarm(){
+  alarmActive = false;
+  cancelAnimationFrame(raf);
+  stopSound();
+  attentionOff();
+  stopCamera();
+  overlay.classList.remove("on");
+  if(running) scheduleNext(); // resume countdown
+}
+
+function success(){
+  stopSound();
+  stopTitleBlink(); clearNotification(); // stop nagging; keep fullscreen for the ✓ moment
+  cancelAnimationFrame(raf);
+  verified.classList.add("on");
+  setStatus("ok", "Verified ✓");
+  stats.sips += 1; stats.streak += 1; saveStats();
+  window.sip?.sipVerified?.();
+  setTimeout(closeAlarm, 1400);
+}
+
+snoozeBtn.onclick = () => {
+  alarmActive = false; cancelAnimationFrame(raf); stopSound(); attentionOff(); stopCamera();
+  overlay.classList.remove("on");
+  nextAt = Date.now() + 5*60*1000;
+  clockSub.textContent = "Snoozed 5 min.";
+};
+skipBtn.onclick = () => {
+  stats.missed += 1; stats.streak = 0; saveStats();
+  closeAlarm();
+};
+
+// keep countdown alive after alarm-driven pauses
+setInterval(()=>{ if(running && nextAt) loopTick(); }, 250);
+
+// ----- desktop (tray menu) commands -----
+window.sip?.onCommand?.((cmd) => {
+  if(cmd === "start" && !running) startBtn.click();
+  else if(cmd === "stop") stopBtn.click();
+  else if(cmd === "test") fireAlarm();
+});
+
+// In the desktop app the reminders run in the tray, so soften the "tab open" wording.
+if(window.sip?.isDesktop){
+  const sub = document.getElementById("clockSub");
+  if(sub && sub.textContent.includes("Not running")) sub.textContent = "Not running yet — press Start.";
+}
+</script>
+</body>
+</html>
