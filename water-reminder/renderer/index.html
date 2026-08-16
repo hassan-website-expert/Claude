@@ -332,6 +332,7 @@ startBtn.onclick = () => {
   running = true; scheduleNext();
   startBtn.disabled = true; stopBtn.disabled = false;
   clearInterval(tick); tick = setInterval(loopTick, 250); loopTick();
+  ensureNotifyPermission(); // let alarms pop over other windows
   // warm up models + camera permission early so the first alarm is instant
   ensureModels().catch(()=>{});
 };
@@ -496,6 +497,39 @@ function drawDot(p, color, r){
   dctx.fillStyle = color; dctx.fill();
 }
 
+// ---------- browser "hard to ignore" attention ----------
+// (fullscreen + blinking tab title + OS notification). Skipped in the desktop
+// app, which raises its own native window instead.
+const isDesktop = !!window.sip?.isDesktop;
+const BASE_TITLE = document.title;
+let titleTimer = null, activeNote = null;
+
+function startTitleBlink(){
+  let on = true; clearInterval(titleTimer);
+  titleTimer = setInterval(()=>{ document.title = on ? "💧 DRINK WATER NOW" : "🔔 Sip — drink!"; on = !on; }, 800);
+}
+function stopTitleBlink(){ clearInterval(titleTimer); titleTimer = null; document.title = BASE_TITLE; }
+
+async function goFullscreen(){ try{ if(!document.fullscreenElement) await document.documentElement.requestFullscreen(); }catch(e){} }
+async function exitFullscreen(){ try{ if(document.fullscreenElement) await document.exitFullscreen(); }catch(e){} }
+
+function ensureNotifyPermission(){
+  try{ if("Notification" in window && Notification.permission === "default") Notification.requestPermission(); }catch(e){}
+}
+function showDrinkNotification(){
+  try{
+    if(!("Notification" in window) || Notification.permission !== "granted") return;
+    activeNote = new Notification("💧 Time to drink water", {
+      body: "Come back to Sip and take a verified sip.", tag: "sip-drink", requireInteraction: true
+    });
+    activeNote.onclick = () => { window.focus(); goFullscreen(); activeNote?.close(); };
+  }catch(e){}
+}
+function clearNotification(){ try{ activeNote?.close(); activeNote = null; }catch(e){} }
+
+function attentionOn(){ if(isDesktop) return; goFullscreen(); startTitleBlink(); showDrinkNotification(); }
+function attentionOff(){ if(isDesktop) return; stopTitleBlink(); clearNotification(); exitFullscreen(); }
+
 // ---------- fire / resolve alarm ----------
 async function fireAlarm(){
   if(alarmActive) return;
@@ -508,6 +542,7 @@ async function fireAlarm(){
   holdProgress = 0; lastFrameTs = 0; setRing(0);
   setStatus("searching", "Starting camera…");
   startSound();
+  attentionOn(); // browser: fullscreen + blink tab title + OS notification
 
   try{
     loadInfo.classList.add("on");
@@ -526,6 +561,7 @@ function closeAlarm(){
   alarmActive = false;
   cancelAnimationFrame(raf);
   stopSound();
+  attentionOff();
   stopCamera();
   overlay.classList.remove("on");
   if(running) scheduleNext(); // resume countdown
@@ -533,6 +569,7 @@ function closeAlarm(){
 
 function success(){
   stopSound();
+  stopTitleBlink(); clearNotification(); // stop nagging; keep fullscreen for the ✓ moment
   cancelAnimationFrame(raf);
   verified.classList.add("on");
   setStatus("ok", "Verified ✓");
@@ -542,7 +579,7 @@ function success(){
 }
 
 snoozeBtn.onclick = () => {
-  alarmActive = false; cancelAnimationFrame(raf); stopSound(); stopCamera();
+  alarmActive = false; cancelAnimationFrame(raf); stopSound(); attentionOff(); stopCamera();
   overlay.classList.remove("on");
   nextAt = Date.now() + 5*60*1000;
   clockSub.textContent = "Snoozed 5 min.";
