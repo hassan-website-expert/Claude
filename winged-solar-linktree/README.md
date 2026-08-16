@@ -22,24 +22,22 @@ Open `index.html` in a browser, or deploy it to any static host:
 
 ## Editing the links
 
-All links live in one place — the `LINKS` and `SOCIALS` arrays inside the
-`<script>` tag at the bottom of `index.html`. No other code needs to change.
+All buttons live in one place — the `BUTTONS` array inside the `<script>` tag
+at the bottom of `index.html`. No other code needs to change.
 
 ```js
-const LINKS = [
-  {
-    group: "Our platforms",     // optional heading above the link
-    title: "Sparrow",
-    sub: "Compact, portable solar + storage",
-    url: "https://wingedsolar.com/",
-    icon: "sparrow",            // globe, sparrow, hawk, eagle, water, quote, mail, doc
-    accent: "#ffd166"           // any CSS color
-  },
+const BUTTONS = [
+  { label: "Winged Solar Website", url: "https://wingedsolar.com/", icon: "globe" },
+  { label: "Request a Consultation", url: "https://wingedsolar.com/", icon: "quote", cta: true },
   // ...
 ];
 ```
 
-To hide a social button, set its `url` to `""`.
+- `icon` — one of: `globe, grid, solutions, water, quote, faq, about,
+  linkedin, instagram, x, facebook, youtube, mail`
+- `cta: true` — renders the button as the highlighted gold call-to-action.
+
+To remove a button, delete its line. To reorder, move the lines.
 
 ## ⚠️ Confirm the URLs
 
@@ -50,14 +48,16 @@ to the real page and profile URLs before publishing.
 
 ## Design
 
-Matched to the Winged Solar Solutions brand:
+A clean pill-list "link in bio" page, matched to the Winged Solar brand:
 
-- Light theme with the site's steel-blue → navy hero band and a diagonal
-  white cut, echoing the homepage hero.
-- Brand palette: steel blue (`#2f8fb0` / `#21607d` / `#163a4d`) and gold
-  (`#ef8f1c` / `#f6a623`).
+- Full-bleed steel-blue → navy brand background with a soft solar glow.
+- Full-width rounded pill buttons with a left icon and centered label, plus a
+  highlighted gold "Request a Consultation" call-to-action.
+- Brand palette: steel blue (`#2f8fb0` / `#17506a` / `#0e2f3d`) and gold
+  (`#f6a623` / `#e07d10`).
 - An inline-SVG recreation of the eagle-with-solar-panel-wings + rising-sun
-  logo, so the whole page stays self-contained (no image files).
-- Links mirror the real site nav (Platforms, Solutions, Power + Water, FAQs,
-  About Us) plus a "Request Consultation" CTA, with a social row.
+  logo on a clean white plate, so the whole page stays self-contained (no
+  image files).
+- Buttons mirror the real site nav (Platforms, Solutions, Power + Water, FAQs,
+  About Us) followed by social links.
 - Fully responsive, keyboard-accessible, and honors `prefers-reduced-motion`.
