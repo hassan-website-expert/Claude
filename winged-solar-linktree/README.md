@@ -50,8 +50,14 @@ to the real page and profile URLs before publishing.
 
 ## Design
 
-- Deep-space background with a rising solar glow and subtle starfield —
-  evoking clean, off-grid, "power anywhere" energy.
-- Solar gradient (gold → amber → sunrise) as the brand accent, with a
-  clean-tech blue used for the water/integration solution.
+Matched to the Winged Solar Solutions brand:
+
+- Light theme with the site's steel-blue → navy hero band and a diagonal
+  white cut, echoing the homepage hero.
+- Brand palette: steel blue (`#2f8fb0` / `#21607d` / `#163a4d`) and gold
+  (`#ef8f1c` / `#f6a623`).
+- An inline-SVG recreation of the eagle-with-solar-panel-wings + rising-sun
+  logo, so the whole page stays self-contained (no image files).
+- Links mirror the real site nav (Platforms, Solutions, Power + Water, FAQs,
+  About Us) plus a "Request Consultation" CTA, with a social row.
 - Fully responsive, keyboard-accessible, and honors `prefers-reduced-motion`.
