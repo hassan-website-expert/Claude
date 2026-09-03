@@ -2,12 +2,24 @@
 Requires at least: 6.0
 Requires PHP: 7.4
 Requires Elementor: 3.5+
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 
-A scroll-driven cinematic hero for Mr. Tendernism, delivered as a fully editable
-Elementor widget. It recreates the pinned, scrubbed film experience — video
-crossfades, per-scene copy reveals, a "living hold" so clips never freeze,
-ambient sound, and portrait clips on phones — natively inside WordPress.
+Scroll-driven cinematic heroes for Mr. Tendernism, delivered as fully editable
+Elementor widgets. This one plugin ships TWO hero options you can trial side by
+side:
+
+* "Cinematic Hero" — the clips PLAY (and gently loop) as the pinned, scrubbed
+  timeline runs: video crossfades, per-scene copy reveals, a "living hold" so a
+  parked clip never freezes, ambient sound, portrait clips on phones.
+* "Cinematic Hero — Scroll" — the footage ITSELF is scrubbed by scroll. Every
+  frame is tied to the scroll position, so the film plays forward as you scroll
+  down and rewinds as you scroll up — it never "ends" and never loops. It is
+  intentionally text-light (the opening beat is copy-free; only the finale
+  carries the wordmark, tagline and CTA) and is tuned for maximum smoothness on
+  phones.
+
+Both are separate widgets with distinct CSS prefixes (`.th-` and `.thx-`) and
+their own engines, so you can even drop both on one page while comparing.
 
 == Installation ==
 
@@ -16,11 +28,35 @@ ambient sound, and portrait clips on phones — natively inside WordPress.
    OR copy the folder into `wp-content/plugins/`.
 2. Activate "Tendernism Cinematic Hero". Elementor must already be active.
 3. Edit a page with Elementor. In the widget panel, open the "Tendernism"
-   category and drag in "Cinematic Hero". Best placed as the first section of
-   the page (a full-width / no-padding section, no container gaps).
+   category and drag in either "Cinematic Hero" (play/loop) or
+   "Cinematic Hero — Scroll" (scroll-scrubbed). Best placed as the first section
+   of the page (a full-width / no-padding section, no container gaps).
 
-The widget ships pre-filled with the approved two-beat cut streaming from the
-current CDN, so it works the moment it is dropped in.
+Both widgets ship pre-filled with the approved two-beat cut streaming from the
+current CDN, so they work the moment they are dropped in. The scroll-scrubbed
+widget uses ALL-KEYFRAME re-encodes of those clips so seeking to any frame is
+instant.
+
+== The scroll-scrubbed widget ("Cinematic Hero — Scroll") ==
+
+* The video is never played in real time — it is SEEKED to the frame that
+  matches the scroll position. Because the clips are re-encoded all-keyframe,
+  that seek is instant, so the footage transports smoothly frame-by-frame.
+* Lenis smooths the scroll, ScrollTrigger maps it to progress, and a small
+  requestAnimationFrame loop eases the applied video time toward it — so even a
+  jerky finger drag on a phone becomes a silky, weighted film transport.
+* Motion & timing controls: "Scroll length per scene" (how much scrolling
+  transports each clip end-to-end), "Finale hold length" (extra scroll where the
+  finale holds fully on screen at the end), "Crossfade amount", and "Scrub
+  smoothing" (lower = silkier/weightier, higher = tracks the finger tighter).
+* It is text-light by default: leave a scene's headline empty for a copy-free,
+  footage-only beat. The finale reveals its copy (and draws the crown) in sync
+  with the scrub, then holds.
+* Same device-correct opening poster and full typography / colour / button /
+  crown Style controls as the play/loop widget.
+* On iOS the decoder is "warmed" (a muted play immediately paused, plus a warm
+  on first touch) so the very first scroll-seek paints a real frame rather than
+  a black one.
 
 == Editing (everything is in the Elementor panel) ==
 

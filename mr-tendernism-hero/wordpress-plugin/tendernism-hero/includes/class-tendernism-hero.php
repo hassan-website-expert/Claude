@@ -90,6 +90,16 @@ final class Plugin {
 			TENDERNISM_HERO_VERSION,
 			true
 		);
+
+		// The scroll-scrubbed variant shares the same vendor libraries but has its
+		// own engine, so it can run on the same page as the play/loop widget.
+		wp_register_script(
+			'tendernism-scroll-hero',
+			TENDERNISM_HERO_URL . 'assets/js/scroll-hero.js',
+			array( 'tendernism-gsap', 'tendernism-scrolltrigger', 'tendernism-lenis' ),
+			TENDERNISM_HERO_VERSION,
+			true
+		);
 	}
 
 	/**
@@ -103,6 +113,14 @@ final class Plugin {
 		wp_register_style(
 			'tendernism-hero',
 			TENDERNISM_HERO_URL . 'assets/css/cinematic-hero.css',
+			array(),
+			TENDERNISM_HERO_VERSION
+		);
+
+		// The scroll-scrubbed variant's styles (its own .thx- prefix).
+		wp_register_style(
+			'tendernism-scroll-hero',
+			TENDERNISM_HERO_URL . 'assets/css/scroll-hero.css',
 			array(),
 			TENDERNISM_HERO_VERSION
 		);
@@ -127,6 +145,9 @@ final class Plugin {
 	public function register_widgets( $widgets_manager ) {
 		require_once TENDERNISM_HERO_PATH . 'includes/widgets/class-cinematic-hero-widget.php';
 		$widgets_manager->register( new Widgets\Cinematic_Hero_Widget() );
+
+		require_once TENDERNISM_HERO_PATH . 'includes/widgets/class-scroll-hero-widget.php';
+		$widgets_manager->register( new Widgets\Scroll_Hero_Widget() );
 	}
 
 	/**
