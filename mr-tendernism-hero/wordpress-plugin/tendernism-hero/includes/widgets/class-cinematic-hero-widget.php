@@ -321,11 +321,11 @@ class Cinematic_Hero_Widget extends Widget_Base {
 		$this->add_control(
 			'tail_loop',
 			array(
-				'label'      => esc_html__( 'Idle tail-loop (seconds)', 'tendernism-hero' ),
+				'label'      => esc_html__( 'Keep clip alive when parked', 'tendernism-hero' ),
 				'type'       => Controls_Manager::SLIDER,
 				'range'      => array( 'px' => array( 'min' => 0, 'max' => 4, 'step' => 0.1 ) ),
 				'default'    => array( 'size' => 1.2 ),
-				'description' => esc_html__( 'When a clip finishes while its scene is still on screen, the last few seconds gently loop so it never freezes. 0 disables.', 'tendernism-hero' ),
+				'description' => esc_html__( 'When a clip finishes while its scene is still on screen, any value above 0 loops the whole clip seamlessly so it stays alive. Set to 0 to freeze on the last frame instead.', 'tendernism-hero' ),
 			)
 		);
 
@@ -925,6 +925,23 @@ class Cinematic_Hero_Widget extends Widget_Base {
 						></video>
 					<?php endforeach; ?>
 				</div>
+
+				<?php
+				// Device-correct opening poster. A <video poster> attribute cannot be
+				// media-queried, so on phones the desktop poster would flash before JS
+				// could swap it (and mobile browsers often cache that first poster).
+				// This layer chooses the right still per device via a CSS media query,
+				// then fades out once the opening clip actually plays.
+				$first  = $scenes[0];
+				$fp_d   = ! empty( $first['poster_image']['url'] ) ? $first['poster_image']['url'] : '';
+				$fp_m   = ! empty( $first['poster_image_mobile']['url'] ) ? $first['poster_image_mobile']['url'] : '';
+				if ( '' !== $fp_d || '' !== $fp_m ) :
+					$bg_d  = '' !== $fp_d ? $fp_d : $fp_m;
+					$bg_m  = '' !== $fp_m ? $fp_m : $fp_d;
+					$pstyle = "--th-poster-d:url('" . esc_url( $bg_d ) . "');--th-poster-m:url('" . esc_url( $bg_m ) . "');";
+					?>
+					<div class="th-hero__poster" data-th-poster aria-hidden="true" style="<?php echo esc_attr( $pstyle ); ?>"></div>
+				<?php endif; ?>
 
 				<?php // Continuity overlays — constant across every scene. ?>
 				<div class="th-hero__tone" aria-hidden="true"></div>

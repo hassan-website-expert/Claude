@@ -216,6 +216,13 @@
 			s.style.display = i === posterIndex ? '' : 'none';
 		} );
 
+		// The opening poster layer only matches scene 0; in the static hold hide it
+		// so it can't cover whichever frame we're holding on.
+		var staticPoster = root.querySelector( '[data-th-poster]' );
+		if ( staticPoster ) {
+			staticPoster.classList.add( 'is-hidden' );
+		}
+
 		wireSound( root );
 	}
 
@@ -351,6 +358,12 @@
 			v.load();
 		}
 
+		// When a clip finishes while its scene is still parked, loop the WHOLE clip
+		// seamlessly (native loop) rather than jump-cutting the last couple of
+		// seconds over and over — the old tail-jump read as a twitchy restart.
+		// tailLoop > 0 keeps it living; tailLoop === 0 lets it freeze on the last
+		// frame instead.
+		var keepAlive = tailLoop > 0;
 		function setActive( idx ) {
 			ensureLoaded( idx - 1 );
 			ensureLoaded( idx );
@@ -359,6 +372,7 @@
 				if ( i === idx ) {
 					try { v.currentTime = 0; } catch ( e ) {}
 					v.playbackRate = playbackRate;
+					v.loop = keepAlive;
 					var p = v.play();
 					if ( p && p.catch ) { p.catch( function () {} ); }
 				} else if ( ! v.paused ) {
@@ -369,31 +383,43 @@
 
 		var lastActive = -1;
 
-		// Living hold: loop the tail rather than freeze on the final frame.
-		var endedHandlers = videoEls.map( function ( v, i ) {
-			var handler = function () {
-				if ( i !== lastActive || tailLoop <= 0 ) {
-					return;
-				}
-				var d = v.duration;
-				if ( ! isFinite( d ) || d <= 0 ) {
-					return;
-				}
-				try { v.currentTime = Math.max( 0, d - tailLoop ); } catch ( e ) {}
-				var p = v.play();
-				if ( p && p.catch ) { p.catch( function () {} ); }
-			};
-			v.addEventListener( 'ended', handler );
-			return handler;
-		} );
+		// Fade out the device-correct opening poster once the first clip is actually
+		// showing frames (with a safety timeout in case 'playing' never fires).
+		var posterEl = root.querySelector( '[data-th-poster]' );
+		var posterHidden = false;
+		var posterTimer = 0;
+		function hidePoster() {
+			if ( posterHidden || ! posterEl ) {
+				return;
+			}
+			posterHidden = true;
+			clearTimeout( posterTimer );
+			posterEl.classList.add( 'is-hidden' );
+		}
+		if ( posterEl ) {
+			videoEls[ 0 ].addEventListener( 'playing', hidePoster, { once: true } );
+			videoEls[ 0 ].addEventListener( 'timeupdate', hidePoster, { once: true } );
+			posterTimer = setTimeout( hidePoster, 2500 );
+		}
 
 		// Give the first clip its source immediately for a fast opening frame.
 		videoEls[ 0 ].src = sourceFor( videoEls[ 0 ], mobile );
 		ensureLoaded( 0 );
 		setActive( 0 );
 
-		// When the opening clip first finishes, trigger the auto-scroll nudge.
+		// Arm the auto-scroll nudge for when the opening clip first reaches its end.
+		// The active clip now loops natively, so 'ended' won't fire in the usual
+		// case — watch the first play-through via timeupdate, with an 'ended'
+		// fallback for the freeze-on-end (tail-loop 0) case.
+		function nudgeWatch() {
+			var v = videoEls[ 0 ];
+			if ( v.duration && isFinite( v.duration ) && v.currentTime >= v.duration - 0.35 ) {
+				v.removeEventListener( 'timeupdate', nudgeWatch );
+				scheduleNudge();
+			}
+		}
 		if ( nudgeEnabled ) {
+			videoEls[ 0 ].addEventListener( 'timeupdate', nudgeWatch );
 			videoEls[ 0 ].addEventListener( 'ended', scheduleNudge, { once: true } );
 		}
 
@@ -427,13 +453,14 @@
 			st.kill();
 			master.kill();
 			clearTimeout( nudgeTimer );
+			clearTimeout( posterTimer );
 			window.removeEventListener( 'wheel', cancelNudge );
 			window.removeEventListener( 'touchmove', cancelNudge );
 			window.removeEventListener( 'keydown', cancelNudge );
 			videoEls[ 0 ].removeEventListener( 'ended', scheduleNudge );
-			endedHandlers.forEach( function ( h, i ) {
-				if ( videoEls[ i ] ) { videoEls[ i ].removeEventListener( 'ended', h ); }
-			} );
+			videoEls[ 0 ].removeEventListener( 'timeupdate', nudgeWatch );
+			videoEls[ 0 ].removeEventListener( 'playing', hidePoster );
+			videoEls[ 0 ].removeEventListener( 'timeupdate', hidePoster );
 			videoEls.forEach( function ( v ) { v.pause(); } );
 			delete root._thHeroInit;
 		};

@@ -70,6 +70,22 @@
 	backface-visibility: hidden;
 }
 
+/* ── Opening poster (device-correct, flash-free) ──────────────────────────────
+   Sits just above the video layer and below the grade overlays. The background
+   image is chosen per device by the media query below, so phones never flash the
+   desktop still. JS fades it out once the opening clip is playing. */
+.th-hero__poster {
+	position: absolute;
+	inset: 0;
+	background-image: var( --th-poster-d );
+	background-size: cover;
+	background-position: 50% 50%;
+	opacity: 1;
+	transition: opacity 0.6s ease;
+	pointer-events: none;
+}
+.th-hero__poster.is-hidden { opacity: 0; }
+
 /* ── Grade / vignette ─────────────────────────────────────────────────────── */
 .th-hero__grade {
 	position: absolute;
@@ -365,6 +381,9 @@
 /* ── Small screens ────────────────────────────────────────────────────────── */
 @media ( max-width: 640px ) {
 	.th-hero__video { object-position: 50% 50%; }
+
+	/* Use the portrait poster on phones (the whole reason the layer exists). */
+	.th-hero__poster { background-image: var( --th-poster-m ); }
 
 	/* Kill the always-on compositor work on phones — the continuous drift layers
 	   and the backdrop blur fight the scrubbed timeline and cause scroll stutter.

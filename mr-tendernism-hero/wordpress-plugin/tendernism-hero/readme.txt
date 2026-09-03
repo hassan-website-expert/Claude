@@ -2,7 +2,7 @@
 Requires at least: 6.0
 Requires PHP: 7.4
 Requires Elementor: 3.5+
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 
 A scroll-driven cinematic hero for Mr. Tendernism, delivered as a fully editable
 Elementor widget. It recreates the pinned, scrubbed film experience — video
@@ -37,8 +37,9 @@ current CDN, so it works the moment it is dropped in.
   colours, border, radius, padding, shadow).
 * Style → Crown icon: colour and size for the finale crown.
 * Content → Motion & timing: playback speed, scroll length per scene, crossfade
-  width, the idle tail-loop length (the seconds of a clip's end that gently loop
-  so it never freezes when the visitor pauses), and an "Auto-scroll when the clip
+  width, "Keep clip alive when parked" (any value above 0 loops the whole clip
+  seamlessly when a scene is held on screen; 0 freezes on the last frame), and an
+  "Auto-scroll when the clip
   ends" switch with its delay and distance — a beat after the opening clip
   finishes the page smoothly glides down a touch to hint that scrolling drives
   the story (fires once, only if still at the top, cancelled by any manual
@@ -55,10 +56,16 @@ current CDN, so it works the moment it is dropped in.
 
 * Videos stream directly from their URLs (e.g. the Higgsfield CDN). Nothing is
   re-hosted in WordPress.
-* On phones (≤640px) each scene uses its mobile (portrait) URL and mobile poster
-  if provided, chosen once at load — no mid-session src swap, so no layout shift.
-  The poster still shows instantly while the clip decodes, then the video fades
-  over it.
+* On phones (≤640px) each scene uses its mobile (portrait) URL if provided,
+  chosen once at load — no mid-session src swap, so no layout shift.
+* The opening poster is a device-correct layer chosen by a CSS media query, so
+  phones reliably show the mobile still (not the desktop one) with no flash, then
+  it fades out the moment the opening clip starts playing. (A plain <video poster>
+  attribute cannot be media-queried, which is why the desktop still used to leak
+  onto phones.)
+* When a clip finishes while its scene is still parked, the whole clip loops
+  seamlessly instead of jump-cutting the last couple of seconds; set "Keep clip
+  alive when parked" to 0 to freeze on the final frame instead.
 * Scrolling is smoothed on touch devices too (not just the mouse wheel), and the
   pinned timeline no longer re-jerks when the mobile browser's address bar shows
   or hides — so the scrubbed film stays smooth on phones. If the theme omits the
