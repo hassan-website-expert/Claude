@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="theme-color" content="#0a0705" />
+    <title>Mr. Tendernism — Crafted Through Fire. Perfected Through Patience.</title>
+    <meta
+      name="description"
+      content="Not every fire tells a story. Meet Mr. Tendernism — a cinematic documentary experience of barbecue crafted through fire and perfected through patience."
+    />
+
+    <!-- The single hero clip, preloaded for an immediate film-grade opening
+         frame and a fast LCP. One continuous cookout moment (behind the offset
+         smoker → lid lift → smoke). Each device preloads ONLY the clip it will
+         actually play: the 16:9 master on tablets/desktops, the dedicated 9:16
+         portrait reframe on phones (matching the ≤640px breakpoint the app uses
+         to choose the source). Streamed from the Higgsfield CDN. -->
+    <link
+      rel="preload"
+      as="video"
+      media="(min-width: 641px)"
+      href="https://d8j0ntlcm91z4.cloudfront.net/user_3GdMpDQKnvNT4cwozQAEb1LsUI2/hf_20260807_113431_a7b7c8de-de25-4946-8874-fbca101e4c8c.mp4"
+      type="video/mp4"
+    />
+    <link
+      rel="preload"
+      as="video"
+      media="(max-width: 640px)"
+      href="https://d8j0ntlcm91z4.cloudfront.net/user_3GdMpDQKnvNT4cwozQAEb1LsUI2/hf_20260807_140743_87816a3f-70e9-4f0d-b4f9-61e986dff8c5.mp4"
+      type="video/mp4"
+    />
+
+    <!-- Self-hosted fonts (no third-party dependency): editorial serif + clean grotesque -->
+    <link rel="preload" as="font" type="font/woff2" href="./fonts/bebasneue-400.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="./fonts/spacegrotesk-400.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="./fonts/greatvibes-normal-400.woff2" crossorigin />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

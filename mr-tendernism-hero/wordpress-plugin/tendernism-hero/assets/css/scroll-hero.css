@@ -1,0 +1,398 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Tendernism Cinematic Hero — Scroll (scroll-scrubbed variant).
+
+   A SECOND, independent widget where the video itself is scrubbed by scroll:
+   the footage never "ends" and never loops — every frame is tied to the scroll
+   position, so it plays forward as you scroll down and rewinds as you scroll up.
+   Built for maximum smoothness on phones (all-keyframe clips + rAF-lerped
+   seeking in the JS engine).
+
+   Everything is scoped under .thx-hero with its own --thx-* tokens and its own
+   class prefix, so it never collides with the play/loop "Cinematic Hero"
+   (.th-hero) or "Single Hero" (.ths-hero) widgets — all three can run at once.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.thx-hero {
+	/* Brand tokens (overridable via the widget's Colours controls). */
+	--thx-ink: #0e0b09;
+	--thx-headline: #ededea;
+	--thx-cream: #f2efe9;
+	--thx-ash: #c3bcae;
+	--thx-ash-dim: #7a7060;
+	--thx-gold: #d4a018;
+	--thx-gold-hi: #f0c95a;
+	--thx-gold-lo: #a87c12;
+	--thx-ink-on-gold: #141210;
+	--thx-line: rgba( 212, 160, 24, 0.24 );
+	--thx-gold-grad: linear-gradient( 180deg, var( --thx-gold-hi ) 0%, var( --thx-gold ) 48%, var( --thx-gold-lo ) 100% );
+
+	--thx-font-display: "Bebas Neue", "Arial Narrow", sans-serif;
+	--thx-font-script: "Great Vibes", cursive;
+	--thx-font-ui: "Space Grotesk", system-ui, -apple-system, sans-serif;
+	--thx-gutter: clamp( 1.5rem, 6vw, 7rem );
+
+	position: relative;
+	z-index: 1;
+	background: var( --thx-ink );
+	color: var( --thx-cream );
+	font-family: var( --thx-font-ui );
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+}
+
+.thx-hero * { box-sizing: border-box; }
+
+/* ── Pinned stage ─────────────────────────────────────────────────────────── */
+.thx-hero__stage {
+	position: relative;
+	width: 100%;
+	height: 100vh;
+	overflow: hidden;
+	background: var( --thx-ink );
+}
+@supports ( height: 100svh ) {
+	.thx-hero__stage { height: 100svh; }
+}
+
+/* ── Video layers ─────────────────────────────────────────────────────────── */
+/* No continuous drift animation here (unlike the play/loop widget): the motion
+   IS the scrubbed footage, so an extra compositor animation would only fight it
+   and cost frames on phones. A tiny static overscale hides any edge shimmer. */
+.thx-hero__videos {
+	position: absolute;
+	inset: 0;
+	transform: scale( 1.02 ) translateZ( 0 );
+	will-change: transform;
+}
+.thx-hero__video {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	opacity: 0;
+	will-change: opacity;
+	transform: translateZ( 0 );
+	backface-visibility: hidden;
+}
+.thx-hero__video.is-active { opacity: 1; }
+
+/* ── Opening poster (device-correct, flash-free) ──────────────────────────────
+   A <video poster> attribute cannot be media-queried, so on phones the desktop
+   still would flash before JS could swap it. This layer chooses the right still
+   per device via the media query below, then JS fades it out once the first clip
+   has decoded a frame. */
+.thx-hero__poster {
+	position: absolute;
+	inset: 0;
+	background-image: var( --thx-poster-d );
+	background-size: cover;
+	background-position: 50% 50%;
+	opacity: 1;
+	transition: opacity 0.6s ease;
+	pointer-events: none;
+	z-index: 2;
+}
+.thx-hero__poster.is-hidden { opacity: 0; }
+
+/* ── Grade / vignette ─────────────────────────────────────────────────────── */
+.thx-hero__grade {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	z-index: 4;
+	background:
+		radial-gradient( 90% 60% at 50% 108%, rgba( 200, 116, 58, 0.18 ), transparent 60% ),
+		radial-gradient( 120% 80% at 50% 42%, transparent 36%, rgba( 8, 5, 3, 0.58 ) 100% ),
+		linear-gradient( to top, rgba( 8, 5, 3, 0.74 ) 0%, transparent 34%, transparent 60%, rgba( 8, 5, 3, 0.46 ) 100% );
+}
+
+/* ── Unified warm tone ────────────────────────────────────────────────────── */
+.thx-hero__tone {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	z-index: 3;
+	mix-blend-mode: soft-light;
+	background: linear-gradient( 180deg, rgba( 212, 160, 24, 0.10 ), rgba( 120, 60, 16, 0.14 ) 60%, rgba( 20, 10, 4, 0.20 ) );
+}
+
+/* ── Grain ────────────────────────────────────────────────────────────────── */
+.thx-hero__grain {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	z-index: 5;
+	opacity: 0.05;
+	mix-blend-mode: overlay;
+	background-image: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E" );
+}
+
+/* ── Film frame ───────────────────────────────────────────────────────────── */
+.thx-hero__frame {
+	position: absolute;
+	inset: clamp( 12px, 1.6vw, 26px );
+	border: 1px solid var( --thx-line );
+	pointer-events: none;
+	z-index: 20;
+}
+
+/* ── Scene copy layers ────────────────────────────────────────────────────── */
+.thx-hero__scenes {
+	position: absolute;
+	inset: 0;
+	z-index: 15;
+	pointer-events: none;
+}
+.thx-hero__scene {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	padding: clamp( 5rem, 12vh, 9rem ) var( --thx-gutter );
+	opacity: 0; /* JS drives per-scene visibility while scrubbing. */
+}
+
+.thx-scene-copy { max-width: min( 90vw, 62rem ); display: flex; flex-direction: column; }
+.thx-scene-copy--center { margin: auto; text-align: center; align-items: center; }
+.thx-scene-copy--start  { margin-top: auto; margin-bottom: auto; margin-right: auto; text-align: left; align-items: flex-start; }
+.thx-scene-copy--end    { margin-top: auto; margin-bottom: auto; margin-left: auto; text-align: right; align-items: flex-end; }
+
+/* Copy items start hidden; the JS reveals them in sync with the scrub. In static
+   (editor / reduced-motion) mode they are shown. */
+.thx-hero:not( .thx-hero--static ) [data-thx-text] { opacity: 0; }
+
+.thx-scene-copy__eyebrow {
+	display: block;
+	font-size: clamp( 0.7rem, 1vw, 0.85rem );
+	text-transform: uppercase;
+	letter-spacing: 0.5em;
+	color: var( --thx-gold );
+	margin-bottom: clamp( 1rem, 2vh, 1.6rem );
+	padding-left: 0.5em;
+}
+
+.thx-scene-copy__title {
+	font-family: var( --thx-font-display );
+	font-weight: 400;
+	font-size: clamp( 3.2rem, 9vw, 9.5rem );
+	line-height: 0.9;
+	letter-spacing: 0.006em;
+	text-transform: uppercase;
+	margin: 0;
+	color: var( --thx-headline );
+	-webkit-text-stroke: 0.022em var( --thx-headline );
+	text-shadow: 0 2px 60px rgba( 0, 0, 0, 0.55 );
+}
+.thx-scene-copy__line { display: block; }
+.thx-scene-copy__gap { display: block; height: 0.5em; }
+.thx-scene-copy__title--name { font-size: clamp( 3rem, 8vw, 8rem ); }
+.thx-scene-copy__title--finale { font-size: clamp( 2.8rem, 6.8vw, 6.8rem ); }
+
+/* Quote variant — a quiet pull-quote rather than a title card. */
+.thx-scene-copy--quote { max-width: min( 92vw, 42rem ); }
+.thx-scene-copy--quote .thx-scene-copy__title {
+	font-family: var( --thx-font-ui );
+	font-weight: 300;
+	font-style: italic;
+	text-transform: none;
+	-webkit-text-stroke: 0;
+	font-size: clamp( 1.7rem, 4.4vw, 3.4rem );
+	line-height: 1.18;
+	letter-spacing: 0;
+	color: var( --thx-cream );
+	text-shadow: 0 2px 40px rgba( 0, 0, 0, 0.6 );
+}
+.thx-scene-copy--quote .thx-scene-copy__quote-mark {
+	display: block;
+	font-family: var( --thx-font-script );
+	font-size: clamp( 3rem, 7vw, 6rem );
+	line-height: 0.1;
+	margin-bottom: 0.5rem;
+	color: var( --thx-gold );
+	opacity: 0.9;
+}
+.thx-scene-copy--quote .thx-scene-copy__gap { height: 0.28em; }
+
+.thx-scene-copy__subtitle {
+	margin: clamp( 1.2rem, 2.6vh, 2rem ) 0 0;
+	font-size: clamp( 0.82rem, 1.15vw, 1rem );
+	font-weight: 400;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: var( --thx-ash );
+}
+.thx-scene-copy--finale .thx-scene-copy__subtitle {
+	font-family: var( --thx-font-script );
+	font-size: clamp( 1.5rem, 3vw, 2.4rem );
+	font-weight: 400;
+	letter-spacing: 0.01em;
+	text-transform: none;
+	background: var( --thx-gold-grad );
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	color: transparent;
+}
+
+/* CTA — solid gold button. */
+.thx-scene-copy__cta-wrap { margin-top: clamp( 1.8rem, 4vh, 2.6rem ); }
+.thx-scene-copy__cta {
+	pointer-events: auto;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.7em;
+	padding: 1em 1.7em;
+	font-family: var( --thx-font-ui );
+	font-size: 0.82rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	color: var( --thx-ink-on-gold );
+	background: var( --thx-gold );
+	border: 1px solid var( --thx-gold );
+	border-radius: 10px;
+	transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+}
+.thx-scene-copy__cta:hover { transform: translateY( -2px ); background: var( --thx-gold-hi ); border-color: var( --thx-gold-hi ); }
+.thx-scene-copy__cta-line { font-size: 1.05em; line-height: 1; transition: transform 0.3s ease; }
+.thx-scene-copy__cta:hover .thx-scene-copy__cta-line { transform: translate( 2px, -2px ); }
+
+.thx-scene-copy__chapter {
+	display: block;
+	margin-top: clamp( 1.4rem, 3vh, 2.2rem );
+	font-size: 0.66rem;
+	letter-spacing: 0.4em;
+	text-transform: uppercase;
+	color: var( --thx-ash-dim );
+}
+
+/* Finale crown. */
+.thx-scene-copy__crown {
+	display: block;
+	width: clamp( 56px, 7vw, 104px );
+	height: auto;
+	margin: 0 auto clamp( 0.4rem, 1.4vh, 1rem );
+	overflow: visible;
+}
+.thx-scene-copy__crown path {
+	fill: none;
+	stroke: var( --thx-gold );
+	stroke-width: 2.4;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	filter: drop-shadow( 0 2px 14px rgba( 230, 179, 78, 0.35 ) );
+}
+
+/* ── Scroll cue ───────────────────────────────────────────────────────────── */
+.thx-hero__cue {
+	position: absolute;
+	left: 50%;
+	bottom: clamp( 1.6rem, 4vh, 2.6rem );
+	transform: translateX( -50% );
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.7rem;
+	z-index: 20;
+	pointer-events: none;
+	transition: opacity 0.5s ease;
+}
+.thx-hero__cue.is-hidden { opacity: 0; }
+.thx-hero__cue-label {
+	font-size: 0.6rem;
+	letter-spacing: 0.42em;
+	text-transform: uppercase;
+	color: var( --thx-ash );
+}
+.thx-hero__cue-line {
+	width: 1px;
+	height: 46px;
+	background: linear-gradient( to bottom, var( --thx-ash ), transparent );
+	animation: thxCueDrift 2.8s ease-in-out infinite;
+	transform-origin: top;
+}
+@keyframes thxCueDrift {
+	0%, 100% { transform: scaleY( 0.4 ); opacity: 0.3; }
+	50%      { transform: scaleY( 1 );   opacity: 0.9; }
+}
+
+/* ── Sound toggle ─────────────────────────────────────────────────────────── */
+.thx-hero__sound {
+	position: absolute;
+	right: clamp( 1.2rem, 3vw, 2.4rem );
+	bottom: clamp( 1.6rem, 4vh, 2.6rem );
+	z-index: 25;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.55em;
+	padding: 0.5rem 0.9rem;
+	font-family: var( --thx-font-ui );
+	font-size: 0.62rem;
+	font-weight: 600;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+	color: var( --thx-cream );
+	background: rgba( 20, 14, 9, 0.5 );
+	border: 1px solid var( --thx-line );
+	border-radius: 999px;
+	cursor: pointer;
+	-webkit-backdrop-filter: blur( 10px );
+	backdrop-filter: blur( 10px );
+	transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+.thx-hero__sound:hover { border-color: var( --thx-gold ); color: var( --thx-gold ); }
+.thx-hero__sound.is-on { color: var( --thx-gold ); border-color: var( --thx-gold ); }
+
+.thx-hero__sound-bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.thx-hero__sound-bars span {
+	width: 2px;
+	height: 3px;
+	background: currentColor;
+	border-radius: 1px;
+}
+.thx-hero__sound.is-on .thx-hero__sound-bars span { animation: thxSoundBar 1s ease-in-out infinite; }
+.thx-hero__sound.is-on .thx-hero__sound-bars span:nth-child( 2 ) { animation-delay: 0.2s; }
+.thx-hero__sound.is-on .thx-hero__sound-bars span:nth-child( 3 ) { animation-delay: 0.4s; }
+.thx-hero__sound.is-on .thx-hero__sound-bars span:nth-child( 4 ) { animation-delay: 0.15s; }
+@keyframes thxSoundBar {
+	0%, 100% { height: 3px; }
+	50%      { height: 12px; }
+}
+
+/* ── Static fallback (editor preview / reduced motion) ────────────────────── */
+.thx-hero--static .thx-hero__cue { display: none; }
+.thx-hero--static .thx-hero__scene { opacity: 1; }
+
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
+@media ( prefers-reduced-motion: reduce ) {
+	.thx-hero__cue-line { animation: none; }
+	.thx-hero__sound.is-on .thx-hero__sound-bars span { animation: none; height: 8px; }
+}
+
+/* ── Small screens ────────────────────────────────────────────────────────── */
+@media ( max-width: 640px ) {
+	.thx-hero__video { object-position: 50% 50%; }
+
+	/* Use the portrait poster on phones (the whole reason the layer exists). */
+	.thx-hero__poster { background-image: var( --thx-poster-m ); }
+
+	/* Drop the backdrop blur on phones — it is expensive to composite while the
+	   footage is being scrubbed. */
+	.thx-hero__sound {
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
+		background: rgba( 20, 14, 9, 0.82 );
+	}
+	.thx-scene-copy,
+	.thx-scene-copy--start,
+	.thx-scene-copy--end,
+	.thx-scene-copy--center {
+		margin-left: auto;
+		margin-right: auto;
+		text-align: center;
+		align-items: center;
+		max-width: min( 92vw, 34rem );
+		padding-inline: clamp( 1rem, 6vw, 2.5rem );
+	}
+	.thx-scene-copy__cta { white-space: nowrap; }
+}
