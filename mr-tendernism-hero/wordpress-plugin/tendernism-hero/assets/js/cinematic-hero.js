@@ -50,8 +50,9 @@
 			lerp: 0.1,
 			smoothWheel: true,
 			syncTouch: true,
-			syncTouchLerp: 0.09,
-			touchInertiaMultiplier: 18,
+			syncTouchLerp: 0.08,
+			touchInertiaMultiplier: 28,
+			gestureOrientation: 'vertical',
 		} );
 		lenis.on( 'scroll', window.ScrollTrigger.update );
 		window.gsap.ticker.add( function ( time ) {
@@ -108,7 +109,7 @@
 	}
 
 	// ── Pure timeline construction (ported from heroTimeline.js) ─────────────
-	function buildSceneTextTimeline( gsap, sceneEl, isFinale ) {
+	function buildSceneTextTimeline( gsap, sceneEl, isFinale, reduceFx ) {
 		var tl = gsap.timeline();
 		var textItems = Array.prototype.slice.call( sceneEl.querySelectorAll( '[data-th-text]' ) );
 		if ( ! textItems.length ) {
@@ -125,25 +126,43 @@
 			tl.to( path, { strokeDashoffset: 0, duration: 0.5, ease: 'power1.inOut' }, start );
 		} );
 
-		tl.fromTo(
-			textItems,
-			{ autoAlpha: 0, y: 40, filter: 'blur(9px)' },
-			{ autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.34, ease: 'power2.out', stagger: 0.07 },
-			start
-		);
-
-		if ( ! isFinale ) {
-			tl.to(
+		// On phones, animating `filter: blur()` per frame is a major GPU cost and a
+		// prime cause of scroll stutter, so drop the blur there and keep the fade +
+		// rise, which reads almost identically but composites cheaply.
+		if ( reduceFx ) {
+			tl.fromTo(
 				textItems,
-				{ autoAlpha: 0, y: -30, filter: 'blur(9px)', duration: 0.24, ease: 'power2.in', stagger: 0.04 },
-				0.7
+				{ autoAlpha: 0, y: 40 },
+				{ autoAlpha: 1, y: 0, duration: 0.34, ease: 'power2.out', stagger: 0.07 },
+				start
 			);
+			if ( ! isFinale ) {
+				tl.to(
+					textItems,
+					{ autoAlpha: 0, y: -30, duration: 0.24, ease: 'power2.in', stagger: 0.04 },
+					0.7
+				);
+			}
+		} else {
+			tl.fromTo(
+				textItems,
+				{ autoAlpha: 0, y: 40, filter: 'blur(9px)' },
+				{ autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.34, ease: 'power2.out', stagger: 0.07 },
+				start
+			);
+			if ( ! isFinale ) {
+				tl.to(
+					textItems,
+					{ autoAlpha: 0, y: -30, filter: 'blur(9px)', duration: 0.24, ease: 'power2.in', stagger: 0.04 },
+					0.7
+				);
+			}
 		}
 
 		return tl;
 	}
 
-	function buildMasterTimeline( gsap, videoEls, sceneEls, crossfade ) {
+	function buildMasterTimeline( gsap, videoEls, sceneEls, crossfade, reduceFx ) {
 		var count = videoEls.length;
 		var master = gsap.timeline( { paused: true, defaults: { ease: CINEMATIC_EASE } } );
 
@@ -160,7 +179,7 @@
 				master.to( video, { autoAlpha: 0, duration: crossfade }, sceneStart + 1 - crossfade / 2 );
 			}
 			master.to( video, { scale: 1.0, duration: 1, ease: 'none' }, sceneStart );
-			master.add( buildSceneTextTimeline( gsap, sceneEls[ i ], i === count - 1 ), sceneStart );
+			master.add( buildSceneTextTimeline( gsap, sceneEls[ i ], i === count - 1, reduceFx ), sceneStart );
 		} );
 
 		return master;
@@ -272,6 +291,12 @@
 		var crossfade = num( root, 'data-crossfade', 0.66 );
 		var tailLoop = num( root, 'data-tail-loop', 1.2 );
 
+		// On phones, give each scene more scroll room so a short swipe doesn't race
+		// through a whole beat — the piece reads gentler and more controllable.
+		if ( mobile ) {
+			perScene *= 1.4;
+		}
+
 		// Post-clip auto-scroll: once the opening clip finishes, gently glide the
 		// page down a touch to hint that scrolling drives the piece. Fires once,
 		// only if the visitor is still at the very top, and any manual scroll
@@ -309,7 +334,7 @@
 			window.addEventListener( 'keydown', cancelNudge );
 		}
 
-		var master = buildMasterTimeline( gsap, videoEls, sceneEls, crossfade );
+		var master = buildMasterTimeline( gsap, videoEls, sceneEls, crossfade, mobile );
 
 		// Decode management: warm a 1-scene window, only the active clip plays.
 		var warmed = { 0: true };

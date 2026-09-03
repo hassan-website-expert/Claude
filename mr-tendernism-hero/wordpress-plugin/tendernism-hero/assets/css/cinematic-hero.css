@@ -365,6 +365,17 @@
 /* ── Small screens ────────────────────────────────────────────────────────── */
 @media ( max-width: 640px ) {
 	.th-hero__video { object-position: 50% 50%; }
+
+	/* Kill the always-on compositor work on phones — the continuous drift layers
+	   and the backdrop blur fight the scrubbed timeline and cause scroll stutter.
+	   The per-scene scale/crossfades (driven by scroll) stay intact. */
+	.th-hero__videos,
+	.th-hero__haze { animation: none; }
+	.th-hero__sound {
+		-webkit-backdrop-filter: none;
+		backdrop-filter: none;
+		background: rgba( 20, 14, 9, 0.82 );
+	}
 	.th-scene-copy,
 	.th-scene-copy--start,
 	.th-scene-copy--end,

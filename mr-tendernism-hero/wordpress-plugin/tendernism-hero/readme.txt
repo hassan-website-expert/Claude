@@ -2,7 +2,7 @@
 Requires at least: 6.0
 Requires PHP: 7.4
 Requires Elementor: 3.5+
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 
 A scroll-driven cinematic hero for Mr. Tendernism, delivered as a fully editable
 Elementor widget. It recreates the pinned, scrubbed film experience — video
@@ -63,6 +63,13 @@ current CDN, so it works the moment it is dropped in.
   pinned timeline no longer re-jerks when the mobile browser's address bar shows
   or hides — so the scrubbed film stays smooth on phones. If the theme omits the
   mobile viewport meta tag, the widget adds a standard one when it is missing.
+* Mobile performance pass: on phones (≤640px) the per-frame text blur, the
+  always-on video/haze drift animations, and the sound button's backdrop blur are
+  switched off (they are the main causes of scroll stutter on touch GPUs); the
+  scroll-driven crossfades, per-scene scale and copy reveals are unchanged. Each
+  scene is also given ~40% more scroll room on phones so a short swipe glides
+  through a beat instead of skipping it, and touch inertia is tuned for a more
+  natural fling.
 * In the Elementor editor the hero shows the opening frame statically so you can
   edit content; the full scrubbed experience runs on the live front end.
 * Visitors with "reduce motion" enabled get a static hold on the finale (the
