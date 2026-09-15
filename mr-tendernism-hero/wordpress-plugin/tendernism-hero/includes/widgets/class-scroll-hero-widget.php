@@ -66,6 +66,7 @@ class Scroll_Hero_Widget extends Widget_Base {
 	protected function register_controls() {
 		$this->register_scenes_section();
 		$this->register_motion_section();
+		$this->register_preloader_section();
 		$this->register_audio_section();
 		$this->register_chrome_section();
 		$this->register_style_section();
@@ -334,6 +335,99 @@ class Scroll_Hero_Widget extends Widget_Base {
 				'range'       => array( 'px' => array( 'min' => 0.04, 'max' => 0.5, 'step' => 0.02 ) ),
 				'default'     => array( 'size' => 0.16 ),
 				'description' => esc_html__( 'How much the film transport is eased. Lower = silkier, more weighted (a touch of lag); higher = snappier, tracks the finger more tightly.', 'tendernism-hero' ),
+			)
+		);
+
+		$this->end_controls_section();
+	}
+
+	/**
+	 * Branded preloader / smart video loading gate.
+	 */
+	private function register_preloader_section() {
+		$this->start_controls_section(
+			'section_preloader',
+			array(
+				'label' => esc_html__( 'Preloader', 'tendernism-hero' ),
+				'tab'   => Controls_Manager::TAB_CONTENT,
+			)
+		);
+
+		$this->add_control(
+			'preloader_enable',
+			array(
+				'label'        => esc_html__( 'Show branded preloader', 'tendernism-hero' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => 'yes',
+				'return_value' => 'yes',
+				'description'  => esc_html__( 'A cinematic title card covers the page on load while the opening clip preloads, then fades to reveal the hero once the footage is playable.', 'tendernism-hero' ),
+			)
+		);
+
+		$this->add_control(
+			'preloader_show_crown',
+			array(
+				'label'        => esc_html__( 'Show crown', 'tendernism-hero' ),
+				'type'         => Controls_Manager::SWITCHER,
+				'default'      => 'yes',
+				'return_value' => 'yes',
+				'condition'    => array( 'preloader_enable' => 'yes' ),
+			)
+		);
+
+		$this->add_control(
+			'preloader_title',
+			array(
+				'label'       => esc_html__( 'Title / wordmark', 'tendernism-hero' ),
+				'type'        => Controls_Manager::TEXT,
+				'dynamic'     => array( 'active' => true ),
+				'default'     => esc_html__( 'Mr. Tendernism', 'tendernism-hero' ),
+				'condition'   => array( 'preloader_enable' => 'yes' ),
+			)
+		);
+
+		$this->add_control(
+			'preloader_tagline',
+			array(
+				'label'     => esc_html__( 'Tagline', 'tendernism-hero' ),
+				'type'      => Controls_Manager::TEXT,
+				'dynamic'   => array( 'active' => true ),
+				'default'   => esc_html__( 'Good Energy. Real Moments. Good Food.', 'tendernism-hero' ),
+				'condition' => array( 'preloader_enable' => 'yes' ),
+			)
+		);
+
+		$this->add_control(
+			'preloader_cue',
+			array(
+				'label'     => esc_html__( 'Small loading label', 'tendernism-hero' ),
+				'type'      => Controls_Manager::TEXT,
+				'default'   => esc_html__( 'Loading the film', 'tendernism-hero' ),
+				'condition' => array( 'preloader_enable' => 'yes' ),
+			)
+		);
+
+		$this->add_control(
+			'preloader_max_wait',
+			array(
+				'label'       => esc_html__( 'Maximum wait (seconds)', 'tendernism-hero' ),
+				'type'        => Controls_Manager::SLIDER,
+				'range'       => array( 'px' => array( 'min' => 1, 'max' => 10, 'step' => 0.5 ) ),
+				'default'     => array( 'size' => 4 ),
+				'condition'   => array( 'preloader_enable' => 'yes' ),
+				'description' => esc_html__( 'Hard cap so slow connections are never blocked: the hero is revealed after this long even if the clip is not yet playable.', 'tendernism-hero' ),
+			)
+		);
+
+		$this->add_control(
+			'preloader_bg',
+			array(
+				'label'     => esc_html__( 'Background colour', 'tendernism-hero' ),
+				'type'      => Controls_Manager::COLOR,
+				'selectors' => array(
+					'{{WRAPPER}} .thx-preloader' => '--thx-ink: {{VALUE}};',
+				),
+				'condition' => array( 'preloader_enable' => 'yes' ),
 			)
 		);
 
@@ -848,6 +942,14 @@ class Scroll_Hero_Widget extends Widget_Base {
 		$cue_label  = isset( $settings['scroll_cue_label'] ) && '' !== $settings['scroll_cue_label']
 			? $settings['scroll_cue_label']
 			: esc_html__( 'Scroll', 'tendernism-hero' );
+
+		// Preloader (branded loading gate).
+		$pl_on    = ! isset( $settings['preloader_enable'] ) || 'yes' === $settings['preloader_enable'];
+		$pl_crown = ! isset( $settings['preloader_show_crown'] ) || 'yes' === $settings['preloader_show_crown'];
+		$pl_title = isset( $settings['preloader_title'] ) ? $settings['preloader_title'] : '';
+		$pl_tag   = isset( $settings['preloader_tagline'] ) ? $settings['preloader_tagline'] : '';
+		$pl_cue   = isset( $settings['preloader_cue'] ) ? $settings['preloader_cue'] : '';
+		$pl_wait  = (int) round( $this->num( $settings, 'preloader_max_wait', 4 ) * 1000 );
 		?>
 		<section
 			id="<?php echo esc_attr( $uid ); ?>"
@@ -859,6 +961,30 @@ class Scroll_Hero_Widget extends Widget_Base {
 			data-crossfade="<?php echo esc_attr( $crossfade ); ?>"
 			data-seek-smoothing="<?php echo esc_attr( $smoothing ); ?>"
 		>
+			<?php if ( $pl_on ) : ?>
+				<div class="thx-preloader" data-thx-preloader aria-hidden="true" role="status" data-max-wait="<?php echo esc_attr( $pl_wait ); ?>">
+					<div class="thx-preloader__smoke" aria-hidden="true"></div>
+					<div class="thx-preloader__inner">
+						<?php if ( $pl_crown ) : ?>
+							<svg class="thx-preloader__crown" viewBox="0 0 120 74" aria-hidden="true">
+								<path pathLength="1" d="M8 66 L20 22 L42 50 L60 12 L78 50 L100 22 L112 66 Z"></path>
+								<path pathLength="1" d="M8 66 L112 66"></path>
+							</svg>
+						<?php endif; ?>
+						<?php if ( '' !== $pl_title ) : ?>
+							<div class="thx-preloader__wordmark"><?php echo esc_html( $pl_title ); ?></div>
+						<?php endif; ?>
+						<?php if ( '' !== $pl_tag ) : ?>
+							<p class="thx-preloader__tagline"><?php echo esc_html( $pl_tag ); ?></p>
+						<?php endif; ?>
+						<div class="thx-preloader__bar" aria-hidden="true"><span></span></div>
+						<?php if ( '' !== $pl_cue ) : ?>
+							<span class="thx-preloader__cue"><?php echo esc_html( $pl_cue ); ?></span>
+						<?php endif; ?>
+					</div>
+				</div>
+			<?php endif; ?>
+
 			<div class="thx-hero__stage" data-thx-stage>
 
 				<div class="thx-hero__videos">

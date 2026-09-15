@@ -2,7 +2,7 @@
 Requires at least: 6.0
 Requires PHP: 7.4
 Requires Elementor: 3.5+
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 
 Scroll-driven cinematic heroes for Mr. Tendernism, delivered as fully editable
 Elementor widgets. This one plugin ships TWO hero options you can trial side by
@@ -57,6 +57,16 @@ instant.
 * On iOS the decoder is "warmed" (a muted play immediately paused, plus a warm
   on first touch) so the very first scroll-seek paints a real frame rather than
   a black one.
+* Branded preloader (smart loading gate): a cinematic Mr. Tendernism title card
+  — crown, gold wordmark, tagline, drifting smoke and an indeterminate gold
+  loading sweep, all on the black/gold brand palette — is server-rendered so it
+  paints on first load (before JavaScript). While it is shown the opening clip
+  preloads in the background; the hero is revealed the moment that footage is
+  actually playable, with a per-widget "Maximum wait" hard cap so slow
+  connections are never blocked behind it (and a CSS safety fade so it clears
+  even if scripts fail). Configure it under Content → Preloader: toggle it,
+  crown on/off, title, tagline, small loading label, the max wait, and its
+  background colour. It never shows in the Elementor editor.
 
 == Editing (everything is in the Elementor panel) ==
 

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Tendernism Cinematic Hero
  * Description: Scroll-driven cinematic heroes for Mr. Tendernism, delivered as fully editable Elementor widgets. Ships TWO options: "Cinematic Hero" (clips play/loop as you scroll) and "Cinematic Hero — Scroll" (the footage itself is scrubbed by scroll — every frame tied to the scroll position, never ends or loops). Both stream the AI-generated clips from their CDN and are built on GSAP + ScrollTrigger + Lenis.
- * Version:     1.5.0
+ * Version:     1.6.0
  * Author:      Mr. Tendernism
  * Text Domain: tendernism-hero
  * Requires PHP: 7.4
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'TENDERNISM_HERO_VERSION', '1.5.0' );
+define( 'TENDERNISM_HERO_VERSION', '1.6.0' );
 define( 'TENDERNISM_HERO_FILE', __FILE__ );
 define( 'TENDERNISM_HERO_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TENDERNISM_HERO_URL', plugin_dir_url( __FILE__ ) );

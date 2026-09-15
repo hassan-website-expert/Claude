@@ -158,7 +158,60 @@
 			poster.classList.add( 'is-hidden' );
 		}
 
+		// No loading gate in the editor / reduced-motion hold — drop the preloader.
+		removePreloader( root, true );
+
 		wireSound( root );
+	}
+
+	// ── Branded preloader / smart video loading gate ─────────────────────────
+	// The overlay is painted by the server (visible before JS), so it covers the
+	// first paint immediately. This reveals the hero once the OPENING clip is
+	// actually playable, with a hard maximum wait so slow connections are never
+	// blocked behind it.
+	function removePreloader( root, instant ) {
+		var pre = root.querySelector( '[data-thx-preloader]' );
+		if ( ! pre ) { return; }
+		pre.style.animation = 'none'; // cancel the CSS no-JS safety fade
+		var rm = function () { if ( pre && pre.parentNode ) { pre.parentNode.removeChild( pre ); } };
+		if ( instant ) { rm(); return; }
+		pre.classList.add( 'is-hidden' );
+		pre.addEventListener( 'transitionend', rm, { once: true } );
+		setTimeout( rm, 1200 );
+	}
+
+	function initPreloader( root, video ) {
+		var pre = root.querySelector( '[data-thx-preloader]' );
+		if ( ! pre ) { return; }
+		var maxWait = parseInt( pre.getAttribute( 'data-max-wait' ), 10 );
+		if ( isNaN( maxWait ) ) { maxWait = 4000; }
+		var MIN_SHOW = 700; // let the brand breathe for at least this long
+		var start = Date.now();
+		var done = false;
+		var hardTimer = 0;
+
+		function finish() {
+			if ( done ) { return; }
+			done = true;
+			clearTimeout( hardTimer );
+			var wait = Math.max( 0, MIN_SHOW - ( Date.now() - start ) );
+			setTimeout( function () {
+				removePreloader( root, false );
+				if ( window.ScrollTrigger ) { try { window.ScrollTrigger.refresh(); } catch ( e ) {} }
+			}, wait );
+		}
+
+		// Ready = the opening clip can play a stretch without stalling.
+		if ( video && video.readyState >= 3 ) {
+			finish();
+		} else if ( video ) {
+			video.addEventListener( 'canplay', finish );
+			video.addEventListener( 'canplaythrough', finish );
+			video.addEventListener( 'loadeddata', function () { if ( video.readyState >= 3 ) { finish(); } } );
+			video.addEventListener( 'error', finish );
+		}
+		// Hard cap: never let a slow/failed load block the page.
+		hardTimer = setTimeout( finish, maxWait );
 	}
 
 	// ── Ambient sound toggle ─────────────────────────────────────────────────
@@ -301,6 +354,12 @@
 		}
 		window.addEventListener( 'touchstart', gestureWarm, { passive: true, once: true } );
 		window.addEventListener( 'pointerdown', gestureWarm, { once: true } );
+
+		// Branded preloader: hold the title card until the opening clip is playable
+		// (the sources were just assigned above, so it is already downloading), then
+		// reveal the hero — capped by the widget's max-wait so slow links aren't
+		// blocked.
+		initPreloader( root, videoEls[ 0 ] );
 
 		// Crown stroke setup (drawn in sync with the reveal).
 		var crownPaths = Array.prototype.slice.call( root.querySelectorAll( '[data-thx-crown] path' ) );
@@ -513,6 +572,8 @@
 			return;
 		}
 		if ( typeof window.gsap === 'undefined' || typeof window.ScrollTrigger === 'undefined' ) {
+			// Engine can't run — don't leave the loading gate covering the page.
+			removePreloader( root, true );
 			return;
 		}
 		root._thxHeroInit = true;

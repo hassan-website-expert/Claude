@@ -396,3 +396,156 @@
 	}
 	.thx-scene-copy__cta { white-space: nowrap; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Branded preloader / smart video loading gate.
+   Server-rendered so it paints on first load (before JS). It covers the
+   viewport as a cinematic title card while the opening clip preloads, then the
+   JS fades it out once the footage is playable (or the max-wait elapses). A CSS
+   safety fade removes it even if JS never runs.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.thx-preloader {
+	position: fixed;
+	inset: 0;
+	z-index: 2147483000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	background:
+		radial-gradient( 120% 90% at 50% 38%, rgba( 60, 38, 14, 0.55 ), transparent 62% ),
+		var( --thx-ink );
+	color: var( --thx-cream );
+	opacity: 1;
+	transition: opacity 0.8s ease;
+	/* No-JS safety: fade the gate away even if the engine never runs. */
+	animation: thxPreSafety 12s forwards;
+}
+.thx-preloader.is-hidden { opacity: 0; pointer-events: none; }
+@keyframes thxPreSafety {
+	0%, 92% { opacity: 1; }
+	100%    { opacity: 0; visibility: hidden; }
+}
+
+/* Drifting smoke behind the title. */
+.thx-preloader__smoke {
+	position: absolute;
+	inset: -20%;
+	z-index: 1;
+	opacity: 0.5;
+	mix-blend-mode: screen;
+	pointer-events: none;
+	background:
+		radial-gradient( 38% 30% at 30% 72%, rgba( 224, 190, 130, 0.10 ), transparent 70% ),
+		radial-gradient( 46% 34% at 72% 40%, rgba( 200, 120, 50, 0.09 ), transparent 72% ),
+		radial-gradient( 40% 28% at 52% 86%, rgba( 120, 90, 60, 0.10 ), transparent 70% );
+	animation: thxPreSmoke 13s ease-in-out infinite alternate;
+	will-change: transform;
+}
+@keyframes thxPreSmoke {
+	from { transform: translate3d( -2%, 1%, 0 ) scale( 1.05 ); }
+	to   { transform: translate3d( 3%, -2%, 0 ) scale( 1.16 ); }
+}
+
+.thx-preloader__inner {
+	position: relative;
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: clamp( 0.7rem, 2vh, 1.3rem );
+	padding: clamp( 1.5rem, 6vw, 3rem );
+}
+
+/* Crown draws itself in (pathLength=1 normalises the stroke for pure-CSS draw). */
+.thx-preloader__crown {
+	width: clamp( 54px, 9vw, 108px );
+	height: auto;
+	overflow: visible;
+}
+.thx-preloader__crown path {
+	fill: none;
+	stroke: var( --thx-gold );
+	stroke-width: 2.4;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	filter: drop-shadow( 0 2px 16px rgba( 230, 179, 78, 0.4 ) );
+	stroke-dasharray: 1;
+	stroke-dashoffset: 1;
+	animation: thxPreDraw 2.1s ease forwards;
+}
+.thx-preloader__crown path:nth-child( 2 ) { animation-delay: 0.55s; }
+@keyframes thxPreDraw { to { stroke-dashoffset: 0; } }
+
+.thx-preloader__wordmark {
+	margin: 0;
+	font-family: var( --thx-font-display );
+	font-weight: 400;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	font-size: clamp( 2.4rem, 7vw, 5rem );
+	line-height: 1;
+	background: var( --thx-gold-grad );
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	color: transparent;
+	animation: thxPreUp 0.9s ease both;
+}
+.thx-preloader__tagline {
+	margin: 0;
+	font-family: var( --thx-font-script );
+	font-size: clamp( 1.1rem, 2.8vw, 1.9rem );
+	letter-spacing: 0.01em;
+	color: var( --thx-gold-hi );
+	opacity: 0.92;
+	animation: thxPreUp 0.9s ease 0.15s both;
+}
+@keyframes thxPreUp {
+	from { opacity: 0; transform: translateY( 14px ); }
+	to   { opacity: 1; transform: none; }
+}
+
+/* Indeterminate gold loading sweep. */
+.thx-preloader__bar {
+	position: relative;
+	width: clamp( 120px, 26vw, 220px );
+	height: 2px;
+	margin-top: clamp( 0.4rem, 1.5vh, 1rem );
+	background: rgba( 212, 160, 24, 0.18 );
+	border-radius: 2px;
+	overflow: hidden;
+}
+.thx-preloader__bar span {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 40%;
+	background: linear-gradient( 90deg, transparent, var( --thx-gold ), transparent );
+	animation: thxPreBar 1.3s ease-in-out infinite;
+}
+@keyframes thxPreBar {
+	0%   { transform: translateX( -120% ); }
+	100% { transform: translateX( 320% ); }
+}
+
+.thx-preloader__cue {
+	font-size: 0.6rem;
+	letter-spacing: 0.4em;
+	text-transform: uppercase;
+	color: var( --thx-ash-dim );
+}
+
+/* In the Elementor editor hold, never show the loading gate. */
+.thx-hero--static .thx-preloader { display: none !important; }
+
+@media ( prefers-reduced-motion: reduce ) {
+	.thx-preloader,
+	.thx-preloader__smoke,
+	.thx-preloader__bar span,
+	.thx-preloader__wordmark,
+	.thx-preloader__tagline { animation: none; }
+	.thx-preloader__crown path { animation: none; stroke-dashoffset: 0; }
+}
