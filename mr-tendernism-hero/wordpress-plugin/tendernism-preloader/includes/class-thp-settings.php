@@ -48,7 +48,10 @@ class THP_Settings {
 		$out['once_per_session'] = empty( $input['once_per_session'] ) ? 0 : 1;
 		$out['show_crown']       = empty( $input['show_crown'] ) ? 0 : 1;
 
-		$out['scope']   = ( isset( $input['scope'] ) && 'home' === $input['scope'] ) ? 'home' : 'all';
+		$out['scope']   = ( isset( $input['scope'] ) && in_array( $input['scope'], array( 'all', 'home', 'specific' ), true ) ) ? $input['scope'] : 'all';
+
+		// Normalise the specific-pages list to a clean, de-duplicated "id, id, id".
+		$out['page_ids'] = isset( $input['page_ids'] ) ? implode( ', ', thp_parse_ids( $input['page_ids'] ) ) : '';
 		$out['spinner'] = ( isset( $input['spinner'] ) && in_array( $input['spinner'], array( 'bar', 'ring', 'pulse', 'counter' ), true ) ) ? $input['spinner'] : 'bar';
 
 		$out['title']   = isset( $input['title'] ) ? sanitize_text_field( $input['title'] ) : $d['title'];
@@ -87,7 +90,15 @@ class THP_Settings {
 						<th scope="row"><?php esc_html_e( 'Where to show', 'tendernism-preloader' ); ?></th>
 						<td>
 							<label><input type="radio" name="<?php echo esc_attr( $opt ); ?>[scope]" value="all" <?php checked( $o['scope'], 'all' ); ?>> <?php esc_html_e( 'Every page', 'tendernism-preloader' ); ?></label><br>
-							<label><input type="radio" name="<?php echo esc_attr( $opt ); ?>[scope]" value="home" <?php checked( $o['scope'], 'home' ); ?>> <?php esc_html_e( 'Homepage only', 'tendernism-preloader' ); ?></label>
+							<label><input type="radio" name="<?php echo esc_attr( $opt ); ?>[scope]" value="home" <?php checked( $o['scope'], 'home' ); ?>> <?php esc_html_e( 'Homepage only', 'tendernism-preloader' ); ?></label><br>
+							<label><input type="radio" name="<?php echo esc_attr( $opt ); ?>[scope]" value="specific" <?php checked( $o['scope'], 'specific' ); ?>> <?php esc_html_e( 'Specific pages only (by ID)', 'tendernism-preloader' ); ?></label>
+						</td>
+					</tr>
+					<tr>
+						<th scope="row"><?php esc_html_e( 'Specific page IDs', 'tendernism-preloader' ); ?></th>
+						<td>
+							<input type="text" class="regular-text" name="<?php echo esc_attr( $opt ); ?>[page_ids]" value="<?php echo esc_attr( $o['page_ids'] ); ?>" placeholder="2330, 2435, 2601">
+							<p class="description"><?php esc_html_e( 'Used only when "Specific pages only" is selected above. Enter the page or post IDs to show the preloader on, separated by commas (e.g. 2330, 2435, 2601). Tip: the page ID is shown in the URL when you edit it (post=1234).', 'tendernism-preloader' ); ?></p>
 						</td>
 					</tr>
 					<tr>

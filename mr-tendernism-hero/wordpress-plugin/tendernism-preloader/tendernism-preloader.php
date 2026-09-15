@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Tendernism Preloader
  * Description: A premium, branded full-screen site preloader — the kind you see on high-end sites. Shows a cinematic Mr. Tendernism loading screen (crown, gold wordmark, tagline, drifting smoke, animated loader) on page load, then fades out once the page is ready. Completely standalone: no Elementor and no other plugin required. Configure everything under Settings → Preloader.
- * Version:     1.1.0
+ * Version:     1.2.0
  * Author:      Mr. Tendernism
  * Text Domain: tendernism-preloader
  * Requires at least: 5.2
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'TENDERNISM_PRELOADER_VERSION', '1.1.0' );
+define( 'TENDERNISM_PRELOADER_VERSION', '1.2.0' );
 define( 'TENDERNISM_PRELOADER_FILE', __FILE__ );
 define( 'TENDERNISM_PRELOADER_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TENDERNISM_PRELOADER_URL', plugin_dir_url( __FILE__ ) );
@@ -34,7 +34,8 @@ require_once TENDERNISM_PRELOADER_PATH . 'includes/class-thp-settings.php';
 function thp_default_options() {
 	return array(
 		'enabled'          => 1,
-		'scope'            => 'all',        // all | home
+		'scope'            => 'all',        // all | home | specific
+		'page_ids'         => '',           // comma-separated page/post IDs (scope = specific)
 		'once_per_session' => 0,
 		'title'            => 'Mr. Tendernism',
 		'tagline'          => 'Good Energy. Real Moments. Good Food.',
@@ -100,7 +101,33 @@ function thp_should_render() {
 	if ( 'home' === $o['scope'] && ! ( is_front_page() || is_home() ) ) {
 		return false;
 	}
+	if ( 'specific' === $o['scope'] ) {
+		$ids = thp_parse_ids( isset( $o['page_ids'] ) ? $o['page_ids'] : '' );
+		if ( empty( $ids ) ) {
+			return false; // No pages chosen -> show nowhere.
+		}
+		if ( ! in_array( (int) get_queried_object_id(), $ids, true ) ) {
+			return false;
+		}
+	}
 	return true;
+}
+
+/**
+ * Turn a comma/space separated list of IDs into an array of positive ints.
+ *
+ * @param string $raw
+ * @return int[]
+ */
+function thp_parse_ids( $raw ) {
+	$out = array();
+	foreach ( preg_split( '/[\s,]+/', (string) $raw ) as $piece ) {
+		$id = absint( $piece );
+		if ( $id > 0 ) {
+			$out[] = $id;
+		}
+	}
+	return array_values( array_unique( $out ) );
 }
 
 // ── Head: critical inline CSS (guarantees instant, flash-free cover) ──────────

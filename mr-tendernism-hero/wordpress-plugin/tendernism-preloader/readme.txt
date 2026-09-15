@@ -1,7 +1,7 @@
 === Tendernism Preloader ===
 Requires at least: 5.2
 Requires PHP: 7.0
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 
 A premium, branded full-screen site preloader — the kind you see on high-end
 sites. It shows a cinematic Mr. Tendernism loading screen (line-drawn crown, gold
@@ -43,7 +43,8 @@ just let you tailor it.
 == Settings (Settings → Preloader) ==
 
 * Enable preloader on/off.
-* Where to show: every page, or homepage only.
+* Where to show: every page, homepage only, or specific pages only (enter the
+  page/post IDs, comma-separated).
 * Show once per visit.
 * Title / wordmark, tagline, and a small loading label.
 * Crown on/off.
