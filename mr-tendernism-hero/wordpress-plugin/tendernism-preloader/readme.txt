@@ -1,7 +1,7 @@
 === Tendernism Preloader ===
 Requires at least: 5.2
 Requires PHP: 7.0
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 
 A premium, branded full-screen site preloader — the kind you see on high-end
 sites. It shows a cinematic Mr. Tendernism loading screen (line-drawn crown, gold
@@ -47,7 +47,8 @@ just let you tailor it.
 * Show once per visit.
 * Title / wordmark, tagline, and a small loading label.
 * Crown on/off.
-* Loader style: gold sweeping bar, spinning ring, or pulsing dots.
+* Loader style: gold sweeping bar, spinning ring, pulsing dots, or a number
+  counter that climbs to 100% as the page loads (with a thin progress fill).
 * Colours: background, gold, gold highlight, text (all hex).
 * Maximum wait (ms) and Minimum on screen (ms).
 
@@ -58,3 +59,6 @@ just let you tailor it.
   blocked.
 * Self-contained: one small stylesheet and one small script, only enqueued on the
   front end when the preloader is enabled for the current page.
+* The number counter is a smooth, eased estimate (browsers expose no exact
+  "page is N% loaded" figure): it crawls up over time, speeds up once the DOM is
+  parsed, and always lands on exactly 100% at the instant the page is ready.

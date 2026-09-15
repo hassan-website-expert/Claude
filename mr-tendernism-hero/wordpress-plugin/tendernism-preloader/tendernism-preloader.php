@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Tendernism Preloader
  * Description: A premium, branded full-screen site preloader — the kind you see on high-end sites. Shows a cinematic Mr. Tendernism loading screen (crown, gold wordmark, tagline, drifting smoke, animated loader) on page load, then fades out once the page is ready. Completely standalone: no Elementor and no other plugin required. Configure everything under Settings → Preloader.
- * Version:     1.0.0
+ * Version:     1.1.0
  * Author:      Mr. Tendernism
  * Text Domain: tendernism-preloader
  * Requires at least: 5.2
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // No direct access.
 }
 
-define( 'TENDERNISM_PRELOADER_VERSION', '1.0.0' );
+define( 'TENDERNISM_PRELOADER_VERSION', '1.1.0' );
 define( 'TENDERNISM_PRELOADER_FILE', __FILE__ );
 define( 'TENDERNISM_PRELOADER_PATH', plugin_dir_path( __FILE__ ) );
 define( 'TENDERNISM_PRELOADER_URL', plugin_dir_url( __FILE__ ) );
@@ -40,7 +40,7 @@ function thp_default_options() {
 		'tagline'          => 'Good Energy. Real Moments. Good Food.',
 		'cue'              => 'Loading',
 		'show_crown'       => 1,
-		'spinner'          => 'bar',        // bar | ring | pulse
+		'spinner'          => 'bar',        // bar | ring | pulse | counter
 		'bg_color'         => '#0e0b09',
 		'gold'             => '#d4a018',
 		'gold_hi'          => '#f0c95a',
@@ -184,7 +184,7 @@ function thp_render_overlay() {
 	$tagline  = isset( $o['tagline'] ) ? $o['tagline'] : '';
 	$cue      = isset( $o['cue'] ) ? $o['cue'] : '';
 	$crown    = ! empty( $o['show_crown'] );
-	$spinner  = in_array( $o['spinner'], array( 'bar', 'ring', 'pulse' ), true ) ? $o['spinner'] : 'bar';
+	$spinner  = in_array( $o['spinner'], array( 'bar', 'ring', 'pulse', 'counter' ), true ) ? $o['spinner'] : 'bar';
 	$max_wait = max( 500, (int) $o['max_wait'] );
 	$min_show = max( 0, (int) $o['min_show'] );
 	$once     = ! empty( $o['once_per_session'] ) ? '1' : '0';
@@ -213,6 +213,9 @@ function thp_render_overlay() {
 				<div class="thp-preloader__ring" aria-hidden="true"></div>
 			<?php elseif ( 'pulse' === $spinner ) : ?>
 				<div class="thp-preloader__pulse" aria-hidden="true"><span></span><span></span><span></span></div>
+			<?php elseif ( 'counter' === $spinner ) : ?>
+				<div class="thp-preloader__counter" aria-hidden="true"><span class="thp-preloader__num">0</span><span class="thp-preloader__pct">%</span></div>
+				<div class="thp-preloader__track" aria-hidden="true"><span class="thp-preloader__fill"></span></div>
 			<?php else : ?>
 				<div class="thp-preloader__bar" aria-hidden="true"><span></span></div>
 			<?php endif; ?>

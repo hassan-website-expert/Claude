@@ -49,7 +49,7 @@ class THP_Settings {
 		$out['show_crown']       = empty( $input['show_crown'] ) ? 0 : 1;
 
 		$out['scope']   = ( isset( $input['scope'] ) && 'home' === $input['scope'] ) ? 'home' : 'all';
-		$out['spinner'] = ( isset( $input['spinner'] ) && in_array( $input['spinner'], array( 'bar', 'ring', 'pulse' ), true ) ) ? $input['spinner'] : 'bar';
+		$out['spinner'] = ( isset( $input['spinner'] ) && in_array( $input['spinner'], array( 'bar', 'ring', 'pulse', 'counter' ), true ) ) ? $input['spinner'] : 'bar';
 
 		$out['title']   = isset( $input['title'] ) ? sanitize_text_field( $input['title'] ) : $d['title'];
 		$out['tagline'] = isset( $input['tagline'] ) ? sanitize_text_field( $input['tagline'] ) : $d['tagline'];
@@ -111,6 +111,7 @@ class THP_Settings {
 								<option value="bar" <?php selected( $o['spinner'], 'bar' ); ?>><?php esc_html_e( 'Gold sweeping bar', 'tendernism-preloader' ); ?></option>
 								<option value="ring" <?php selected( $o['spinner'], 'ring' ); ?>><?php esc_html_e( 'Spinning ring', 'tendernism-preloader' ); ?></option>
 								<option value="pulse" <?php selected( $o['spinner'], 'pulse' ); ?>><?php esc_html_e( 'Pulsing dots', 'tendernism-preloader' ); ?></option>
+									<option value="counter" <?php selected( $o['spinner'], 'counter' ); ?>><?php esc_html_e( 'Number counter (%)', 'tendernism-preloader' ); ?></option>
 							</select>
 						</td></tr>
 

@@ -156,6 +156,53 @@
 	50%      { transform: scale( 1 );   opacity: 1; }
 }
 
+/* ── Loader: number counter (percentage) ───────────────────────────────────── */
+.thp-preloader__counter {
+	display: flex;
+	align-items: baseline;
+	justify-content: center;
+	margin-top: clamp( 0.3rem, 1.5vh, 0.9rem );
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+	font-feature-settings: "tnum" 1;
+	color: var( --thp-gold-hi, #f0c95a );
+	text-shadow: 0 2px 22px rgba( 230, 179, 78, 0.28 );
+}
+.thp-preloader__num {
+	font-family: "Bebas Neue", "Space Grotesk", system-ui, sans-serif;
+	font-size: clamp( 2.6rem, 8vw, 4.4rem );
+	letter-spacing: 0.02em;
+	min-width: 2.6ch;
+	text-align: right;
+}
+.thp-preloader__pct {
+	font-family: "Space Grotesk", system-ui, sans-serif;
+	font-size: clamp( 0.9rem, 2.2vw, 1.4rem );
+	font-weight: 300;
+	margin-left: 0.18em;
+	opacity: 0.7;
+}
+/* Thin determinate track that fills to match the number. */
+.thp-preloader__track {
+	position: relative;
+	width: clamp( 130px, 30vw, 240px );
+	height: 2px;
+	margin-top: clamp( 0.5rem, 1.6vh, 1rem );
+	background: rgba( 212, 160, 24, 0.16 );
+	border-radius: 2px;
+	overflow: hidden;
+}
+.thp-preloader__fill {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	width: 0;
+	background: linear-gradient( 90deg, var( --thp-gold, #d4a018 ), var( --thp-gold-hi, #f0c95a ) );
+	box-shadow: 0 0 14px rgba( 230, 179, 78, 0.5 );
+	transition: width 0.12s linear;
+}
+
 @media ( prefers-reduced-motion: reduce ) {
 	.thp-preloader__smoke,
 	.thp-preloader__bar span,
@@ -164,4 +211,5 @@
 	.thp-preloader__wordmark,
 	.thp-preloader__tagline { animation: none; }
 	.thp-preloader__crown path { animation: none; stroke-dashoffset: 0; }
+	.thp-preloader__fill { transition: none; }
 }
