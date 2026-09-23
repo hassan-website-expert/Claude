@@ -232,3 +232,84 @@ A **compressed 3D model** (smoker, cleaver, or crown) that **tilts toward the cu
 Fastest path to a click-through demo: build **Concept 1 and Concept 3** as two small HTML-widget prototypes (one hero image each, no video) and let Joe compare them live.
 
 *Verification note: links gathered via search; open each to confirm current live state. Awwwards "inspiration" entries may be video captures — the live-interactive, reusable sources are #2, #3, #4, #7–#14, #15, and the Elementor plugins in section G.*
+
+---
+
+## H. More interactive effects (round 2)
+
+Ten additional, distinct interactions — all lightweight, none reliant on a frame sequence.
+
+### 24. Flashlight / spotlight cursor reveal
+- **URLs (live demos):** https://freefrontend.com/code/cursor-tracking-spotlight-reveal-effect-2026-01-26/ · https://www.awwwards.com/inspiration/hover-microinteractions-and-flashlight-cursor
+- **Interaction:** The hero sits in near-darkness; a circular **radial-gradient mask follows the cursor**, revealing the image (and inverting text) only inside the "beam."
+- **Adapt for Mr. Tendernism:** The cursor is a **lantern / glowing coal** — visitors move it across a dark pit to *discover* Mr. Tendernism, the smoker, and the headline in the glow. Instant intrigue, tiny footprint.
+- **WP/Elementor:** `✅ Easy` — CSS custom property (`--x/--y`) + `mask: radial-gradient(...)`; ~20 lines, no library.
+
+### 25. Gooey / metaball liquid cursor
+- **URLs (live):** https://askmind.co.uk/animations/demos/morph.html · https://freefrontend.com/javascript-gooey/ · https://effect-labs.com/en/pages/blog/blood-goo-metaballs-canvas.html
+- **Interaction:** Round blobs **merge and separate like mercury/liquid** via one SVG blur+contrast filter; a blob trails the cursor.
+- **Adapt:** A **BBQ-sauce / glaze** blob that oozes behind the cursor and drips off CTAs — sticky, tactile, appetite-adjacent.
+- **WP/Elementor:** `✅ Easy` — one reusable SVG filter + a little JS.
+
+### 26. Matter.js physics "toys"
+- **URLs:** https://brm.io/matter-js/ · https://www.fancycomponents.dev/docs/components/physics/gravity
+- **Interaction:** Real 2D physics — objects you can **grab, throw, and watch collide/bounce** (MouseConstraint).
+- **Adapt:** Drag-and-toss **skewers, chili peppers, charcoal briquettes, spice jars** that pile up at the bottom of the hero — a playful "pit-side" sandbox.
+- **WP/Elementor:** `⚠️ Moderate` — Matter.js + a canvas + our object sprites.
+
+### 27. Text scramble / decode on hover
+- **URLs (live):** https://gsap.com/docs/v3/Plugins/ScrambleTextPlugin/ · https://gsapvault.com/effects/text-decode
+- **Interaction:** Text **scrambles through random characters then "decodes"** into the real word on hover/scroll — cipher/terminal feel.
+- **Adapt:** Menu lines and section titles ("BRISKET", "LOW & SLOW", "TENDERNISM") **decode like a branding board** as you hover — premium, characterful, near-zero weight.
+- **WP/Elementor:** `✅ Easy` — GSAP (already in use) + ScrambleText.
+
+### 28. Image ripple / water distortion on hover
+- **URLs (live tutorials + demos):** https://tympanus.net/codrops/2021/11/22/ripple-effect-on-a-texture-with-three-js/ · https://tympanus.net/codrops/2019/10/08/creating-a-water-like-distortion-effect-with-three-js/
+- **Interaction:** Touching the image sends **ripples/waves** across it (Three.js shader).
+- **Adapt:** The hero shot **shimmers like heat-haze / rising steam** where the cursor passes — closely related to #13 but wavier; great for a "hot off the pit" feel.
+- **WP/Elementor:** `⚠️ Moderate` — Three.js + 1 image.
+
+### 29. Motion hover image distortion (nav → hero)
+- **URL (live):** https://tympanus.net/codrops/2019/10/21/how-to-create-motion-hover-effects-with-image-distortions-using-three-js/
+- **Interaction:** Hovering a **text link warps/pushes a hero image** with velocity-based distortion.
+- **Adapt:** Hovering menu items ("Ribs / Brisket / Sides") **warps and swaps the hero dish** with a smoky push — connects nav to imagery.
+- **WP/Elementor:** `⚠️ Moderate`.
+
+### 30. 3D tilt cards (parallax + glare)
+- **URLs (live):** https://micku7zu.github.io/vanilla-tilt.js/ · https://www.cssscript.com/parallax-tilt-hover-effect-card/ · https://codefronts.com/components/css-3d-tilt-hover-cards/
+- **Interaction:** Cards **tilt in 3D toward the cursor** with layered depth and a specular glare that tracks the pointer.
+- **Adapt:** **Menu / signature-plate cards** (and the "Meet the Pitmaster" card) tilt with depth and a warm glare like light off a glazed rib. Great for the personality/menu sections.
+- **WP/Elementor:** `✅ Easy` — vanilla-tilt.js (tiny), works on any Elementor card.
+
+### 31. Scroll-velocity skew marquee
+- **URLs (live):** https://codefronts.com/motion/css-infinite-marquee/scroll-velocity-reactive-marquee/ · https://motion.dev/docs/react-ticker
+- **Interaction:** A running **ticker of words that accelerates and skews (leans) with scroll speed**.
+- **Adapt:** A bold rolling band — *"SLOW SMOKED • LOW & SLOW • SEASONED RIGHT • MR. TENDERNISM"* — that whips and leans as you scroll. Signature "award-site" flourish, pure CSS/JS.
+- **WP/Elementor:** `✅ Easy`.
+
+### 32. Draggable marquee gallery (inertia)
+- **URLs (live):** https://codefronts.com/motion/css-infinite-marquee/draggable-marquee-inertia/ · https://github.com/suzubu/infinite-image-gallery-feature · https://www.framer.com/marketplace/components/scroll-gallery/
+- **Interaction:** A strip you **grab, throw, and let glide** with momentum (auto-scrolls, drag to steer, releases with inertia).
+- **Adapt:** A **"pit board" of signature plates** visitors fling through — appetite + interactivity for the menu/gallery band.
+- **WP/Elementor:** `⚠️ Moderate` — GSAP Draggable/InertiaPlugin or the Framer component.
+
+### 33. Particle image → logo assembly / repel
+- **URLs (live):** https://www.propernoun.co/articles/how-to-make-an-interactive-particle-logo-using-canvas · https://www.cssscript.com/image-interactive-particles/ · https://tympanus.net/codrops/2019/01/17/interactive-particles-with-three-js/
+- **Interaction:** An image/logo is **built from thousands of particles** that **scatter from the cursor and reform**.
+- **Adapt:** The **crown logo or Mr. Tendernism's silhouette made of glowing embers/ash** — wave the cursor and the embers scatter like blown sparks, then settle back into the mark. Memorable brand moment.
+- **WP/Elementor:** `⚠️ Moderate` — canvas particle lib + our logo/portrait as the source image.
+
+---
+
+## New concept riffs (from round 2)
+
+### Concept 8 — "Coal-Lantern Reveal" *(spotlight cursor)*
+Dark pit hero; the cursor is a glowing coal/lantern that **reveals Mr. Tendernism and the headline** only in its beam (#24). Mysterious, premium, `✅` trivial to build — a strong, cheaper cousin of the "wipe-the-smoke" idea.
+
+### Concept 9 — "Ember-Forged Logo" *(particle assembly)*
+The crown/wordmark is **forged from live embers** that scatter from the cursor and reform (#33) — a signature brand animation for the hero or loader.
+
+### Concept 10 — "Pit Sandbox" *(physics toys)*
+Hero copy sits above a shallow **physics tray of BBQ objects** (skewers, peppers, briquettes) visitors can toss around (#26) — personality-forward and genuinely fun, still no video.
+
+*Round-2 note: same verification caveat — open each link to confirm current live state. Live-interactive/reusable sources here: #24, #25, #27, #28, #29, #30, #31, #32, #33 (and the Matter.js/GSAP libraries).*
