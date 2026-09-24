@@ -1,0 +1,304 @@
+<!-- ============================================================================
+     MR. TENDERNISM — SCROLL HERO (Canvas frame-sequence, GSAP + ScrollTrigger)
+     ----------------------------------------------------------------------------
+     Paste this whole block into an Elementor "HTML" widget placed as the FIRST
+     element inside your existing hero Section/Container. It mounts a <canvas>
+     frame-sequence as the BACKGROUND of that section (behind your existing
+     headline / script / paragraph / CTAs, which stay exactly as they are).
+
+     It NEVER modifies the frame assets. It only draws them.
+
+     ── WHAT YOU MUST SET (data-* attributes on .thc below) ─────────────────────
+       data-thc-desktop   Base URL of the 80 desktop frames  (…/0001.webp)
+       data-thc-mobile    Base URL of the 80 mobile frames    (…/0001.webp)
+       data-thc-poster    Start-frame image (shown instantly, before frames load)
+       data-thc-fallback  End-frame image (reduced-motion / no-JS / load failure)
+     Optional:
+       data-thc-host       CSS selector of the section to use as the hero/pin
+                           host. Default: the closest Elementor section/container.
+       data-thc-count      Frame count per sequence (default 80)
+       data-thc-pad        Zero-pad width of the frame number (default 4 → 0001)
+       data-thc-ext        Frame extension (default webp)
+       data-thc-breakpoint Max width (px) treated as "mobile" (default 768)
+       data-thc-pin-desktop  Pinned scroll length on desktop, in vh (default 250)
+       data-thc-pin-mobile   Pinned scroll length on mobile,  in vh (default 150)
+       data-thc-preload      How many frames to eager-load first (default 15)
+     ============================================================================ -->
+
+<div class="thc"
+     data-thc
+     data-thc-desktop="/wp-content/uploads/tendernism-hero/frames/desktop/"
+     data-thc-mobile="/wp-content/uploads/tendernism-hero/frames/mobile/"
+     data-thc-poster="/wp-content/uploads/tendernism-hero/poster-start.webp"
+     data-thc-fallback="/wp-content/uploads/tendernism-hero/fallback-end.webp"
+     data-thc-count="80"
+     data-thc-pad="4"
+     data-thc-ext="webp"
+     data-thc-breakpoint="768"
+     data-thc-pin-desktop="250"
+     data-thc-pin-mobile="150"
+     data-thc-preload="15">
+</div>
+
+<style>
+/* The mount div itself takes no space; the canvas layer is injected into the host. */
+.thc { display: none; }
+
+/* Canvas layer, injected as the first child of the hero host (behind content). */
+.thc-layer {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	overflow: hidden;               /* never let the canvas cause horizontal scroll */
+	background: #100d0b;            /* neutral base while the poster/first frame paints */
+	pointer-events: none;          /* clicks pass through to the CTAs above */
+}
+.thc-layer__canvas {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+/* Poster sits ON TOP of the canvas until the first real frame is drawn, so the
+   canvas is never seen blank. On failure / reduced-motion it simply stays. */
+.thc-layer__poster {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	opacity: 1;
+	transition: opacity .5s ease;
+	will-change: opacity;
+}
+.thc-layer.is-ready .thc-layer__poster { opacity: 0; }
+
+/* Host: give it a positioning context and clip overflow; lift its real content
+   above the canvas layer. These are minimal, layout-safe rules. */
+.thc-host { position: relative; }
+.thc-host { overflow-x: clip; }        /* guard against horizontal overflow */
+.thc-host > .thc-layer { position: absolute; }
+.thc-host > *:not(.thc-layer) { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+	.thc-layer__poster { transition: none; }
+}
+</style>
+
+<!-- GSAP + ScrollTrigger (allowed CDN). If these fail to load, the hero simply
+     shows the poster/fallback and stays fully usable. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<script>
+(function () {
+	'use strict';
+
+	var mount = document.currentScript
+		? document.currentScript.parentNode.querySelector('.thc[data-thc]')
+		: document.querySelector('.thc[data-thc]');
+	if (!mount || mount.getAttribute('data-thc-init') === '1') { return; }
+	mount.setAttribute('data-thc-init', '1');
+
+	// ── Config from data-* ────────────────────────────────────────────────────
+	var d = mount.dataset;
+	var CFG = {
+		desktopBase: d.thcDesktop || '',
+		mobileBase:  d.thcMobile  || '',
+		poster:      d.thcPoster  || '',
+		fallback:    d.thcFallback|| d.thcPoster || '',
+		count:       parseInt(d.thcCount, 10) || 80,
+		pad:         parseInt(d.thcPad, 10) || 4,
+		ext:         (d.thcExt || 'webp').replace(/^\./, ''),
+		breakpoint:  parseInt(d.thcBreakpoint, 10) || 768,
+		pinDesktop:  parseInt(d.thcPinDesktop, 10) || 250,
+		pinMobile:   parseInt(d.thcPinMobile, 10) || 150,
+		preload:     parseInt(d.thcPreload, 10) || 15,
+		hostSel:     d.thcHost || ''
+	};
+
+	// ── Resolve the host (the section the canvas becomes the background of) ────
+	var host = (CFG.hostSel && mount.closest(CFG.hostSel)) ||
+		mount.closest('.elementor-section, .e-con, section, .thc-hero') ||
+		mount.parentElement;
+	if (!host) { return; }
+	host.classList.add('thc-host');
+
+	// ── Device choice — load ONLY one sequence, decided once at load ──────────
+	var isMobile = window.matchMedia('(max-width:' + (CFG.breakpoint - 1) + 'px)').matches;
+	var base = isMobile ? CFG.mobileBase : CFG.desktopBase;
+	var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+	// ── Build the canvas layer ────────────────────────────────────────────────
+	var layer = document.createElement('div');
+	layer.className = 'thc-layer';
+	var canvas = document.createElement('canvas');
+	canvas.className = 'thc-layer__canvas';
+	var poster = document.createElement('div');
+	poster.className = 'thc-layer__poster';
+	if (CFG.poster) { poster.style.backgroundImage = 'url("' + CFG.poster + '")'; }
+	layer.appendChild(canvas);
+	layer.appendChild(poster);
+	host.insertBefore(layer, host.firstChild);
+
+	var ctx = canvas.getContext('2d', { alpha: false });
+
+	function url(i) {
+		var n = String(i + 1);
+		while (n.length < CFG.pad) { n = '0' + n; }
+		return base + n + '.' + CFG.ext;
+	}
+
+	// ── Frame store ───────────────────────────────────────────────────────────
+	var imgs = new Array(CFG.count);
+	var ok   = new Array(CFG.count);     // decoded & usable
+	var current = -1;
+	var lastGood = -1;
+
+	// ── Canvas sizing (DPR-aware) + cover draw (no distortion, crops overflow) ─
+	var cw = 0, ch = 0, dpr = 1;
+	function resize() {
+		var r = host.getBoundingClientRect();
+		dpr = Math.min(window.devicePixelRatio || 1, 2);
+		cw = Math.max(1, Math.round(r.width));
+		ch = Math.max(1, Math.round(r.height));
+		canvas.width  = Math.round(cw * dpr);
+		canvas.height = Math.round(ch * dpr);
+		canvas.style.width = cw + 'px';
+		canvas.style.height = ch + 'px';
+		if (lastGood >= 0) { paint(lastGood); }
+	}
+	function paint(i) {
+		var im = imgs[i];
+		if (!im || !ok[i]) { return; }
+		var iw = im.naturalWidth, ih = im.naturalHeight;
+		if (!iw || !ih) { return; }
+		// COVER: fill the canvas, preserve aspect ratio, center, crop overflow.
+		var scale = Math.max((canvas.width) / iw, (canvas.height) / ih);
+		var dw = iw * scale, dh = ih * scale;
+		var dx = (canvas.width - dw) / 2, dy = (canvas.height - dh) / 2;
+		ctx.drawImage(im, 0, 0, iw, ih, dx, dy, dw, dh);
+		lastGood = i;
+		if (!layer.classList.contains('is-ready')) { layer.classList.add('is-ready'); }
+	}
+	// Draw requested frame, or the nearest already-decoded one (never blank/flicker).
+	function show(i) {
+		if (i === current) { return; }
+		current = i;
+		if (ok[i]) { paint(i); return; }
+		// search outward for the nearest decoded frame
+		for (var off = 1; off < CFG.count; off++) {
+			if (i - off >= 0 && ok[i - off]) { paint(i - off); return; }
+			if (i + off < CFG.count && ok[i + off]) { paint(i + off); return; }
+		}
+	}
+
+	// ── Progressive loading (never blocks the page) ───────────────────────────
+	var loadedFirst = false, hardFail = false;
+	function load(i, onFirst) {
+		if (imgs[i]) { return; }
+		var im = new Image();
+		im.decoding = 'async';
+		im.onload = function () {
+			ok[i] = true;
+			if (i === 0 && !loadedFirst) { loadedFirst = true; paint(0); if (onFirst) { onFirst(); } }
+			// If this frame is the one currently wanted, upgrade to the exact frame.
+			if (i === current) { paint(i); }
+		};
+		im.onerror = function () {
+			ok[i] = false;
+			if (i === 0) { fail(); }
+		};
+		im.src = url(i);
+		imgs[i] = im;
+	}
+	function loadRange(from, to, step, done) {
+		var i = from, pending = 0, started = false;
+		(function next() {
+			if (i > to) { if (started && pending === 0 && done) { done(); } return; }
+			var idx = i; i += step;
+			pending++; started = true;
+			var im = new Image();
+			im.decoding = 'async';
+			im.onload = function () { ok[idx] = true; if (idx === current) { paint(idx); } pending--; next(); };
+			im.onerror = function () { ok[idx] = false; if (idx === 0) { fail(); } pending--; next(); };
+			im.src = url(idx);
+			imgs[idx] = im;
+		})();
+	}
+
+	// ── Failure path: keep the poster/fallback, never a blank canvas ──────────
+	function fail() {
+		if (hardFail) { return; }
+		hardFail = true;
+		if (CFG.fallback) { poster.style.backgroundImage = 'url("' + CFG.fallback + '")'; }
+		layer.classList.remove('is-ready');   // keep poster visible over the canvas
+	}
+
+	// ── Reduced motion: no ScrollTrigger, show the static end-state poster ────
+	if (reduce) {
+		if (CFG.fallback) { poster.style.backgroundImage = 'url("' + CFG.fallback + '")'; }
+		resize();
+		window.addEventListener('resize', resize, { passive: true });
+		return; // content + CTAs remain fully usable; nothing else runs
+	}
+
+	// ── Normal path ───────────────────────────────────────────────────────────
+	resize();
+	window.addEventListener('resize', debounce(resize, 150), { passive: true });
+
+	// Frame 1 immediately as the initial state, then a small eager batch, then
+	// the remainder progressively — the page is never blocked on these.
+	load(0, function () {
+		var eager = Math.min(CFG.preload, CFG.count) - 1;
+		loadRange(1, eager, 1, function () {
+			loadRange(eager + 1, CFG.count - 1, 1); // background-fill the rest
+		});
+	});
+
+	// ScrollTrigger scrub — linear, no easing on the frame index.
+	function initScroll() {
+		if (!window.gsap || !window.ScrollTrigger) { return false; }
+		gsap.registerPlugin(ScrollTrigger);
+		var pinVh = isMobile ? CFG.pinMobile : CFG.pinDesktop;
+		var st = { current: 0 };
+		gsap.to(st, {
+			current: CFG.count - 1,
+			ease: 'none',
+			scrollTrigger: {
+				trigger: host,
+				start: 'top top',
+				end: '+=' + Math.round(window.innerHeight * (pinVh / 100)),
+				pin: true,
+				pinSpacing: true,
+				scrub: true,               // direct/linear — no artificial easing
+				anticipatePin: 1,
+				invalidateOnRefresh: true
+			},
+			onUpdate: function () {
+				var i = Math.round(st.current);
+				if (i < 0) { i = 0; } else if (i > CFG.count - 1) { i = CFG.count - 1; }
+				requestAnimationFrame(function () { show(i); });
+			}
+		});
+		// Re-measure once late frames/fonts settle.
+		window.addEventListener('load', function () { ScrollTrigger.refresh(); });
+		return true;
+	}
+	if (!initScroll()) {
+		// GSAP failed to load → static poster, page stays usable.
+		if (CFG.fallback) { poster.style.backgroundImage = 'url("' + CFG.fallback + '")'; }
+	}
+
+	function debounce(fn, ms) {
+		var t; return function () { clearTimeout(t); t = setTimeout(fn, ms); };
+	}
+})();
+</script>
+
+<noscript>
+	<!-- No JavaScript: show the static end-state so the hero is never blank. -->
+	<style>
+		.thc-host .thc-layer__canvas { display: none; }
+		.thc-host .thc-layer__poster { opacity: 1 !important; }
+	</style>
+</noscript>
